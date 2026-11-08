@@ -223,6 +223,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
       <a href="#archive"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></g></svg>الأرشيف الشهري</a>
       <a href="#reports"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M12 12v6M9 15l3 3 3-3"/></g></svg>التقارير والتصدير</a>
+      <a href="#symbols"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></svg>الرموز</a>
       <a href="#control"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></g></svg>لوحة التحكم</a>
       <a href="#settings"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></svg>الإعدادات</a>
     </nav>
@@ -267,8 +268,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["overview", "signals", "archive", "reports", "control", "settings"];
-  var TITLES = { overview: "الأداء", signals: "سجل التوصيات", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", control: "لوحة التحكم", settings: "الإعدادات" };
+  var PAGES = ["overview", "signals", "archive", "reports", "symbols", "control", "settings"];
+  var TITLES = { overview: "الأداء", signals: "سجل التوصيات", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -422,7 +423,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var cls = function (x) { return x > 0 ? "pos" : x < 0 ? "neg" : "zero"; };
 
   function filtersHtml(page) {
-    if (page === "settings" || page === "archive" || page === "control") return "";
+    if (page === "settings" || page === "archive" || page === "control" || page === "symbols") return "";
     var mk = monthKeys(), p = state.period;
     var chips = mk.map(function (k) { return '<button type="button" data-period="month:' + k + '" class="' + (p === "month:" + k ? "on" : "") + '">' + (k === monthKey(new Date()) ? "هذا الشهر · " : "") + monthName(k) + "</button>"; }).join("") +
       '<button type="button" data-period="all" class="' + (p === "all" ? "on" : "") + '">كل الفترة</button><button type="button" data-period="range" class="' + (p === "range" ? "on" : "") + '">فترة محددة</button>';
@@ -533,7 +534,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       if (f) { CTRL.sha = f.sha; try { var d = JSON.parse(unb64(f.content)); base = Object.assign(base, d, { swing: Object.assign(base.swing, d.swing || {}), quick: Object.assign(base.quick, d.quick || {}), links: Object.assign(base.links, d.links || {}) }); } catch (e) {} }
       CTRL.data = base; CTRL.err = null;
     }).catch(function (e) { CTRL.err = e && e.code ? String(e.code) : "net"; CTRL.data = CTRL.data || ctrlDefaults(); })
-      .then(function () { CTRL.loading = false; if (current === "control") render(); });
+      .then(function () { CTRL.loading = false; if (current === "control" || current === "symbols") render(); });
   }
   function saveControl(msg) {
     if (DEMO) { toast("هذا عرض تجريبي، الحفظ ما يوصل للوكيل"); render(); return; }
@@ -594,20 +595,41 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<div class="row" style="justify-content:flex-start"><button class="btn" type="submit">احفظ المشترك</button><button class="btn ghost" type="button" data-act="m-cancel">إلغاء</button></div></form>' : "";
     var members = '<div class="panel stack"><div class="row"><h2>المشتركين</h2><button class="btn ghost" type="button" data-act="m-new">+ مشترك</button></div>' +
       '<p class="note">في شهر التجربة القائمة للتجهيز بس: التوصيات توصلك أنت لين تفتح النشر.</p>' + form + (rows || '<div class="empty" style="padding:18px"><b>ما فيه مشتركين للحين</b>اضغط "+ مشترك" وأضف أول واحد، مثلاً أخوك.</div>') + "</div>";
-    var paused = c.paused || [];
-    var tick = ((DATA && DATA.tickers && DATA.tickers.list) || []).filter(function (t) { return t.verified || paused.indexOf(t.symbol) >= 0; });
-    var grp = {};
-    tick.forEach(function (t) { var k = (t.market || "us"); (grp[k] = grp[k] || []).push(t); });
-    var symRows = ["us", "sa"].filter(function (k) { return grp[k]; }).map(function (k) {
-      return "<h3>" + MKT[k] + ' <span class="note">(' + grp[k].length + ")</span></h3>" + grp[k].map(function (t) {
-        var off = paused.indexOf(t.symbol) >= 0;
-        return '<div class="mrow"><div class="who"><b>' + esc(t.name || t.symbol) + "</b><span class=\"note\">" + (t.name ? '<span class="num">' + esc(t.symbol) + "</span> · " : "") + esc(CAT[t.category] || t.category) + (t.purify != null ? " · تطهير " + t.purify + "%" : "") + "</span></div>" +
-          '<button class="btn ' + (off ? "ghost" : "") + '" type="button" data-act="sym" data-s="' + esc(t.symbol) + '" aria-pressed="' + (off ? "false" : "true") + '">' + (off ? "⏸ موقف" : "✓ مفعّل") + "</button></div>";
-      }).join("");
-    }).join("");
-    var syms = '<div class="panel stack"><h2>الرموز</h2><p class="note"><b>مفعّل:</b> إذا طلعت إشارة كويسة تنرسل التوصية. <b>موقف:</b> ما تطلع عليه توصية جديدة، والصفقات المفتوحة تكمل متابعتها. يتطبق من التشغيلة الجاية.</p>' +
-      (symRows || '<div class="empty" style="padding:18px"><b>ما فيه رموز مجازة للحين</b></div>') + "</div>";
-    return '<section class="stack">' + warn + trade + syms + links + members + "</section>";
+    return '<section class="stack">' + warn + trade + links + members + "</section>";
+  }
+
+  /* ---------- الرموز: تفعيل أو إيقاف التوصيات لكل رمز ---------- */
+  var SYMTABS = [["us", "🇺🇸 السوق الأمريكي"], ["sa", "🇸🇦 السوق السعودي"], ["gulf", "الأسهم الخليجية"], ["gold", "صناديق الذهب"]];
+  var GOLDCAT = { gold: 1, sa_gold: 1 };
+  function symRow(t, paused) {
+    var off = paused.indexOf(t.symbol) >= 0, locked = !t.verified;
+    var btn = locked ? '<span class="tag">بانتظار الحكم الشرعي</span>'
+      : '<button class="btn ' + (off ? "ghost" : "") + '" type="button" data-act="sym" data-s="' + esc(t.symbol) + '" aria-pressed="' + (off ? "false" : "true") + '">' + (off ? "⏸ موقف" : "✓ مفعّل") + "</button>";
+    return '<div class="mrow"><div class="who"><b>' + esc(t.name || t.symbol) + "</b><span class=\"note\">" + (t.name ? '<span class="num">' + esc(t.symbol) + "</span> · " : "") +
+      esc(CAT[t.category] || t.category) + (t.purify != null ? " · تطهير " + t.purify + "%" : "") + (t.source ? " · " + esc(t.source) : "") + "</span></div>" + btn + "</div>";
+  }
+  function pageSymbols() {
+    if (!CTRL.data) { loadControl(); return '<section><div class="empty"><b>جارٍ تحميل الرموز…</b></div></section>'; }
+    var tab = state.symTab || "us", paused = CTRL.data.paused || [];
+    var all = (DATA && DATA.tickers && DATA.tickers.list) || [];
+    var seg = '<div class="seg" role="tablist" aria-label="الأقسام">' + SYMTABS.map(function (x) { return '<button type="button" role="tab" data-symtab="' + x[0] + '" class="' + (tab === x[0] ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</div>";
+    var list, intro = "";
+    if (tab === "gulf") {
+      list = '<div class="empty" style="padding:18px"><b>قريب إن شاء الله</b>الأسهم الخليجية تنضاف بعد ما يرجع ملف الفحص الشرعي من المراجع.</div>';
+    } else {
+      var rows = all.filter(function (t) {
+        if (tab === "gold") return GOLDCAT[t.category];
+        return (t.market || "us") === tab && !GOLDCAT[t.category] && (t.verified || paused.indexOf(t.symbol) >= 0);
+      });
+      if (tab === "gold") intro = '<p class="note">صناديق مدعومة بذهب فعلي وشركات تعدين. اللي ما عليه حكم شرعي يبقى مقفل لين يجيزه المراجع.</p>';
+      var groups = {};
+      rows.forEach(function (t) { (groups[t.category] = groups[t.category] || []).push(t); });
+      list = Object.keys(groups).map(function (k) {
+        var g = groups[k], on = g.filter(function (t) { return t.verified && paused.indexOf(t.symbol) < 0; }).length;
+        return "<h3>" + esc(CAT[k] || k) + ' <span class="note">(' + on + " مفعّل من " + g.length + ")</span></h3>" + g.map(function (t) { return symRow(t, paused); }).join("");
+      }).join("") || '<div class="empty" style="padding:18px"><b>ما فيه رموز في هذا القسم للحين</b></div>';
+    }
+    return '<section class="stack"><div class="panel stack"><div class="row">' + seg + '</div><p class="note"><b>مفعّل:</b> إذا طلعت إشارة كويسة تنرسل التوصية. <b>موقف:</b> ما تطلع عليه توصية جديدة، والصفقات المفتوحة تكمل متابعتها. يتطبق من التشغيلة الجاية.</p>' + intro + list + "</div></section>";
   }
 
   /* ---------- التنقل ---------- */
@@ -618,14 +640,14 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     document.querySelectorAll("#nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
-    $("eyebrow").textContent = current === "settings" || current === "archive" || current === "control" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", signals: "كل توصية طلعت في الفترة ونتيجتها.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
+    $("eyebrow").textContent = current === "settings" || current === "archive" || current === "control" || current === "symbols" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
+    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", signals: "كل توصية طلعت في الفترة ونتيجتها.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
     $("demo-chip").hidden = !DEMO;
     $("filters").innerHTML = filtersHtml(current);
     var v = $("view");
     v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ overview: pageOverview, signals: pageSignals, archive: pageArchive, reports: pageReports, control: pageControl, settings: pageSettings }[current])();
+      : ({ overview: pageOverview, signals: pageSignals, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
   }
@@ -659,11 +681,12 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   }, { passive: true });
 
   document.addEventListener("click", function (e) {
-    var el = e.target.closest("[data-period],[data-strat],[data-market],[data-open],[data-export],[data-act]");
+    var el = e.target.closest("[data-period],[data-strat],[data-market],[data-symtab],[data-open],[data-export],[data-act]");
     if (!el) return;
     if (el.dataset.period) { state.period = el.dataset.period; if (state.period !== "month:" + monthKey(new Date())) store.set("sentinel.pinned", "1"); else store.del("sentinel.pinned"); saveView(); render(); return; }
     if (el.dataset.strat) { state.strat = el.dataset.strat; saveView(); render(); return; }
     if (el.dataset.market) { state.market = el.dataset.market; saveView(); render(); return; }
+    if (el.dataset.symtab) { state.symTab = el.dataset.symtab; render(); return; }
     if (el.dataset.open) { state.period = el.dataset.open; saveView(); location.hash = "overview"; render(); return; }
     if (el.dataset.export) { exportReport(el.dataset.export, el.dataset.p, el); return; }
     var a = el.dataset.act;
