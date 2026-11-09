@@ -358,6 +358,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   /* رسوم التنفيذ التقديرية: دراية 2.25$ لكل أمر (شراء وبيع = 4.50$)، والوسيط السعودي تقريباً 0.15% لكل جهة */
   var FEES = { us_per_order: 2.25, sa_pct: 0.15 };
   function feeOf(s) {
+    if (s.fees != null) return s.fees;   // العمولة المسجلة من الوكيل
     if (!s.entered) return 0;
     return (s.market || "us") === "sa" ? 2 * (s.size || 0) * FEES.sa_pct / 100 : 2 * FEES.us_per_order;
   }
@@ -455,7 +456,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return '<section><div class="grid2"><div class="panel gauge-panel"><div class="lv">نسبة النجاح · من <span class="num">' + st.decided.length + "</span> صفقة محسومة</div>" + gauge(st.rate) +
       '<span class="verdict ' + (st.rate != null && st.rate >= TARGET ? "ok" : "") + '">' + (st.rate == null ? "ما فيه صفقات محسومة للحين" : st.rate >= TARGET ? "فوق الهدف" : "تحت الهدف حالياً") + "</span>" +
       '<div class="wl"><div><b>' + st.wins + "</b>ناجحة</div><div><b>" + st.losses + "</b>خاسرة</div><div><b>" + st.open + "</b>مفتوحة</div></div></div>" +
-      '<div class="panel"><div class="kpis"><div class="kpi"><div class="k">صافي النتيجة</div><div class="v num ' + cls(st.net) + '">' + money(st.net, true) + '</div></div><div class="kpi"><div class="k">توصيات الفترة</div><div class="v num">' + st.issued.length + '</div></div><div class="kpi"><div class="k">متوسط الربح</div><div class="v num pos">' + (st.avgWin == null ? "—" : money(st.avgWin, true)) + '</div></div><div class="kpi"><div class="k">متوسط الخسارة</div><div class="v num neg">' + (st.avgLoss == null ? "—" : money(st.avgLoss, true)) + "</div></div></div>" +
+      '<div class="panel"><div class="kpis"><div class="kpi"><div class="k">الربح الإجمالي</div><div class="v num ' + cls(st.net) + '">' + money(st.net, true) + '</div></div><div class="kpi"><div class="k">توصيات الفترة</div><div class="v num">' + st.issued.length + '</div></div><div class="kpi"><div class="k">متوسط الربح</div><div class="v num pos">' + (st.avgWin == null ? "—" : money(st.avgWin, true)) + '</div></div><div class="kpi"><div class="k">متوسط الخسارة</div><div class="v num neg">' + (st.avgLoss == null ? "—" : money(st.avgLoss, true)) + "</div></div></div>" +
       (st.curve.length ? curveSvg(st.curve) : '<div class="empty" style="border:0;padding:30px 0"><b>المنحنى يبدأ مع أول صفقة محسومة</b>الصفقات المفتوحة ما تنحسب لين توصل هدف أو وقف.</div>') +
       '<div class="caption">الربح التراكمي ' + (SAR() ? "بالريال" : "بالدولار") + ' بترتيب وقت حسم كل صفقة، على صفقة <span class="num">' + money(tradeSize()) + "</span> لكل توصية.</div></div></div>" +
       '<div class="accts">' + acc + "</div></section>";
@@ -484,14 +485,14 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return filtered(range).filter(function (s) {
       var d = decidedAt(s); return s.entered !== false && DECIDED[s.status] && d && d >= range.from && d <= range.to;
     }).sort(function (a, b) { return decidedAt(a) - decidedAt(b); }).map(function (s) {
-      var profit = s.pnl || 0, rate = s.purify == null ? null : +s.purify;
+      var gross = s.pnl || 0, fee = feeOf(s), profit = gross - fee, rate = s.purify == null ? null : +s.purify;
       var amt = rate == null ? null : Math.max(profit, 0) * rate / 100;
-      return { s: s, profit: profit, rate: rate, amt: amt, net: profit - (amt || 0), at: decidedAt(s) };
+      return { s: s, gross: gross, fee: fee, profit: profit, rate: rate, amt: amt, net: profit - (amt || 0), at: decidedAt(s) };
     });
   }
   function purifySum(rows) {
-    var t = { profit: 0, amt: 0, net: 0, missing: 0, wins: 0 };
-    rows.forEach(function (r) { t.profit += r.profit; t.amt += r.amt || 0; t.net += r.net; if (r.rate == null && r.profit > 0) t.missing++; if (r.profit > 0) t.wins++; });
+    var t = { gross: 0, fee: 0, profit: 0, amt: 0, net: 0, missing: 0, wins: 0 };
+    rows.forEach(function (r) { t.gross += r.gross; t.fee += r.fee; t.profit += r.profit; t.amt += r.amt || 0; t.net += r.net; if (r.rate == null && r.profit > 0) t.missing++; if (r.profit > 0) t.wins++; });
     return t;
   }
   function weekStart(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - x.getDay()); return x; }
@@ -501,8 +502,10 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var rows = purifyRows(range), t = purifySum(rows);
     if (!rows.length) return '<section><div class="empty"><b>ما فيه صفقات محسومة في هذي الفترة</b>التطهير ينحسب لما تنقفل الصفقة على ربح.</div></section>';
     var tile = function (k, v, c) { return '<div class="panel"><small class="note">' + k + '</small><div class="num" style="font-size:1.35rem;font-weight:700" ' + (c ? 'class="' + c + '"' : "") + ">" + v + "</div></div>"; };
-    var tiles = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">' +
-      tile("الربح قبل التطهير", '<span class="' + cls(t.profit) + '">' + money(t.profit, true) + "</span>") +
+    var tiles = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(max(170px,30%),1fr));gap:12px">' +
+      tile("الربح الإجمالي", '<span class="' + cls(t.gross) + '">' + money(t.gross, true) + "</span>") +
+      tile("العمولات", money(t.fee)) +
+      tile("الصافي قبل التطهير", '<span class="' + cls(t.profit) + '">' + money(t.profit, true) + "</span>") +
       tile("مبلغ التطهير", money(t.amt)) +
       tile("الربح بعد التطهير", '<span class="' + cls(t.net) + '">' + money(t.net, true) + "</span>") +
       tile("صفقات رابحة", '<span class="num">' + t.wins + "</span>" + (t.missing ? ' <small class="note">· ' + t.missing + " بدون نسبة</small>" : "")) + "</div>";
@@ -515,13 +518,13 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var body = rows.map(function (r) {
       var s = r.s;
       return '<tr><td><b class="sym">' + esc(s.symbol) + "</b>" + (s.name ? ' <small class="note">' + esc(s.name) + "</small>" : "") + '</td><td class="n num">' + (s.shares || "—") + '</td><td class="num">' + ymd(r.at) +
-        '</td><td class="n ' + cls(r.profit) + '">' + money(r.profit, true) + '</td><td class="n num">' + (r.rate == null ? "—" : r.rate.toFixed(2) + "%") +
+        '</td><td class="n ' + cls(r.gross) + '">' + money(r.gross, true) + (r.s.pnl_source === "fills" ? "" : ' <small class="note" title="من الأسعار المخططة">*</small>') + '</td><td class="n">' + money(r.fee) + '</td><td class="n ' + cls(r.profit) + '">' + money(r.profit, true) + '</td><td class="n num">' + (r.rate == null ? "—" : r.rate.toFixed(2) + "%") +
         '</td><td class="n">' + (r.amt == null ? (r.profit > 0 ? '<small class="note">النسبة غير متوفرة</small>' : "—") : money(r.amt)) + '</td><td class="n ' + cls(r.net) + '">' + money(r.net, true) + "</td></tr>";
     }).join("");
     return '<section class="stack">' + tiles +
-      '<div class="panel stack"><h2>حسب الأسبوع</h2><div class="table-wrap"><table><thead><tr><th>الأسبوع</th><th class="n">صفقات</th><th class="n">الربح</th><th class="n">التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + wk + "</tbody></table></div></div>" +
-      '<div class="panel stack"><h2>كل صفقة</h2><div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">الكمية</th><th>الإغلاق</th><th class="n">الربح قبل</th><th class="n">نسبة التطهير</th><th class="n">مبلغ التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + body + "</tbody></table></div>" +
-      '<p class="note">مبلغ التطهير = الربح المحقق × نسبة التطهير، على الصفقات الرابحة بس (نفس طريقة حاسبة يقين وفلترنا). النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي اطلع المبلغ كل أسبوع أو شهر، أو احجزه وما تدخله في التداول.</p>' +
+      '<div class="panel stack"><h2>حسب الأسبوع</h2><div class="table-wrap"><table><thead><tr><th>الأسبوع</th><th class="n">صفقات</th><th class="n">الصافي</th><th class="n">التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + wk + "</tbody></table></div></div>" +
+      '<div class="panel stack"><h2>كل صفقة</h2><div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">الكمية</th><th>الإغلاق</th><th class="n">الربح الإجمالي</th><th class="n">العمولات</th><th class="n">الصافي</th><th class="n">نسبة التطهير</th><th class="n">مبلغ التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + body + "</tbody></table></div>" +
+      '<p class="note">الربح الإجمالي من أسعار التنفيذ الفعلية وكمياتها في Alpaca، والانزلاق داخل فيها (* = من الأسعار المخططة لأن ما فيه تنفيذ فعلي، مثل الحساب السعودي الافتراضي). الصافي = الإجمالي − العمولات (دراية 2.25$ لكل أمر، أو 0.15% للسعودي). مبلغ التطهير = الصافي × نسبة التطهير على الصفقات الرابحة بس، وهو منفصل عن العمولات. النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي اطلع المبلغ كل أسبوع أو شهر، أو احجزه وما تدخله في التداول.</p>' +
       '<div class="exports"><button class="btn" type="button" data-export="xlsx" data-p="' + esc(state.period) + '">Excel</button></div></div></section>';
   }
 
@@ -541,7 +544,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var range = periodRange();
     var st = noData(range) ? null : stats(range);
     return '<section class="stack"><div class="panel stack"><h2>تقرير ' + esc(range.label) + (state.strat === "all" ? "" : " · " + stratName(state.strat)) + '</h2>' +
-      (st ? '<p class="note">يشمل: <b>' + st.issued.length + "</b> توصية، و<b>" + st.decided.length + "</b> صفقة محسومة، ونسبة نجاح <b>" + pct(st.rate) + "</b>، وصافي <b class=\"num\">" + money(st.net, true) + "</b>، وبعد الرسوم التقديرية <b class=\"num\">" + money(st.netAfter, true) + "</b> (" + (SAR() ? "عمولة الوسيط تقريباً " + FEES.sa_pct + "% للشراء ومثلها للبيع" : "دراية " + FEES.us_per_order + "$ للشراء ومثلها للبيع") + "). اختار الفترة والنوع من فوق.</p>" + exportBtns(state.period, false) : emptyBox(range)) +
+      (st ? '<p class="note">يشمل: <b>' + st.issued.length + "</b> توصية، و<b>" + st.decided.length + "</b> صفقة محسومة، ونسبة نجاح <b>" + pct(st.rate) + "</b>، وصافي <b class=\"num\">" + money(st.net, true) + "</b>، وبعد العمولات <b class=\"num\">" + money(st.netAfter, true) + "</b> (" + (SAR() ? "عمولة الوسيط تقريباً " + FEES.sa_pct + "% للشراء ومثلها للبيع" : "دراية " + FEES.us_per_order + "$ لكل أمر منفّذ، والأرباح من أسعار التنفيذ الفعلية") + "). اختار الفترة والنوع من فوق.</p>" + exportBtns(state.period, false) : emptyBox(range)) +
       '<p class="note">التقرير فيه ملخص الفترة لكل حساب، وجدول التوصيات بنتائجها. PDF للمشاركة والسوشال ميديا، وExcel للتحليل، وWord للتعديل.</p></div>' +
       '<div class="panel"><p class="note">كل التقارير مكتوب عليها إنها <b>نتائج حساب تجريبي</b> و<b>ليست توصية أو استشارة مالية</b>، عشان تنشرها وأنت مرتاح.</p></div></section>';
   }
@@ -856,7 +859,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     if (fmt === "pdf") Promise.all([lib("jspdf"), lib("h2c")]).then(function () { return exportPdf(R); }).then(done).catch(fail);
   }
   function summaryAoa(R) {
-    var out = [["", "توصيات", "محسومة", "ناجحة", "خاسرة", "نسبة النجاح", "صافي النتيجة " + CURW(), "رسوم تقديرية " + CURW(), "الصافي بعد الرسوم " + CURW(), "رصيد الحساب " + CURW(), "تغير الرصيد " + CURW()]];
+    var out = [["", "توصيات", "محسومة", "ناجحة", "خاسرة", "نسبة النجاح", "الربح الإجمالي " + CURW(), "العمولات " + CURW(), "الصافي بعد العمولات " + CURW(), "رصيد الحساب " + CURW(), "تغير الرصيد " + CURW()]];
     R.groups.forEach(function (g) { out.push([g.name, g.st.issued.length, g.st.decided.length, g.st.wins, g.st.losses, g.st.rate == null ? "" : Math.round(g.st.rate * 100) + "%", Math.round(g.st.net * 100) / 100, Math.round(g.st.fees * 100) / 100, Math.round(g.st.netAfter * 100) / 100, g.eq ? g.eq.end : "", g.eq ? Math.round(g.eq.change * 100) / 100 : ""]); });
     return out;
   }
@@ -869,10 +872,10 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var eq = (DATA.equity || []).filter(function (e) { var d = D(e.day); return d >= R.range.from && d <= R.range.to && /^sa-/.test(e.strategy) === SAR() && (R.strat === "all" || e.strategy.replace(/^sa-/, "") === R.strat); }).map(function (e) { return [e.day, stratName(e.strategy.replace(/^sa-/, "")), e.equity]; });
     var s3 = X.utils.aoa_to_sheet([["اليوم", "الحساب", "الرصيد " + CURW()]].concat(eq));
     var pr = purifyRows(R.range), pt = purifySum(pr), r2 = function (x) { return x == null ? "" : Math.round(x * 100) / 100; };
-    var s4 = X.utils.aoa_to_sheet([["السهم", "الاسم", "عدد الأسهم", "تاريخ الإغلاق", "الربح قبل التطهير " + CURW(), "نسبة التطهير %", "مبلغ التطهير " + CURW(), "الربح بعد التطهير " + CURW()]].concat(pr.map(function (r) {
-      return [r.s.symbol, r.s.name || "", r.s.shares || "", ymd(r.at), r2(r.profit), r.rate == null ? "غير متوفرة" : r.rate, r2(r.amt), r2(r.net)];
-    })).concat([[], ["الإجمالي", "", "", "", r2(pt.profit), "", r2(pt.amt), r2(pt.net)]]));
-    s4["!cols"] = [{ wch: 9 }, { wch: 22 }, { wch: 10 }, { wch: 13 }, { wch: 18 }, { wch: 13 }, { wch: 16 }, { wch: 18 }];
+    var s4 = X.utils.aoa_to_sheet([["السهم", "الاسم", "عدد الأسهم", "تاريخ الإغلاق", "سعر الدخول", "سعر الخروج", "مصدر الأسعار", "الربح الإجمالي " + CURW(), "العمولات " + CURW(), "الصافي " + CURW(), "نسبة التطهير %", "مبلغ التطهير " + CURW(), "بعد التطهير " + CURW()]].concat(pr.map(function (r) {
+      return [r.s.symbol, r.s.name || "", r.s.shares || "", ymd(r.at), r.s.entry, r.s.exit_price == null ? "" : r.s.exit_price, r.s.pnl_source === "fills" ? "تنفيذ فعلي" : "أسعار مخططة", r2(r.gross), r2(r.fee), r2(r.profit), r.rate == null ? "غير متوفرة" : r.rate, r2(r.amt), r2(r.net)];
+    })).concat([[], ["الإجمالي", "", "", "", "", "", "", r2(pt.gross), r2(pt.fee), r2(pt.profit), "", r2(pt.amt), r2(pt.net)]]));
+    s4["!cols"] = [{ wch: 9 }, { wch: 22 }, { wch: 10 }, { wch: 13 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 13 }, { wch: 13 }, { wch: 14 }, { wch: 14 }];
     X.utils.book_append_sheet(wb, s1, "الملخص"); X.utils.book_append_sheet(wb, s2, "التوصيات"); X.utils.book_append_sheet(wb, s3, "الرصيد اليومي"); X.utils.book_append_sheet(wb, s4, "التطهير");
     wb.Workbook = { Views: [{ RTL: true }] };
     var out = X.write(wb, { bookType: "xlsx", type: "array" });
