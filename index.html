@@ -486,7 +486,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       var d = decidedAt(s); return s.entered !== false && DECIDED[s.status] && d && d >= range.from && d <= range.to;
     }).sort(function (a, b) { return decidedAt(a) - decidedAt(b); }).map(function (s) {
       var gross = s.pnl || 0, fee = feeOf(s), profit = gross - fee, rate = s.purify == null ? null : +s.purify;
-      var amt = rate == null ? null : Math.max(profit, 0) * rate / 100;
+      var amt = rate == null ? null : Math.max(gross, 0) * rate / 100;   // احتياطاً: على الربح الإجمالي قبل العمولات
       return { s: s, gross: gross, fee: fee, profit: profit, rate: rate, amt: amt, net: profit - (amt || 0), at: decidedAt(s) };
     });
   }
@@ -524,7 +524,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return '<section class="stack">' + tiles +
       '<div class="panel stack"><h2>حسب الأسبوع</h2><div class="table-wrap"><table><thead><tr><th>الأسبوع</th><th class="n">صفقات</th><th class="n">الصافي</th><th class="n">التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + wk + "</tbody></table></div></div>" +
       '<div class="panel stack"><h2>كل صفقة</h2><div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">الكمية</th><th>الإغلاق</th><th class="n">الربح الإجمالي</th><th class="n">العمولات</th><th class="n">الصافي</th><th class="n">نسبة التطهير</th><th class="n">مبلغ التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + body + "</tbody></table></div>" +
-      '<p class="note">الربح الإجمالي من أسعار التنفيذ الفعلية وكمياتها في Alpaca، والانزلاق داخل فيها (* = من الأسعار المخططة لأن ما فيه تنفيذ فعلي، مثل الحساب السعودي الافتراضي). الصافي = الإجمالي − العمولات (دراية 2.25$ لكل أمر، أو 0.15% للسعودي). مبلغ التطهير = الصافي × نسبة التطهير على الصفقات الرابحة بس، وهو منفصل عن العمولات. النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي اطلع المبلغ كل أسبوع أو شهر، أو احجزه وما تدخله في التداول.</p>' +
+      '<p class="note">الربح الإجمالي من أسعار التنفيذ الفعلية وكمياتها في Alpaca، والانزلاق داخل فيها (* = من الأسعار المخططة لأن ما فيه تنفيذ فعلي، مثل الحساب السعودي الافتراضي). الصافي = الإجمالي − العمولات (دراية 2.25$ لكل أمر، أو 0.15% للسعودي). مبلغ التطهير = الربح الإجمالي (قبل العمولات، احتياطاً) × نسبة التطهير، على الصفقات الرابحة بس، وهو منفصل عن العمولات. النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي: آخر كل شهر اطلع مجموع التطهير كامل قبل ما تبدأ تداول الشهر اللي بعده.</p>' +
       '<div class="exports"><button class="btn" type="button" data-export="xlsx" data-p="' + esc(state.period) + '">Excel</button></div></div></section>';
   }
 
