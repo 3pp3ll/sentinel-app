@@ -226,6 +226,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     <nav class="nav" id="nav">
       <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
       <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
+      <a href="#purify"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg>التطهير</a>
       <a href="#archive"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></g></svg>الأرشيف الشهري</a>
       <a href="#reports"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M12 12v6M9 15l3 3 3-3"/></g></svg>التقارير والتصدير</a>
       <a href="#symbols"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></svg>الرموز</a>
@@ -273,8 +274,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["overview", "signals", "archive", "reports", "symbols", "control", "settings"];
-  var TITLES = { overview: "الأداء", signals: "سجل التوصيات", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
+  var PAGES = ["overview", "signals", "purify", "archive", "reports", "symbols", "control", "settings"];
+  var TITLES = { overview: "الأداء", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -478,6 +479,52 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return '<section><div class="table-wrap"><table><thead><tr><th>#</th><th>السهم</th><th>النوع</th><th class="n">الدخول</th><th class="n">الهدف</th><th class="n">البعيد</th><th class="n">الوقف</th><th>الحالة</th><th class="n">النتيجة</th><th>التاريخ</th></tr></thead><tbody>' + signalRows(list) + "</tbody></table></div></section>";
   }
 
+  /* ---------- التطهير: نسبة التطهير على الربح المحقق لكل صفقة (طريقة يقين وفلترنا) ---------- */
+  function purifyRows(range) {
+    return filtered(range).filter(function (s) {
+      var d = decidedAt(s); return s.entered !== false && DECIDED[s.status] && d && d >= range.from && d <= range.to;
+    }).sort(function (a, b) { return decidedAt(a) - decidedAt(b); }).map(function (s) {
+      var profit = s.pnl || 0, rate = s.purify == null ? null : +s.purify;
+      var amt = rate == null ? null : Math.max(profit, 0) * rate / 100;
+      return { s: s, profit: profit, rate: rate, amt: amt, net: profit - (amt || 0), at: decidedAt(s) };
+    });
+  }
+  function purifySum(rows) {
+    var t = { profit: 0, amt: 0, net: 0, missing: 0, wins: 0 };
+    rows.forEach(function (r) { t.profit += r.profit; t.amt += r.amt || 0; t.net += r.net; if (r.rate == null && r.profit > 0) t.missing++; if (r.profit > 0) t.wins++; });
+    return t;
+  }
+  function weekStart(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - x.getDay()); return x; }
+  function pagePurify() {
+    var range = periodRange();
+    if (noData(range)) return emptyBox(range);
+    var rows = purifyRows(range), t = purifySum(rows);
+    if (!rows.length) return '<section><div class="empty"><b>ما فيه صفقات محسومة في هذي الفترة</b>التطهير ينحسب لما تنقفل الصفقة على ربح.</div></section>';
+    var tile = function (k, v, c) { return '<div class="panel"><small class="note">' + k + '</small><div class="num" style="font-size:1.35rem;font-weight:700" ' + (c ? 'class="' + c + '"' : "") + ">" + v + "</div></div>"; };
+    var tiles = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">' +
+      tile("الربح قبل التطهير", '<span class="' + cls(t.profit) + '">' + money(t.profit, true) + "</span>") +
+      tile("مبلغ التطهير", money(t.amt)) +
+      tile("الربح بعد التطهير", '<span class="' + cls(t.net) + '">' + money(t.net, true) + "</span>") +
+      tile("صفقات رابحة", '<span class="num">' + t.wins + "</span>" + (t.missing ? ' <small class="note">· ' + t.missing + " بدون نسبة</small>" : "")) + "</div>";
+    var weeks = {};
+    rows.forEach(function (r) { var k = ymd(weekStart(r.at)); (weeks[k] = weeks[k] || []).push(r); });
+    var wk = Object.keys(weeks).sort().map(function (k) {
+      var w = purifySum(weeks[k]);
+      return "<tr><td>أسبوع <span class=\"num\">" + k + '</span></td><td class="n">' + weeks[k].length + '</td><td class="n ' + cls(w.profit) + '">' + money(w.profit, true) + '</td><td class="n">' + money(w.amt) + '</td><td class="n ' + cls(w.net) + '">' + money(w.net, true) + "</td></tr>";
+    }).join("");
+    var body = rows.map(function (r) {
+      var s = r.s;
+      return '<tr><td><b class="sym">' + esc(s.symbol) + "</b>" + (s.name ? ' <small class="note">' + esc(s.name) + "</small>" : "") + '</td><td class="n num">' + (s.shares || "—") + '</td><td class="num">' + ymd(r.at) +
+        '</td><td class="n ' + cls(r.profit) + '">' + money(r.profit, true) + '</td><td class="n num">' + (r.rate == null ? "—" : r.rate.toFixed(2) + "%") +
+        '</td><td class="n">' + (r.amt == null ? (r.profit > 0 ? '<small class="note">النسبة غير متوفرة</small>' : "—") : money(r.amt)) + '</td><td class="n ' + cls(r.net) + '">' + money(r.net, true) + "</td></tr>";
+    }).join("");
+    return '<section class="stack">' + tiles +
+      '<div class="panel stack"><h2>حسب الأسبوع</h2><div class="table-wrap"><table><thead><tr><th>الأسبوع</th><th class="n">صفقات</th><th class="n">الربح</th><th class="n">التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + wk + "</tbody></table></div></div>" +
+      '<div class="panel stack"><h2>كل صفقة</h2><div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">الكمية</th><th>الإغلاق</th><th class="n">الربح قبل</th><th class="n">نسبة التطهير</th><th class="n">مبلغ التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + body + "</tbody></table></div>" +
+      '<p class="note">مبلغ التطهير = الربح المحقق × نسبة التطهير، على الصفقات الرابحة بس (نفس طريقة حاسبة يقين وفلترنا). النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي اطلع المبلغ كل أسبوع أو شهر، أو احجزه وما تدخله في التداول.</p>' +
+      '<div class="exports"><button class="btn" type="button" data-export="xlsx" data-p="' + esc(state.period) + '">Excel</button></div></div></section>';
+  }
+
   function exportBtns(period, small) {
     var b = function (fmt, label) { return '<button class="btn ' + (small ? "ghost" : "") + '" type="button" data-export="' + fmt + '" data-p="' + period + '">' + label + "</button>"; };
     return '<div class="exports">' + b("pdf", "PDF") + b("xlsx", "Excel") + b("docx", "Word") + "</div>";
@@ -648,13 +695,13 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
     $("eyebrow").textContent = current === "settings" || current === "archive" || current === "control" || current === "symbols" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", signals: "كل توصية طلعت في الفترة ونتيجتها.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
+    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
     $("demo-chip").hidden = !DEMO;
     $("filters").innerHTML = filtersHtml(current);
     var v = $("view");
     v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ overview: pageOverview, signals: pageSignals, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
+      : ({ overview: pageOverview, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
   }
@@ -821,7 +868,12 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     s2["!cols"] = [{ wch: 5 }, { wch: 8 }, { wch: 9 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 11 }, { wch: 17 }];
     var eq = (DATA.equity || []).filter(function (e) { var d = D(e.day); return d >= R.range.from && d <= R.range.to && /^sa-/.test(e.strategy) === SAR() && (R.strat === "all" || e.strategy.replace(/^sa-/, "") === R.strat); }).map(function (e) { return [e.day, stratName(e.strategy.replace(/^sa-/, "")), e.equity]; });
     var s3 = X.utils.aoa_to_sheet([["اليوم", "الحساب", "الرصيد " + CURW()]].concat(eq));
-    X.utils.book_append_sheet(wb, s1, "الملخص"); X.utils.book_append_sheet(wb, s2, "التوصيات"); X.utils.book_append_sheet(wb, s3, "الرصيد اليومي");
+    var pr = purifyRows(R.range), pt = purifySum(pr), r2 = function (x) { return x == null ? "" : Math.round(x * 100) / 100; };
+    var s4 = X.utils.aoa_to_sheet([["السهم", "الاسم", "عدد الأسهم", "تاريخ الإغلاق", "الربح قبل التطهير " + CURW(), "نسبة التطهير %", "مبلغ التطهير " + CURW(), "الربح بعد التطهير " + CURW()]].concat(pr.map(function (r) {
+      return [r.s.symbol, r.s.name || "", r.s.shares || "", ymd(r.at), r2(r.profit), r.rate == null ? "غير متوفرة" : r.rate, r2(r.amt), r2(r.net)];
+    })).concat([[], ["الإجمالي", "", "", "", r2(pt.profit), "", r2(pt.amt), r2(pt.net)]]));
+    s4["!cols"] = [{ wch: 9 }, { wch: 22 }, { wch: 10 }, { wch: 13 }, { wch: 18 }, { wch: 13 }, { wch: 16 }, { wch: 18 }];
+    X.utils.book_append_sheet(wb, s1, "الملخص"); X.utils.book_append_sheet(wb, s2, "التوصيات"); X.utils.book_append_sheet(wb, s3, "الرصيد اليومي"); X.utils.book_append_sheet(wb, s4, "التطهير");
     wb.Workbook = { Views: [{ RTL: true }] };
     var out = X.write(wb, { bookType: "xlsx", type: "array" });
     save(new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), R.file + ".xlsx");
