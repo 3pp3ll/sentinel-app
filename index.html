@@ -356,7 +356,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return (DATA ? DATA.signals : []).filter(function (s) { return (s.market || "us") === state.market && (strat === "all" || s.strategy === strat); });
   }
   /* رسوم التنفيذ التقديرية: دراية 2.25$ لكل أمر (شراء وبيع = 4.50$)، والوسيط السعودي تقريباً 0.15% لكل جهة */
-  var FEES = { us_per_order: 2.25, sa_pct: 0.15 };
+  var FEES = { us_per_order: 0, sa_pct: 0.15 };   // البوت على Alpaca بدون عمولة (الرسوم التنظيمية تتسجل فعلية)
   function feeOf(s) {
     if (s.fees != null) return s.fees;   // العمولة المسجلة من الوكيل
     if (!s.entered) return 0;
@@ -496,6 +496,23 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return t;
   }
   function weekStart(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - x.getDay()); return x; }
+  // المستحق: كل شهر بعد آخر شهر أكدت إخراج تطهيره. الوكيل يحجز المبلغ من كاش الحساب لين تأكد.
+  function paidThrough() { return (CTRL.data && CTRL.data.purify_paid_through) || (DATA && DATA.control && DATA.control.purify_paid_through) || ""; }
+  function owedPanel() {
+    if (!CTRL.data && !DEMO) loadControl();
+    var all = purifyRows({ from: new Date(2000, 0, 1), to: new Date(2100, 0, 1) }), paid = paidThrough(), cur = monthKey(new Date()), by = {};
+    all.forEach(function (r) { var k = monthKey(r.at); if (k > paid) by[k] = (by[k] || 0) + (r.amt || 0); });
+    var ks = Object.keys(by).sort(), total = ks.reduce(function (t, k) { return t + by[k]; }, 0);
+    var rows = ks.map(function (k) {
+      var done = k < cur;
+      return "<tr><td>" + monthName(k) + '</td><td class="n">' + money(by[k]) + "</td><td>" + (done
+        ? '<button class="btn ghost" type="button" data-act="purify-paid" data-m="' + k + '"' + (CTRL.saving ? " disabled" : "") + ">طلعته" + (k > ks[0] ? " (مع اللي قبله)" : "") + "</button>"
+        : '<small class="note">الشهر شغال، تطلعه بعد ما يخلص</small>') + "</td></tr>";
+    }).join("");
+    return '<div class="panel stack"><h2>المستحق للإخراج · <span class="num">' + money(total) + "</span></h2>" +
+      (ks.length ? '<div class="table-wrap"><table><thead><tr><th>الشهر</th><th class="n">التطهير</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>" : '<p class="note">ما عليك تطهير مستحق.</p>') +
+      '<p class="note">المبلغ المستحق محجوز: الوكيل ما يدخله في صفقات جديدة على Alpaca لين تطلعه وتضغط "طلعته". ' + (paid ? "آخر شهر أكدته: <b>" + monthName(paid) + "</b>." : "ما أكدت إخراج أي شهر للحين.") + "</p></div>";
+  }
   function pagePurify() {
     var range = periodRange();
     if (noData(range)) return emptyBox(range);
@@ -521,10 +538,10 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
         '</td><td class="n ' + cls(r.gross) + '">' + money(r.gross, true) + (r.s.pnl_source === "fills" ? "" : ' <small class="note" title="من الأسعار المخططة">*</small>') + '</td><td class="n">' + money(r.fee) + '</td><td class="n ' + cls(r.profit) + '">' + money(r.profit, true) + '</td><td class="n num">' + (r.rate == null ? "—" : r.rate.toFixed(2) + "%") +
         '</td><td class="n">' + (r.amt == null ? (r.profit > 0 ? '<small class="note">النسبة غير متوفرة</small>' : "—") : money(r.amt)) + '</td><td class="n ' + cls(r.net) + '">' + money(r.net, true) + "</td></tr>";
     }).join("");
-    return '<section class="stack">' + tiles +
+    return '<section class="stack">' + tiles + owedPanel() +
       '<div class="panel stack"><h2>حسب الأسبوع</h2><div class="table-wrap"><table><thead><tr><th>الأسبوع</th><th class="n">صفقات</th><th class="n">الصافي</th><th class="n">التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + wk + "</tbody></table></div></div>" +
       '<div class="panel stack"><h2>كل صفقة</h2><div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">الكمية</th><th>الإغلاق</th><th class="n">الربح الإجمالي</th><th class="n">العمولات</th><th class="n">الصافي</th><th class="n">نسبة التطهير</th><th class="n">مبلغ التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + body + "</tbody></table></div>" +
-      '<p class="note">الربح الإجمالي من أسعار التنفيذ الفعلية وكمياتها في Alpaca، والانزلاق داخل فيها (* = من الأسعار المخططة لأن ما فيه تنفيذ فعلي، مثل الحساب السعودي الافتراضي). الصافي = الإجمالي − العمولات (دراية 2.25$ لكل أمر، أو 0.15% للسعودي). مبلغ التطهير = الربح الإجمالي (قبل العمولات، احتياطاً) × نسبة التطهير، على الصفقات الرابحة بس، وهو منفصل عن العمولات. النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي: آخر كل شهر اطلع مجموع التطهير كامل قبل ما تبدأ تداول الشهر اللي بعده.</p>' +
+      '<p class="note">الربح الإجمالي من أسعار التنفيذ الفعلية وكمياتها في Alpaca، والانزلاق داخل فيها (* = من الأسعار المخططة لأن ما فيه تنفيذ فعلي، مثل الحساب السعودي الافتراضي). الصافي = الإجمالي − العمولات (Alpaca بدون عمولة، ومعها الرسوم التنظيمية الفعلية إذا انخصمت؛ السعودي 0.15% شراء ومثلها بيع). مبلغ التطهير = الربح الإجمالي (قبل العمولات، احتياطاً) × نسبة التطهير، على الصفقات الرابحة بس، وهو منفصل عن العمولات. النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي: آخر كل شهر اطلع مجموع التطهير كامل قبل ما تبدأ تداول الشهر اللي بعده.</p>' +
       '<div class="exports"><button class="btn" type="button" data-export="xlsx" data-p="' + esc(state.period) + '">Excel</button></div></div></section>';
   }
 
@@ -544,7 +561,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var range = periodRange();
     var st = noData(range) ? null : stats(range);
     return '<section class="stack"><div class="panel stack"><h2>تقرير ' + esc(range.label) + (state.strat === "all" ? "" : " · " + stratName(state.strat)) + '</h2>' +
-      (st ? '<p class="note">يشمل: <b>' + st.issued.length + "</b> توصية، و<b>" + st.decided.length + "</b> صفقة محسومة، ونسبة نجاح <b>" + pct(st.rate) + "</b>، وصافي <b class=\"num\">" + money(st.net, true) + "</b>، وبعد العمولات <b class=\"num\">" + money(st.netAfter, true) + "</b> (" + (SAR() ? "عمولة الوسيط تقريباً " + FEES.sa_pct + "% للشراء ومثلها للبيع" : "دراية " + FEES.us_per_order + "$ لكل أمر منفّذ، والأرباح من أسعار التنفيذ الفعلية") + "). اختار الفترة والنوع من فوق.</p>" + exportBtns(state.period, false) : emptyBox(range)) +
+      (st ? '<p class="note">يشمل: <b>' + st.issued.length + "</b> توصية، و<b>" + st.decided.length + "</b> صفقة محسومة، ونسبة نجاح <b>" + pct(st.rate) + "</b>، وصافي <b class=\"num\">" + money(st.net, true) + "</b>، وبعد العمولات <b class=\"num\">" + money(st.netAfter, true) + "</b> (" + (SAR() ? "عمولة الوسيط تقريباً " + FEES.sa_pct + "% للشراء ومثلها للبيع" : "Alpaca بدون عمولة، والرسوم التنظيمية الفعلية، والأرباح من أسعار التنفيذ الفعلية") + "). اختار الفترة والنوع من فوق.</p>" + exportBtns(state.period, false) : emptyBox(range)) +
       '<p class="note">التقرير فيه ملخص الفترة لكل حساب، وجدول التوصيات بنتائجها. PDF للمشاركة والسوشال ميديا، وExcel للتحليل، وWord للتعديل.</p></div>' +
       '<div class="panel"><p class="note">كل التقارير مكتوب عليها إنها <b>نتائج حساب تجريبي</b> و<b>ليست توصية أو استشارة مالية</b>، عشان تنشرها وأنت مرتاح.</p></div></section>';
   }
@@ -589,7 +606,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       if (f) { CTRL.sha = f.sha; try { var d = JSON.parse(unb64(f.content)); base = Object.assign(base, d, { swing: Object.assign(base.swing, d.swing || {}), quick: Object.assign(base.quick, d.quick || {}), links: Object.assign(base.links, d.links || {}) }); } catch (e) {} }
       CTRL.data = base; CTRL.err = null;
     }).catch(function (e) { CTRL.err = e && e.code ? String(e.code) : "net"; CTRL.data = CTRL.data || ctrlDefaults(); })
-      .then(function () { CTRL.loading = false; if (current === "control" || current === "symbols") render(); });
+      .then(function () { CTRL.loading = false; if (current === "control" || current === "symbols" || current === "purify") render(); });
   }
   function saveControl(msg) {
     if (DEMO) { toast("هذا عرض تجريبي، الحفظ ما يوصل للوكيل"); render(); return; }
@@ -749,6 +766,10 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var a = el.dataset.act;
     if (a === "refresh") load(true);
     if (a === "forget") { store.del("sentinel.token"); toast("انحذف الرمز من هذا الجهاز"); load(true); }
+    if (a === "purify-paid") {
+      if (!CTRL.data) { toast("لحظة، جارٍ تحميل الإعدادات"); loadControl(); return; }
+      CTRL.data.purify_paid_through = el.dataset.m; saveControl("purification paid through " + el.dataset.m); return;
+    }
     if (a === "m-new") { CTRL.edit = -1; render(); return; }
     if (a === "m-edit") { CTRL.edit = +el.dataset.i; render(); return; }
     if (a === "m-cancel") { CTRL.edit = null; render(); return; }
