@@ -589,7 +589,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       quick: { tp_pct: (c.quick || {}).tp_pct || 3, stop_pct: (c.quick || {}).stop_pct || 2 },
       links: Object.assign({ channel: "", bot: "https://t.me/Matrix4H_ProBot" }, c.links || {}),
       members: (c.members || []).map(function (m) { return Object.assign({}, m); }),
-      paused: (c.paused || []).slice() };
+      paused: (c.paused || []).slice(), sa_signals_on: c.sa_signals_on !== false,
+      purify_paid_through: c.purify_paid_through || "" };
   }
   function loadControl() {
     if (DEMO) { CTRL.data = CTRL.data || ctrlDefaults(); return; }
@@ -637,7 +638,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<div class="fgrid">' + numField("c-size", "حجم الصفقة $", c.trade_size_usd, 100, 100, 50000) + "</div>" +
       '<h3>المتوسطة</h3><div class="fgrid">' + numField("c-s1", "الهدف الأول %", s.tp1_pct, 0.5, 1, 50) + numField("c-s2", "الهدف البعيد % (اختياري)", s.tp2_pct, 0.5, 2, 100) + numField("c-sl", "أقصى وقف %", s.max_loss_pct, 0.5, 0.5, 15) + "</div>" +
       '<h3>السريعة</h3><div class="fgrid">' + numField("c-q1", "الهدف %", q.tp_pct, 0.5, 0.5, 10) + numField("c-ql", "أقصى وقف %", q.stop_pct, 0.1, 0.3, 5) + '<div class="field"><label>المدة</label><input value="5 أيام تداول" disabled></div></div>' +
-      '<h3>🇸🇦 السوق السعودي</h3><p class="note">حساب افتراضي <span class="num">10,000</span> ريال. الأهداف ما تتعدى <span class="num">8%</span> لأن حد التذبذب اليومي <span class="num">10%</span>. السريعة تكمل لين <span class="num">3</span> جلسات وتنقفل بإغلاق الخميس، والمتوسطة لين <span class="num">10</span> جلسات.</p><div class="fgrid">' +
+      '<h3>🇸🇦 السوق السعودي</h3><p class="note">حساب افتراضي <span class="num">10,000</span> ريال. الأهداف ما تتعدى <span class="num">8%</span> لأن حد التذبذب اليومي <span class="num">10%</span>. السريعة تكمل لين <span class="num">3</span> جلسات وتنقفل بإغلاق الخميس، والمتوسطة لين <span class="num">10</span> جلسات.</p>' +
+      '<div class="field"><label for="c-sa-on"><input id="c-sa-on" type="checkbox"' + (c.sa_signals_on !== false ? " checked" : "") + '> توصيات السوق السعودي شغالة</label><span class="note">إذا شلت الصح تتوقف التوصيات السعودية الجديدة مؤقتاً، والصفقات المفتوحة تكمل لين تنقفل. الصفحة والأرقام تبقى زي ما هي.</span></div><div class="fgrid">' +
       numField("c-sa", "حجم الصفقة ريال", c.sa.trade_size, 100, 100, 200000) + numField("c-sa-use", "أقصى استخدام من الحساب %", c.sa.max_use_pct, 5, 10, 100) + "</div><div class=\"fgrid\">" +
       numField("c-sa-tp", "السريعة · الهدف %", c.sa.tp_pct, 0.5, 1, 8) + numField("c-sa-sl", "السريعة · أقصى وقف %", c.sa.stop_pct, 0.5, 0.5, 5) +
       numField("c-sa-wtp", "المتوسطة · الهدف %", c.sa.swing_tp_pct, 0.5, 2, 8) + numField("c-sa-wsl", "المتوسطة · أقصى وقف %", c.sa.swing_stop_pct, 0.5, 1, 6) + "</div>" +
@@ -799,6 +801,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       var n = function (x) { return +val(x); };
       if (!(n("c-s1") < n("c-s2"))) { toast("الهدف الأول لازم يكون أقل من البعيد"); return; }
       CTRL.data.trade_size_usd = n("c-size");
+      CTRL.data.sa_signals_on = !!($("c-sa-on") || {}).checked;
       CTRL.data.sa = { trade_size: n("c-sa"), tp_pct: n("c-sa-tp"), stop_pct: n("c-sa-sl"), swing_tp_pct: n("c-sa-wtp"), swing_stop_pct: n("c-sa-wsl"), max_use_pct: n("c-sa-use") };
       CTRL.data.swing = { tp1_pct: n("c-s1"), tp2_pct: n("c-s2"), max_loss_pct: n("c-sl") };
       CTRL.data.quick = { tp_pct: n("c-q1"), stop_pct: n("c-ql") };
