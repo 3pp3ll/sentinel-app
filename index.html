@@ -95,6 +95,9 @@ h1 { font: 700 clamp(26px, 4vw, 38px)/1.15 var(--f-display); margin: 6px 0 0; te
 .months button, .seg button { font: 600 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 99px; padding: 7px 14px; cursor: pointer; white-space: nowrap; }
 .months button.on, .seg button.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.sortbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sortbar label { font: 600 13px var(--f-body); color: var(--muted); }
+.sortbar select { font: 500 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; }
 .seg { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 99px; background: var(--sunk); }
 .seg button { border: 0; background: transparent; padding: 6px 12px; }
 .range { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
@@ -472,12 +475,29 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
         '<td><span class="pill ' + si[1] + '">' + si[0] + "</span>" + (s.entered_at ? '<small class="when">دخل ' + when(s.entered_at) + "</small>" : "") + (s.closed_at && s.status !== "open" ? '<small class="when">انقفلت ' + when(s.closed_at) + "</small>" : "") + '</td><td class="n">' + pnl + '</td><td class="lv num">' + when(s.created_at) + "</td></tr>";
     }).join("");
   }
+  // ترتيب سجل التوصيات: بالرقم أو التاريخ أو النتيجة أو مبلغ الصفقة، والاختيار ينحفظ في هذا الجهاز
+  var SORTS = {
+    "num-desc": ["الرقم: الأحدث أولاً", function (a, b) { return b.id - a.id; }],
+    "num-asc": ["الرقم: الأقدم أولاً", function (a, b) { return a.id - b.id; }],
+    "date-desc": ["التاريخ: الأحدث أولاً", function (a, b) { return D(b.created_at) - D(a.created_at) || b.id - a.id; }],
+    "date-asc": ["التاريخ: الأقدم أولاً", function (a, b) { return D(a.created_at) - D(b.created_at) || a.id - b.id; }],
+    "pnl-desc": ["النتيجة: الأعلى ربحاً", function (a, b) { return pnlKey(b, -1) - pnlKey(a, -1) || b.id - a.id; }],
+    "pnl-asc": ["النتيجة: الأكبر خسارة", function (a, b) { return pnlKey(a, 1) - pnlKey(b, 1) || b.id - a.id; }],
+    "size-desc": ["مبلغ الصفقة: الأكبر", function (a, b) { return amt(b) - amt(a) || b.id - a.id; }],
+    "size-asc": ["مبلغ الصفقة: الأصغر", function (a, b) { return amt(a) - amt(b) || b.id - a.id; }]
+  };
+  // الصفقات بدون نتيجة (لسا مفتوحة أو ملغاة) تنزل تحت في ترتيب النتيجة
+  function pnlKey(s, dir) { return s.pnl == null || !DECIDED[s.status] ? dir * 1e12 : s.pnl; }
+  function amt(s) { return (s.entry || 0) * (s.shares || 0) || s.trade_size || 0; }
+  var sigSort = SORTS[store.get("sentinel.sigSort")] ? store.get("sentinel.sigSort") : "num-desc";
+  function sortSignals(list) { return list.slice().sort(SORTS[sigSort][1]); }
   function pageSignals() {
     var range = periodRange();
     if (noData(range)) return emptyBox(range);
-    var list = filtered(range).filter(function (s) { var d = D(s.created_at); return d >= range.from && d <= range.to; }).reverse();
+    var list = sortSignals(filtered(range).filter(function (s) { var d = D(s.created_at); return d >= range.from && d <= range.to; }));
     if (!list.length) return '<section><div class="empty"><b>ما فيه توصيات في هذي الفترة</b>الوكيل يحلل كل يوم بعد إغلاق السوق، ويطلع توصية بس لما تكتمل الشروط.</div></section>';
-    return '<section><div class="table-wrap"><table><thead><tr><th>#</th><th>السهم</th><th>النوع</th><th class="n">الدخول</th><th class="n">الهدف</th><th class="n">البعيد</th><th class="n">الوقف</th><th>الحالة</th><th class="n">النتيجة</th><th>التاريخ</th></tr></thead><tbody>' + signalRows(list) + "</tbody></table></div></section>";
+    var opts = Object.keys(SORTS).map(function (k) { return '<option value="' + k + '"' + (k === sigSort ? " selected" : "") + ">" + SORTS[k][0] + "</option>"; }).join("");
+    return '<section class="stack"><div class="sortbar"><label for="sort-sig">ترتيب الجدول</label><select id="sort-sig">' + opts + '</select><small class="note num">' + list.length + ' توصية</small></div><div class="table-wrap"><table><thead><tr><th>#</th><th>السهم</th><th>النوع</th><th class="n">الدخول</th><th class="n">الهدف</th><th class="n">البعيد</th><th class="n">الوقف</th><th>الحالة</th><th class="n">النتيجة</th><th>التاريخ</th></tr></thead><tbody>' + signalRows(list) + "</tbody></table></div></section>";
   }
 
   /* ---------- التطهير: نسبة التطهير على الربح المحقق لكل صفقة (طريقة يقين وفلترنا) ---------- */
@@ -793,6 +813,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   document.addEventListener("change", function (e) {
     if (e.target.id === "f-from") { state.from = e.target.value; saveView(); render(); }
     if (e.target.id === "f-to") { state.to = e.target.value; saveView(); render(); }
+    if (e.target.id === "sort-sig" && SORTS[e.target.value]) { sigSort = e.target.value; store.set("sentinel.sigSort", sigSort); render(); }
   });
   document.addEventListener("submit", function (e) {
     var id = e.target.id, val = function (x) { return ($(x) || {}).value; };
