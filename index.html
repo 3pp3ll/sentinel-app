@@ -535,7 +535,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var body = rows.map(function (r) {
       var s = r.s;
       return '<tr><td><b class="sym">' + esc(s.symbol) + "</b>" + (s.name ? ' <small class="note">' + esc(s.name) + "</small>" : "") + '</td><td class="n num">' + (s.shares || "—") + '</td><td class="num">' + ymd(r.at) +
-        '</td><td class="n ' + cls(r.gross) + '">' + money(r.gross, true) + (r.s.pnl_source === "fills" ? "" : ' <small class="note" title="من الأسعار المخططة">*</small>') + '</td><td class="n">' + money(r.fee) + '</td><td class="n ' + cls(r.profit) + '">' + money(r.profit, true) + '</td><td class="n num">' + (r.rate == null ? "—" : r.rate.toFixed(2) + "%") +
+        '</td><td class="n ' + cls(r.gross) + '">' + money(r.gross, true) + (r.s.pnl_source === "fills" ? "" : ' <small class="note" title="من الأسعار المخططة">*</small>') + '</td><td class="n">' + money(r.fee) + '</td><td class="n ' + cls(r.profit) + '">' + money(r.profit, true) + '</td><td class="n num">' + (r.rate == null ? "—" : r.rate.toFixed(2) + "%") + (r.s.sharia_src ? '<br><small class="note">' + esc(r.s.sharia_src) + "</small>" : "") +
         '</td><td class="n">' + (r.amt == null ? (r.profit > 0 ? '<small class="note">النسبة غير متوفرة</small>' : "—") : money(r.amt)) + '</td><td class="n ' + cls(r.net) + '">' + money(r.net, true) + "</td></tr>";
     }).join("");
     return '<section class="stack">' + tiles + owedPanel() +
@@ -893,10 +893,10 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var eq = (DATA.equity || []).filter(function (e) { var d = D(e.day); return d >= R.range.from && d <= R.range.to && /^sa-/.test(e.strategy) === SAR() && (R.strat === "all" || e.strategy.replace(/^sa-/, "") === R.strat); }).map(function (e) { return [e.day, stratName(e.strategy.replace(/^sa-/, "")), e.equity]; });
     var s3 = X.utils.aoa_to_sheet([["اليوم", "الحساب", "الرصيد " + CURW()]].concat(eq));
     var pr = purifyRows(R.range), pt = purifySum(pr), r2 = function (x) { return x == null ? "" : Math.round(x * 100) / 100; };
-    var s4 = X.utils.aoa_to_sheet([["السهم", "الاسم", "عدد الأسهم", "تاريخ الإغلاق", "سعر الدخول", "سعر الخروج", "مصدر الأسعار", "الربح الإجمالي " + CURW(), "العمولات " + CURW(), "الصافي " + CURW(), "نسبة التطهير %", "مبلغ التطهير " + CURW(), "بعد التطهير " + CURW()]].concat(pr.map(function (r) {
-      return [r.s.symbol, r.s.name || "", r.s.shares || "", ymd(r.at), r.s.entry, r.s.exit_price == null ? "" : r.s.exit_price, r.s.pnl_source === "fills" ? "تنفيذ فعلي" : "أسعار مخططة", r2(r.gross), r2(r.fee), r2(r.profit), r.rate == null ? "غير متوفرة" : r.rate, r2(r.amt), r2(r.net)];
-    })).concat([[], ["الإجمالي", "", "", "", "", "", "", r2(pt.gross), r2(pt.fee), r2(pt.profit), "", r2(pt.amt), r2(pt.net)]]));
-    s4["!cols"] = [{ wch: 9 }, { wch: 22 }, { wch: 10 }, { wch: 13 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 13 }, { wch: 13 }, { wch: 14 }, { wch: 14 }];
+    var s4 = X.utils.aoa_to_sheet([["السهم", "الاسم", "عدد الأسهم", "تاريخ الإغلاق", "سعر الدخول", "سعر الخروج", "مصدر الأسعار", "الربح الإجمالي " + CURW(), "العمولات " + CURW(), "الصافي " + CURW(), "نسبة التطهير %", "مصدر الحكم والتطهير", "مبلغ التطهير " + CURW(), "بعد التطهير " + CURW()]].concat(pr.map(function (r) {
+      return [r.s.symbol, r.s.name || "", r.s.shares || "", ymd(r.at), r.s.entry, r.s.exit_price == null ? "" : r.s.exit_price, r.s.pnl_source === "fills" ? "تنفيذ فعلي" : "أسعار مخططة", r2(r.gross), r2(r.fee), r2(r.profit), r.rate == null ? "غير متوفرة" : r.rate, r.s.sharia_src || "", r2(r.amt), r2(r.net)];
+    })).concat([[], ["الإجمالي", "", "", "", "", "", "", r2(pt.gross), r2(pt.fee), r2(pt.profit), "", "", r2(pt.amt), r2(pt.net)]]));
+    s4["!cols"] = [{ wch: 9 }, { wch: 22 }, { wch: 10 }, { wch: 13 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 13 }, { wch: 13 }, { wch: 16 }, { wch: 14 }, { wch: 14 }];
     X.utils.book_append_sheet(wb, s1, "الملخص"); X.utils.book_append_sheet(wb, s2, "التوصيات"); X.utils.book_append_sheet(wb, s3, "الرصيد اليومي"); X.utils.book_append_sheet(wb, s4, "التطهير");
     wb.Workbook = { Views: [{ RTL: true }] };
     var out = X.write(wb, { bookType: "xlsx", type: "array" });
