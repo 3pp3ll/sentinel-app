@@ -95,6 +95,20 @@ h1 { font: 700 clamp(26px, 4vw, 38px)/1.15 var(--f-display); margin: 6px 0 0; te
 .months button, .seg button { font: 600 13px var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 99px; padding: 7px 14px; cursor: pointer; white-space: nowrap; }
 .months button.on, .seg button.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+.ins { margin: 0; padding-inline-start: 20px; display: grid; gap: 8px; line-height: 1.7; }
+.chip { display: inline-block; font: 600 12px var(--f-body); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.chip.good { color: var(--win); border-color: var(--win); background: var(--win-soft); } .chip.bad { color: var(--loss); border-color: var(--loss); background: var(--loss-soft); }
+.chip.mid { color: var(--fg); } .chip.mute { color: var(--muted); }
+.chips-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-btn { font: 600 13px var(--f-body); padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); cursor: pointer; }
+.chip-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.wrbar { display: inline-block; width: 56px; height: 6px; border-radius: 3px; background: var(--sunk); margin-inline-end: 8px; vertical-align: middle; overflow: hidden; }
+.wrbar span { display: block; height: 100%; background: var(--accent); }
+.rrow { display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr) 2.5em; gap: 10px; align-items: center; }
+.rtrack { display: block; height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; }
+.rtrack span { display: block; height: 100%; border-radius: 6px; } .rtrack .good { background: var(--win); } .rtrack .bad { background: var(--loss); } .rtrack .mute { background: var(--muted); }
+.an2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 860px) { .an2 { grid-template-columns: minmax(0, 1fr); } .rrow { grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 2em; } }
 .res-sel { font: 600 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 40px; }
 header.top .res-sel { margin-inline-start: auto; margin-inline-end: 8px; }
 .res-wrap { display: inline-flex; align-items: center; gap: 8px; margin-inline-end: 8px; }
@@ -232,6 +246,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     </div>
     <nav class="nav" id="nav">
       <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
+      <a href="#analysis"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4M8 13v-2M11 13V9M14 13v-3"/></svg>التحليل</a>
       <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
       <a href="#purify"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg>التطهير</a>
       <a href="#archive"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></g></svg>الأرشيف الشهري</a>
@@ -282,8 +297,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["overview", "signals", "purify", "archive", "reports", "symbols", "control", "settings"];
-  var TITLES = { overview: "الأداء", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
+  var PAGES = ["overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings"];
+  var TITLES = { overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -467,7 +482,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<div class="panel"><div class="kpis"><div class="kpi"><div class="k">الربح الإجمالي</div><div class="v num ' + cls(st.net) + '">' + money(st.net, true) + '</div></div><div class="kpi"><div class="k">توصيات الفترة</div><div class="v num">' + st.issued.length + '</div></div><div class="kpi"><div class="k">متوسط الربح</div><div class="v num pos">' + (st.avgWin == null ? "—" : money(st.avgWin, true)) + '</div></div><div class="kpi"><div class="k">متوسط الخسارة</div><div class="v num neg">' + (st.avgLoss == null ? "—" : money(st.avgLoss, true)) + "</div></div></div>" +
       (st.curve.length ? curveSvg(st.curve) : '<div class="empty" style="border:0;padding:30px 0"><b>المنحنى يبدأ مع أول صفقة محسومة</b>الصفقات المفتوحة ما تنحسب لين توصل هدف أو وقف.</div>') +
       '<div class="caption">الربح التراكمي ' + (SAR() ? "بالريال" : "بالدولار") + ' بترتيب وقت حسم كل صفقة، على صفقة <span class="num">' + money(tradeSize()) + "</span> لكل توصية.</div></div></div>" +
-      '<div class="accts">' + acc + "</div></section>";
+      '<div class="accts">' + acc + "</div>" + insightCard(range) + "</section>";
   }
 
   function startEq() { var m = DATA && DATA.markets && DATA.markets[state.market]; return m ? m.start_equity : SAR() ? 10000 : START_EQ; }
@@ -592,6 +607,140 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<div class="panel stack"><h2>كل صفقة</h2><div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">الكمية</th><th>الإغلاق</th><th class="n">الربح الإجمالي</th><th class="n">العمولات</th><th class="n">الصافي</th><th class="n">نسبة التطهير</th><th class="n">مبلغ التطهير</th><th class="n">بعد التطهير</th></tr></thead><tbody>' + body + "</tbody></table></div>" +
       '<p class="note">الربح الإجمالي من أسعار التنفيذ الفعلية وكمياتها في Alpaca، والانزلاق داخل فيها (* = من الأسعار المخططة لأن ما فيه تنفيذ فعلي، مثل الحساب السعودي الافتراضي). الصافي = الإجمالي − العمولات (Alpaca بدون عمولة، ومعها الرسوم التنظيمية الفعلية إذا انخصمت؛ السعودي 0.15% شراء ومثلها بيع). مبلغ التطهير = الربح الإجمالي (قبل العمولات، احتياطاً) × نسبة التطهير، على الصفقات الرابحة بس، وهو منفصل عن العمولات. النسبة تنحفظ مع التوصية يوم صدورها من مصدر الفحص. هذي أرقام الحساب التجريبي؛ لما تشتغل بحسابك الحقيقي: آخر كل شهر اطلع مجموع التطهير كامل قبل ما تبدأ تداول الشهر اللي بعده.</p>' +
       '<div class="exports"><button class="btn" type="button" data-export="xlsx" data-p="' + esc(state.period) + '">Excel</button></div></div></section>';
+  }
+
+
+  /* ---------- التحليل: أكثر من نموذج على نفس الصفقات (حسب الفلاتر: السوق والنوع والفترة) ---------- */
+  var MIN_N = 5;   // أقل من 5 صفقات محسومة = عينة صغيرة، ما نبني عليها حكم
+  function outcome(s) {
+    if (s.status === "cancelled") return "cancel";
+    if (!DECIDED[s.status] || s.pnl == null) return "open";
+    return s.pnl > 0 ? "win" : s.pnl < 0 ? "loss" : "even";
+  }
+  function riskOf(s) { return Math.abs(s.entry - s.stop) * (s.shares || 0); }
+  function nyMinutes(iso) {
+    try {
+      var p = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(D(iso));
+      var h = +p.find(function (x) { return x.type === "hour"; }).value, m = +p.find(function (x) { return x.type === "minute"; }).value;
+      return h * 60 + m;
+    } catch (e) { return null; }
+  }
+  var WD = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  var DIMS = {
+    mcap: ["حجم الشركة", function (s) { var m = s.mcap; if (!m) return "غير معروف"; return m >= 5e10 ? "عملاقة (فوق 50 مليار)" : m >= 1e10 ? "كبيرة (10–50 مليار)" : m >= 2e9 ? "متوسطة (2–10 مليار)" : "صغيرة (أقل من 2 مليار)"; },
+      ["عملاقة (فوق 50 مليار)", "كبيرة (10–50 مليار)", "متوسطة (2–10 مليار)", "صغيرة (أقل من 2 مليار)", "غير معروف"]],
+    cat: ["مصدر السهم", function (s) { return CAT[s.category] || s.category || "—"; }, null],
+    price: ["سعر السهم", function (s) { var e = s.entry, c = SAR() ? " ريال" : "$"; return e < 20 ? "أقل من 20" + c : e < 50 ? "20–50" + c : e < 150 ? "50–150" + c : e < 400 ? "150–400" + c : "فوق 400" + c; }, null],
+    strat: ["نوع الصفقة", function (s) { return stratName(s.strategy); }, null],
+    timing: ["توقيت الدخول", function (s) {
+      if (!s.entered_at) return "ما دخلت";
+      if ((s.market || "us") !== "us") return "السوق السعودي";
+      var m = nyMinutes(s.entered_at); if (m == null) return "غير معروف";
+      return m <= 9 * 60 + 45 ? "مع الافتتاح (أول 15 دقيقة)" : m <= 11 * 60 ? "أول ساعة ونص" : "باقي الجلسة";
+    }, ["مع الافتتاح (أول 15 دقيقة)", "أول ساعة ونص", "باقي الجلسة", "ما دخلت"]],
+    day: ["يوم التوصية", function (s) { return WD[D(s.created_at).getDay()]; }, WD],
+    hold: ["مدة الصفقة", function (s) {
+      if (!s.entered_at || !s.closed_at || outcome(s) === "cancel" || outcome(s) === "open") return null;
+      var d = (D(s.closed_at) - D(s.entered_at)) / 864e5;
+      return d < 1 ? "نفس اليوم" : d < 3 ? "1–2 يوم" : d < 6 ? "3–5 أيام" : "أكثر من 5 أيام";
+    }, ["نفس اليوم", "1–2 يوم", "3–5 أيام", "أكثر من 5 أيام"]]
+  };
+  var anDim = DIMS[store.get("sentinel.anDim")] ? store.get("sentinel.anDim") : "mcap";
+  function groupStats(list) {
+    var g = { n: list.length, win: 0, loss: 0, even: 0, cancel: 0, open: 0, pnl: 0, gw: 0, gl: 0, r: 0, rn: 0 };
+    list.forEach(function (s) {
+      var o = outcome(s); g[o]++;
+      if (o === "win" || o === "loss" || o === "even") {
+        var net = s.pnl - feeOf(s); g.pnl += net;
+        if (net > 0) g.gw += net; else g.gl += -net;
+        var rk = riskOf(s); if (rk > 0) { g.r += s.pnl / rk; g.rn++; }
+      }
+    });
+    g.dec = g.win + g.loss + g.even;
+    g.wr = g.dec ? g.win / g.dec : null;
+    g.exp = g.dec ? g.pnl / g.dec : null;          // متوسط الصافي لكل صفقة محسومة
+    g.pf = g.gl ? g.gw / g.gl : (g.gw ? Infinity : null);
+    g.avgR = g.rn ? g.r / g.rn : null;
+    return g;
+  }
+  function anList(range) { return filtered(range).filter(function (s) { var d = D(s.created_at); return d >= range.from && d <= range.to; }); }
+  function byDim(list, key) {
+    var f = DIMS[key][1], order = DIMS[key][2], m = {};
+    list.forEach(function (s) { var k = f(s); if (k == null) return; (m[k] = m[k] || []).push(s); });
+    var keys = Object.keys(m);
+    keys.sort(order ? function (a, b) { return (order.indexOf(a) < 0 ? 99 : order.indexOf(a)) - (order.indexOf(b) < 0 ? 99 : order.indexOf(b)); } : function (a, b) { return m[b].length - m[a].length; });
+    return keys.map(function (k) { return { k: k, g: groupStats(m[k]) }; });
+  }
+  function pct(x) { return x == null ? "—" : Math.round(x * 100) + "%"; }
+  function verdictChip(g, base) {
+    if (g.dec < MIN_N) return '<span class="chip mute">عينة صغيرة</span>';
+    if (g.wr >= base + 0.15 && g.pnl > 0) return '<span class="chip good">قوي</span>';
+    if (g.wr <= base - 0.15 || g.pnl < 0) return '<span class="chip bad">ضعيف</span>';
+    return '<span class="chip mid">متوسط</span>';
+  }
+  function insights(list) {
+    var base = groupStats(list), out = [];
+    if (base.dec < MIN_N) return { base: base, items: [] };
+    ["mcap", "cat", "price", "timing", "strat"].forEach(function (key) {
+      var rows = byDim(list, key).filter(function (x) { return x.g.dec >= MIN_N; });
+      if (rows.length < 2) return;
+      rows.sort(function (a, b) { return b.g.wr - a.g.wr || b.g.pnl - a.g.pnl; });
+      var hi = rows[0], lo = rows[rows.length - 1];
+      if (hi.g.wr - lo.g.wr < 0.15) return;
+      out.push({ gap: hi.g.wr - lo.g.wr, html: "<b>" + DIMS[key][0] + ":</b> " + esc(hi.k) + ' نجحت <span class="num">' + hi.g.win + " من " + hi.g.dec + '</span> (<span class="num ' + cls(hi.g.pnl) + '">' + money(hi.g.pnl, true) + "</span>)، مقابل " + esc(lo.k) + ' <span class="num">' + lo.g.win + " من " + lo.g.dec + '</span> (<span class="num ' + cls(lo.g.pnl) + '">' + money(lo.g.pnl, true) + "</span>)." });
+    });
+    if (base.n && base.cancel / base.n >= 0.25) out.push({ gap: 0.1, html: "<b>الإلغاء:</b> " + Math.round(base.cancel / base.n * 100) + "% من التوصيات انلغت لأن السعر ما وصل الدخول. هذا يحمي من الدخول المتأخر، بس يعني فرص فاتت." });
+    out.sort(function (a, b) { return b.gap - a.gap; });
+    return { base: base, items: out.slice(0, 4) };
+  }
+  function insightCard(range) {
+    var ins = insights(anList(range));
+    var body = ins.items.length ? '<ul class="ins">' + ins.items.slice(0, 3).map(function (x) { return "<li>" + x.html + "</li>"; }).join("") + "</ul>"
+      : '<p class="note">القراءة تظهر لما يصير عندنا ' + MIN_N + " صفقات محسومة أو أكثر في الفترة، وفرق واضح بين المجموعات.</p>";
+    return '<div class="panel stack" style="margin-top:14px"><div class="row" style="justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0">قراءة التحليل</h2><a class="btn ghost" href="#analysis">افتح التحليل الكامل</a></div>' + body + "</div>";
+  }
+  function rBuckets(list) {
+    var B = [["خسارة أكثر من الوقف", -99, -1.05], ["خسارة لين الوقف", -1.05, -0.01], ["تعادل", -0.01, 0.01], ["ربح أقل من المخاطرة", 0.01, 1], ["ربح 1–2 ضعف المخاطرة", 1, 2], ["ربح فوق ضعفين", 2, 99]];
+    var c = B.map(function () { return 0; });
+    list.forEach(function (s) { var o = outcome(s); if (o === "open" || o === "cancel") return; var rk = riskOf(s); if (!rk) return; var r = s.pnl / rk; for (var i = 0; i < B.length; i++) if (r > B[i][1] && r <= B[i][2]) { c[i]++; break; } });
+    var max = Math.max.apply(null, c.concat([1]));
+    return B.map(function (b, i) { return { k: b[0], n: c[i], w: c[i] / max, cls: i < 2 ? "bad" : i === 2 ? "mute" : "good" }; });
+  }
+  function pageAnalysis() {
+    var range = periodRange();
+    if (noData(range)) return emptyBox(range);
+    var list = anList(range);
+    if (!list.length) return '<section><div class="empty"><b>ما فيه توصيات في هذي الفترة</b>غيّر الفترة أو السوق من فوق.</div></section>';
+    var base = groupStats(list), ins = insights(list);
+    var kp = function (k, v, note) { return '<div class="kpi"><div class="k">' + k + '</div><div class="v num">' + v + "</div>" + (note ? '<div class="note">' + note + "</div>" : "") + "</div>"; };
+    var pf = base.pf == null ? "—" : base.pf === Infinity ? "∞" : base.pf.toFixed(2);
+    var head = '<div class="panel"><div class="kpis">' +
+      kp("نسبة النجاح", pct(base.wr), base.win + " ناجحة من " + base.dec + " محسومة") +
+      kp("عامل الربح", pf, "مجموع الأرباح ÷ مجموع الخسائر") +
+      kp("متوسط الصفقة", base.exp == null ? "—" : '<span class="' + cls(base.exp) + '">' + money(base.exp, true) + "</span>", "الصافي لكل صفقة محسومة") +
+      kp("العائد على المخاطرة", base.avgR == null ? "—" : (base.avgR >= 0 ? "+" : "") + base.avgR.toFixed(2) + "R", "متوسط الربح ÷ مسافة الوقف") +
+      '</div><p class="note" style="margin:0">إجمالي <b class="num">' + base.n + '</b> توصية · <b class="num">' + base.open + '</b> مفتوحة · <b class="num">' + base.cancel + '</b> ملغاة · الصافي <b class="num ' + cls(base.pnl) + '">' + money(base.pnl, true) + "</b></p></div>";
+    var insHtml = '<div class="panel stack"><h2>القراءة التلقائية</h2>' + (ins.items.length ? '<ul class="ins">' + ins.items.map(function (x) { return "<li>" + x.html + "</li>"; }).join("") + "</ul>" : '<p class="note">ما فيه فرق واضح بين المجموعات للحين، أو العينة أقل من ' + MIN_N + " صفقات محسومة لكل مجموعة.</p>") +
+      '<p class="note">كل مقارنة تحتاج ' + MIN_N + " صفقات محسومة على الأقل في كل مجموعة. الأرقام تتغير مع كل صفقة، فاقرأها كاتجاه مو حكم نهائي.</p></div>";
+    var tabs = Object.keys(DIMS).map(function (k) { return '<button type="button" class="chip-btn" data-act="an-dim" data-k="' + k + '" aria-pressed="' + (k === anDim) + '">' + DIMS[k][0] + "</button>"; }).join("");
+    var bw = base.wr == null ? 0.5 : base.wr;
+    var trs = byDim(list, anDim).map(function (x) {
+      var g = x.g;
+      return "<tr><td><b>" + esc(x.k) + '</b></td><td class="n num">' + g.n + '</td><td class="n num">' + g.win + '</td><td class="n num">' + g.loss + '</td><td class="n num">' + g.cancel + '</td><td class="n num">' + g.open +
+        '</td><td class="n"><span class="wrbar"><span style="width:' + Math.round((g.wr || 0) * 100) + '%"></span></span><span class="num">' + pct(g.wr) + '</span></td><td class="n num ' + cls(g.pnl) + '">' + money(g.pnl, true) + '</td><td class="n num">' + (g.exp == null ? "—" : money(g.exp, true)) + "</td><td>" + verdictChip(g, bw) + "</td></tr>";
+    }).join("");
+    var dimHtml = '<div class="panel stack"><h2>النتائج حسب</h2><div class="chips-row">' + tabs + '</div><div class="table-wrap"><table><thead><tr><th>' + DIMS[anDim][0] + '</th><th class="n">توصيات</th><th class="n">ناجحة</th><th class="n">خاسرة</th><th class="n">ملغاة</th><th class="n">مفتوحة</th><th class="n">نسبة النجاح</th><th class="n">الصافي</th><th class="n">متوسط الصفقة</th><th>القراءة</th></tr></thead><tbody>' + trs + "</tbody></table></div>" +
+      '<p class="note">"قوي" = نسبة نجاحه أعلى من المتوسط العام (' + pct(base.wr) + ') بـ 15 نقطة ونتيجته موجبة. "ضعيف" = أقل بـ 15 نقطة أو نتيجته سالبة.</p></div>';
+    var rb = rBuckets(list);
+    var rHtml = '<div class="panel stack"><h2>توزيع النتائج على المخاطرة</h2>' + rb.map(function (b) { return '<div class="rrow"><span>' + b.k + '</span><span class="rtrack"><span class="' + b.cls + '" style="width:' + Math.round(b.w * 100) + '%"></span></span><b class="num">' + b.n + "</b></div>"; }).join("") +
+      '<p class="note">المخاطرة = المسافة بين الدخول والوقف. "خسارة أكثر من الوقف" تعني السعر فتح تحت الوقف (فجوة)، وهذي اللي يحاول يقللها الدخول من عمق النزول.</p></div>';
+    var sym = {}; list.forEach(function (s) { var o = outcome(s); if (o === "open" || o === "cancel") return; (sym[s.symbol] = sym[s.symbol] || []).push(s); });
+    var srows = Object.keys(sym).map(function (k) { return { k: k, g: groupStats(sym[k]), name: sym[k][0].name }; }).sort(function (a, b) { return b.g.pnl - a.g.pnl; });
+    var symT = function (arr) { return arr.map(function (x) { return '<tr><td><b class="num">' + esc(x.k) + "</b>" + (x.name ? ' <small class="note">' + esc(x.name) + "</small>" : "") + '</td><td class="n num">' + x.g.win + "/" + x.g.dec + '</td><td class="n num ' + cls(x.g.pnl) + '">' + money(x.g.pnl, true) + "</td></tr>"; }).join(""); };
+    var best = srows.filter(function (x) { return x.g.pnl > 0; }).slice(0, 5), worst = srows.filter(function (x) { return x.g.pnl < 0; }).reverse().slice(0, 5);
+    var symHtml = '<div class="an2"><div class="panel stack"><h2>أفضل الأسهم</h2>' + (best.length ? '<div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">نجحت</th><th class="n">الصافي</th></tr></thead><tbody>' + symT(best) + "</tbody></table></div>" : '<p class="note">ما فيه أسهم رابحة محسومة للحين.</p>') +
+      '</div><div class="panel stack"><h2>أضعف الأسهم</h2>' + (worst.length ? '<div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">نجحت</th><th class="n">الصافي</th></tr></thead><tbody>' + symT(worst) + "</tbody></table></div>" : '<p class="note">ما فيه أسهم خاسرة محسومة.</p>') + "</div></div>";
+    return '<section class="stack">' + head + insHtml + dimHtml + rHtml + symHtml + "</section>";
   }
 
   function exportBtns(period, small) {
@@ -770,7 +919,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
     $("eyebrow").textContent = current === "settings" || current === "archive" || current === "control" || current === "symbols" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
+    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
     if (current === "signals") rt.innerHTML = resSelect("x").replace(/^<select[^>]*>|<\/select>$/g, "");
@@ -778,7 +927,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var v = $("view");
     v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ overview: pageOverview, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
+      : ({ overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
   }
@@ -823,6 +972,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var a = el.dataset.act;
     if (a === "refresh") load(true);
     if (a === "forget") { store.del("sentinel.token"); toast("انحذف الرمز من هذا الجهاز"); load(true); }
+    if (a === "an-dim" && DIMS[el.dataset.k]) { anDim = el.dataset.k; store.set("sentinel.anDim", anDim); render(); return; }
     if (a === "purify-paid") {
       if (!CTRL.data) { toast("لحظة، جارٍ تحميل الإعدادات"); loadControl(); return; }
       CTRL.data.purify_paid_through = el.dataset.m; saveControl("purification paid through " + el.dataset.m); return;
