@@ -486,8 +486,27 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (d) { LEDGER = d; store.set("sentinel.ledger", JSON.stringify(d)); render(); }).catch(function () {});
   }
+  /* صفقة منفذة على حساب Deep (r.trade): الدخول والنتيجة من الأوامر الفعلية، حتى لو السهم مرشح ما عدّى شرط الدقة (تجربة) */
+  function deepTrade(r) {
+    var tr = r.trade, fills = (tr && tr.fills) || [], lots = (tr && tr.lots) || [];
+    var inn = fills.map(function (f, k) { return { f: f, q: lots[k] || 0 }; }).filter(function (x) { return x.f.entry_at; });
+    if (!tr || !inn.length) return null;
+    var q = inn.reduce(function (t, x) { return t + x.q; }, 0) || inn.length;
+    var cost = inn.reduce(function (t, x) { return t + (x.q || 1) * x.f.entry; }, 0);
+    var at = function (k) { return fills.map(function (f) { return f[k]; }).filter(Boolean).sort(); };
+    var done = fills.map(function (f) { return f.done; }), closed = tr.status === "closed";
+    var st = !closed ? "open" : done.indexOf("target") >= 0 ? "tp1" : done.indexOf("timeout") >= 0 ? "timeout" : "stopped";
+    return { status: st, entry: cost / q, shares: q, size: cost, pnl: closed ? (tr.pnl || 0) : null,
+      entered_at: at("entry_at")[0] || null, tp1_at: fills.filter(function (f) { return f.done === "target"; }).map(function (f) { return f.exit_at; }).sort()[0] || null,
+      closed_at: closed ? at("exit_at").slice(-1)[0] || null : null };
+  }
   function deepRows() {
-    return (LEDGER || []).filter(function (r) { return r.kind !== "watch"; }).map(function (r, i) {
+    return (LEDGER || []).filter(function (r) { return r.kind !== "watch" || deepTrade(r); }).map(function (r, i) {
+      var x = deepTrade(r);
+      if (x) { var t0 = r.targets || [];
+        return { id: 900000 + i, strategy: "deep", market: "us", symbol: r.symbol, category: "deep", status: x.status, entered: true, price: r.price,
+          entry: x.entry, stop: r.stop, tp1: t0[0] && t0[0].price, tp2: t0[1] && t0[1].price, shares: x.shares, size: x.size, pnl: x.pnl, fees: 0,
+          purify: r.purify == null ? null : r.purify, created_at: r.date, entered_at: x.entered_at, tp1_at: x.tp1_at, closed_at: x.closed_at, trial: r.kind === "watch" }; }
       var st = r.status === "pending" ? "open" : r.status, t = r.targets || [];
       return { id: 900000 + i, strategy: "deep", market: "us", symbol: r.symbol, category: "deep", status: st, entered: r.status !== "pending", price: r.price,
         entry: r.entry_fill || r.price, stop: r.stop, tp1: t[0] && t[0].price, tp2: t[1] && t[1].price, shares: r.shares || Math.max(1, Math.floor((r.size || 3000) / r.price)),
@@ -598,6 +617,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
         var m = x.market || "us"; n[m] = (n[m] || 0) + 1; SEQ[x.id] = n[m];
       });
     }
+    if (s.strategy === "deep") return s.id - 899999;   // سهم اليوم له ترقيمه الخاص (1، 2، 3…)
     return SEQ[s.id];
   }
   function sortSignals(list) { return list.slice().sort(SORTS[sigSort][1]); }
