@@ -482,7 +482,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       var st = r.status === "pending" ? "open" : r.status, t = r.targets || [];
       return { id: 900000 + i, strategy: "deep", market: "us", symbol: r.symbol, category: "deep", status: st, entered: r.status !== "pending", price: r.price,
         entry: r.entry_fill || r.price, stop: r.stop, tp1: t[0] && t[0].price, tp2: t[1] && t[1].price, shares: r.shares || Math.max(1, Math.floor((r.size || 3000) / r.price)),
-        size: r.size || 3000, pnl: r.pnl == null ? null : r.pnl, fees: 0, purify: null, created_at: r.date, entered_at: r.entered_at || null, tp1_at: r.t1_at || null, closed_at: r.closed_at || null };
+        size: r.size || 3000, pnl: r.pnl == null ? null : r.pnl, fees: 0, purify: r.purify == null ? null : r.purify, created_at: r.date, entered_at: r.entered_at || null, tp1_at: r.t1_at || null, closed_at: r.closed_at || null };
     });
   }
 
@@ -1013,7 +1013,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var strip = '<div class="dp-strip"><div class="dp-id">' + badge + '<b class="num dp-sym">' + esc(c.symbol) + '</b><span class="dp-setup">' + esc(c.setup_name) + (c.also && c.also.length ? " + " + esc(c.also.join(" + ")) : "") + "</span></div>" +
       '<div class="dp-kv"><span><small>الدخول</small><b class="num">' + c.entry + '</b></span><span class="loss"><small>الوقف</small><b class="num">' + c.stop + '</b></span>' +
       c.targets.map(function (t, j) { return '<span class="win"><small>هدف ' + (j + 1) + ' · <b class="num">' + Math.round(t.prob * 100) + '%</b></small><b class="num">' + t.price + '</b><em class="num">+' + usd(c, j).toFixed(0) + "$" + (t.eta_days ? " · ~" + t.eta_days + " أيام" : "") + "</em></span>"; }).join("") +
-      '<span><small>المدارس</small><b class="num">' + v.up + "/" + v.n + '</b><em>إيجابية</em></span></div></div>';
+      '<span><small>المدارس</small><b class="num">' + v.up + "/" + v.n + '</b><em>إيجابية</em></span>' +
+      '<span><small>مجاز شرعياً · التطهير</small><b class="num">' + (c.purify == null ? "—" : c.purify.toFixed(2) + "%") + "</b>" + (c.purify != null ? '<em class="num">' + (usd(c, 0) * c.purify / 100).toFixed(2) + "$ من ربح هدف 1</em>" : "") + "</span></div></div>";
     var tg = function (k, l) { return '<button class="chip dp-tg' + (DEEP_SHOW[k] ? " on" : "") + '" data-dtg="' + k + '">' + l + "</button>"; };
     var tools = '<div class="dp-tools"><div class="chips-row">' + tg("ema20", "EMA 20") + tg("sma50", "MA 50") + tg("sma200", "MA 200") + tg("bb", "بولنجر") + tg("vol", "الحجم") + tg("lv", "الدعم والمقاومة") + tg("past", "الإشارات السابقة") + tg("rsi", "RSI") + "</div>" +
       '<div class="row" style="gap:8px"><button class="btn ghost" data-dact="fit">ملء الشاشة للبيانات</button><button class="btn" data-dact="report">📄 التقرير والآراء</button></div></div>';
@@ -1096,6 +1097,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var hist = (c.history || []).slice(-12).reverse().map(function (h) { return '<span class="chip ' + (h.hits[0] ? "win" : "loss") + '"><span class="num">' + esc(h.date) + "</span> " + (h.hits[0] ? "✓" : "✗") + "</span>"; }).join(" ");
     var html = '<div class="dp-sheet-in" role="dialog" aria-modal="true" aria-label="تقرير ' + esc(c.symbol) + '"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">تقرير <span class="num">' + esc(c.symbol) + '</span> · ' + esc(c.setup_name) + '</h2><button class="btn ghost" data-dact="close">إغلاق ✕</button></div>' +
       (c._pick ? "" : '<div class="dp-none">هذا مرشح <b>ما عدّى شرط الدقة</b>، للاطلاع بس.</div>') +
+      '<div class="panel stack"><h3>الشرعية</h3><p>السهم من قائمة الأسهم المجازة في النظام. نسبة التطهير <b class="num">' + (c.purify == null ? "—" : c.purify.toFixed(2) + "%") + "</b>" + (c.purify != null ? "، يعني من ربح الهدف الأول (" + usd(c, 0).toFixed(2) + "$) تطهّر " + '<b class="num">' + (usd(c, 0) * c.purify / 100).toFixed(2) + "$</b>" : "") + ".</p></div>" +
       '<div class="panel stack"><h3>ليش ظهر</h3><p>' + esc(c.why) + '</p><p class="note">المدرسة: ' + esc(c.setup_school) + (c.also && c.also.length ? " · ومعه: " + esc(c.also.join("، ")) : "") + "</p></div>" +
       '<div class="panel stack"><h3>الأهداف بحجم صفقتك</h3><label class="row" style="gap:8px;align-items:center">حجم الصفقة $ <input id="dp-size" type="number" min="100" step="100" value="' + DEEP_SIZE + '" style="width:120px"></label>' +
       '<div class="table-wrap"><table class="dp-tt"><thead><tr><th></th><th class="n">السعر</th><th class="n">النسبة</th><th class="n">الاحتمال</th><th class="n">الربح</th></tr></thead><tbody>' + tgs +
