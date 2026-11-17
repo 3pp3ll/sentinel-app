@@ -109,6 +109,7 @@ h1 { font: 700 clamp(26px, 4vw, 38px)/1.15 var(--f-display); margin: 6px 0 0; te
 .rrow { display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr) 2.5em; gap: 10px; align-items: center; }
 .rtrack { display: block; height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; }
 .rtrack span { display: block; height: 100%; border-radius: 6px; } .rtrack .good { background: var(--win); } .rtrack .bad { background: var(--loss); } .rtrack .mute { background: var(--muted); }
+.an2 table { min-width: 0; }
 .an2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 @media (max-width: 860px) { .an2 { grid-template-columns: minmax(0, 1fr); } .rrow { grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 2em; } }
 .res-sel { font: 600 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 40px; }
@@ -120,6 +121,10 @@ header.top .res-sel { margin-inline-start: auto; margin-inline-end: 8px; }
 .sortbar select { font: 500 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; }
 .seg { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: 99px; background: var(--sunk); }
 .seg button { border: 0; background: transparent; padding: 6px 12px; }
+.seg-scroll { display: flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.seg-scroll::-webkit-scrollbar { display: none; }
+.seg-scroll button { flex: 0 0 auto; }
+@media (max-width: 700px) { .seg-scroll { contain: inline-size; width: 100%; } }
 .range { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
 .range input { font: 500 13px var(--f-num); background: var(--surface); color: var(--fg); border: 1px solid var(--line); border-radius: 9px; padding: 6px 8px; }
 
@@ -187,6 +192,8 @@ td.n, th.n { text-align: center; }
 .field { display: flex; flex-direction: column; gap: 5px; }
 .field label { font-size: 12px; color: var(--muted); }
 .field input, .field select { font: 500 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 9px; padding: 10px 11px; width: 100%; }
+.field input[type="checkbox"] { width: 18px; height: 18px; padding: 0; margin: 0; flex: none; accent-color: var(--accent); }
+.field label:has(> input[type="checkbox"]) { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--fg); cursor: pointer; }
 .field input.ltr { direction: ltr; text-align: left; font-family: var(--f-num); }
 .stack { display: grid; gap: 14px; }
 .when { display: block; font: 500 11px var(--f-num); color: var(--muted); margin-top: 4px; white-space: nowrap; }
@@ -218,7 +225,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 @media (max-width: 1100px) { .grid2 { grid-template-columns: minmax(0, 1fr); } .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; } .kpi:nth-child(3) { border: 0; padding-inline-start: 0; } }
 @media (max-width: 860px) {
   .shell { grid-template-columns: minmax(0, 1fr); }
-  .rail { position: fixed; inset: 0 0 0 auto; width: min(300px, 84vw); height: 100%; transform: translateX(105%); transition: transform .22s ease; box-shadow: -12px 0 40px rgba(0,0,0,.3); }
+  .rail { position: fixed; inset: 0 0 0 auto; width: min(300px, 84vw); height: 100%; transform: translateX(calc(100% + 56px)); transition: transform .22s ease; box-shadow: -12px 0 40px rgba(0,0,0,.3); }
   .rail.open { transform: none; }
   .shade { display: block; position: fixed; inset: 0; background: var(--shade); z-index: 25; opacity: 0; pointer-events: none; transition: opacity .2s; }
   .shade.on { opacity: 1; pointer-events: auto; }
@@ -748,7 +755,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       rows.sort(function (a, b) { return b.g.wr - a.g.wr || b.g.pnl - a.g.pnl; });
       var hi = rows[0], lo = rows[rows.length - 1];
       if (hi.g.wr - lo.g.wr < 0.15) return;
-      out.push({ gap: hi.g.wr - lo.g.wr, html: "<b>" + DIMS[key][0] + ":</b> " + esc(hi.k) + ' نجحت <span class="num">' + hi.g.win + " من " + hi.g.dec + '</span> (<span class="num ' + cls(hi.g.pnl) + '">' + money(hi.g.pnl, true) + "</span>)، مقابل " + esc(lo.k) + ' <span class="num">' + lo.g.win + " من " + lo.g.dec + '</span> (<span class="num ' + cls(lo.g.pnl) + '">' + money(lo.g.pnl, true) + "</span>)." });
+      out.push({ gap: hi.g.wr - lo.g.wr, html: "<b>" + DIMS[key][0] + ":</b> " + esc(hi.k) + ' نجحت <span class="num">' + hi.g.win + '</span> من <span class="num">' + hi.g.dec + '</span> (<span class="num ' + cls(hi.g.pnl) + '">' + money(hi.g.pnl, true) + "</span>)، مقابل " + esc(lo.k) + ' <span class="num">' + lo.g.win + '</span> من <span class="num">' + lo.g.dec + '</span> (<span class="num ' + cls(lo.g.pnl) + '">' + money(lo.g.pnl, true) + "</span>)." });
     });
     if (base.n && base.cancel / base.n >= 0.25) out.push({ gap: 0.1, html: "<b>الإلغاء:</b> " + Math.round(base.cancel / base.n * 100) + "% من التوصيات انلغت لأن السعر ما وصل الدخول. هذا يحمي من الدخول المتأخر، بس يعني فرص فاتت." });
     out.sort(function (a, b) { return b.gap - a.gap; });
@@ -951,7 +958,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     if (!CTRL.data) { loadControl(); return '<section><div class="empty"><b>جارٍ تحميل الرموز…</b></div></section>'; }
     var tab = state.symTab || "us", paused = CTRL.data.paused || [];
     var all = (DATA && DATA.tickers && DATA.tickers.list) || [];
-    var seg = '<div class="seg" role="tablist" aria-label="الأقسام">' + SYMTABS.map(function (x) { return '<button type="button" role="tab" data-symtab="' + x[0] + '" class="' + (tab === x[0] ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</div>";
+    var seg = '<div class="seg seg-scroll" role="tablist" aria-label="الأقسام">' + SYMTABS.map(function (x) { return '<button type="button" role="tab" data-symtab="' + x[0] + '" class="' + (tab === x[0] ? "on" : "") + '">' + x[1] + "</button>"; }).join("") + "</div>";
     var list, intro = "";
     if (tab === "gulf") {
       list = '<div class="empty" style="padding:18px"><b>قريب إن شاء الله</b>الأسهم الخليجية تنضاف بعد ما يرجع ملف الفحص الشرعي من المراجع.</div>';
