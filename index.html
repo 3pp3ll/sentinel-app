@@ -115,6 +115,7 @@ h1 { font: 700 clamp(26px, 4vw, 38px)/1.15 var(--f-display); margin: 6px 0 0; te
 .res-sel { font: 600 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 40px; }
 header.top .res-sel { margin-inline-start: auto; margin-inline-end: 8px; }
 .res-wrap { display: inline-flex; align-items: center; gap: 8px; margin-inline-end: 8px; }
+.day-wrap { display: inline-flex; align-items: center; gap: 8px; margin-inline-end: 8px; }
 @media (max-width: 860px) { .res-wrap { display: none; } }
 .sortbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .sortbar label { font: 600 13px var(--f-body); color: var(--muted); }
@@ -620,16 +621,35 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     if (s.strategy === "deep") return s.id - 899999;   // سهم اليوم له ترقيمه الخاص (1، 2، 3…)
     return SEQ[s.id];
   }
+  /* تاريخ الصفقات: المفتوحة كلها، أو يوم من آخر 5 أيام فيها توصيات، أو كل الأيام. يخفف طول الصفحة */
+  var sigDay = store.get("sentinel.sigDay") || "open";
+  var WD = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  function dayOpts(all) {
+    var days = []; all.forEach(function (s) { var d = D(s.created_at); if (d) { var k = ymd(d); if (days.indexOf(k) < 0) days.push(k); } });
+    days.sort().reverse(); days = days.slice(0, 5);
+    var o = [["open", "الكل (المفتوحة)"]].concat(days.map(function (k) { var d = D(k); return [k, WD[d.getDay()] + " " + d.getDate() + "/" + (d.getMonth() + 1)]; }), [["all", "كل الأيام"]]);
+    if (!o.some(function (x) { return x[0] === sigDay; })) sigDay = "open";
+    return o;
+  }
+  function dayFilter(s) {
+    if (sigDay === "all") return true;
+    if (sigDay === "open") return s.status === "open";
+    var d = D(s.created_at); return d && ymd(d) === sigDay;
+  }
+  function daySelect(all) {
+    return '<span class="day-wrap"><label for="day-sig">تاريخ الصفقات</label><select id="day-sig" class="res-sel">' + dayOpts(all).map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === sigDay ? " selected" : "") + ">" + x[1] + "</option>"; }).join("") + "</select></span>";
+  }
   function sortSignals(list) { return list.slice().sort(SORTS[sigSort][1]); }
   function pageSignals() {
     var range = periodRange();
     if (noData(range)) return emptyBox(range);
     var all = filtered(range).filter(function (s) { var d = D(s.created_at); return d >= range.from && d <= range.to; });
-    var list = sortSignals(all.filter(RES[sigRes][1]));
-    if (!list.length) return '<section class="stack"><div class="sortbar"><span class="res-wrap"><label for="res-sig">الصفقات</label>' + resSelect("res-sig") + '</span></div><div class="empty"><b>' + (all.length ? "ما فيه صفقات " + RES[sigRes][0] + " في هذي الفترة" : "ما فيه توصيات في هذي الفترة") + "</b>" + (all.length ? "غيّر الاختيار من قائمة الصفقات." : "الوكيل يحلل كل يوم بعد إغلاق السوق، ويطلع توصية بس لما تكتمل الشروط.") + "</div></section>";
+    var dsel = daySelect(all);
+    var list = sortSignals(all.filter(dayFilter).filter(RES[sigRes][1]));
+    if (!list.length) return '<section class="stack"><div class="sortbar"><span class="res-wrap"><label for="res-sig">الصفقات</label>' + resSelect("res-sig") + '</span>' + dsel + '</div><div class="empty"><b>' + (all.length ? "ما فيه صفقات " + RES[sigRes][0] + " بهذا الاختيار" : "ما فيه توصيات في هذي الفترة") + "</b>" + (all.length ? "غيّر الاختيار من قائمة الصفقات أو تاريخ الصفقات." : "الوكيل يحلل كل يوم بعد إغلاق السوق، ويطلع توصية بس لما تكتمل الشروط.") + "</div></section>";
     var opts = Object.keys(SORTS).map(function (k) { return '<option value="' + k + '"' + (k === sigSort ? " selected" : "") + ">" + SORTS[k][0] + "</option>"; }).join("");
     var counts = Object.keys(RES).map(function (k) { return k + ":" + all.filter(RES[k][1]).length; });
-    return '<section class="stack"><div class="sortbar"><span class="res-wrap"><label for="res-sig">الصفقات</label>' + resSelect("res-sig") + '</span><label for="sort-sig">ترتيب الجدول</label><select id="sort-sig">' + opts + '</select><small class="note num">' + list.length + ' توصية</small></div><div class="table-wrap"><table><thead><tr><th>#</th><th>السهم</th><th>النوع</th><th class="n">الدخول</th><th class="n">الهدف</th><th class="n">البعيد</th><th class="n">الوقف</th><th>الحالة</th><th class="n">النتيجة</th><th>التاريخ</th></tr></thead><tbody>' + signalRows(list) + "</tbody></table></div></section>";
+    return '<section class="stack"><div class="sortbar"><span class="res-wrap"><label for="res-sig">الصفقات</label>' + resSelect("res-sig") + '</span>' + dsel + '<label for="sort-sig">ترتيب الجدول</label><select id="sort-sig">' + opts + '</select><small class="note num">' + list.length + ' توصية</small></div><div class="table-wrap"><table><thead><tr><th>#</th><th>السهم</th><th>النوع</th><th class="n">الدخول</th><th class="n">الهدف</th><th class="n">البعيد</th><th class="n">الوقف</th><th>الحالة</th><th class="n">النتيجة</th><th>التاريخ</th></tr></thead><tbody>' + signalRows(list) + "</tbody></table></div></section>";
   }
 
   /* ---------- التطهير: نسبة التطهير على الربح المحقق لكل صفقة (طريقة يقين وفلترنا) ---------- */
@@ -1251,6 +1271,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     if (e.target.id === "f-from") { state.from = e.target.value; saveView(); render(); }
     if (e.target.id === "f-to") { state.to = e.target.value; saveView(); render(); }
     if ((e.target.id === "res-sig" || e.target.id === "res-top") && RES[e.target.value]) { sigRes = e.target.value; store.set("sentinel.sigRes", sigRes); render(); }
+    if (e.target.id === "day-sig") { sigDay = e.target.value; store.set("sentinel.sigDay", sigDay); render(); }
     if (e.target.id === "sort-sig" && SORTS[e.target.value]) { sigSort = e.target.value; store.set("sentinel.sigSort", sigSort); render(); }
   });
   document.addEventListener("submit", function (e) {
