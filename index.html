@@ -234,6 +234,45 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   .enter-next { animation: sn .22s ease-out; } .enter-prev { animation: sp .22s ease-out; }
   @keyframes sn { from { opacity: 0; transform: translateX(-20px); } } @keyframes sp { from { opacity: 0; transform: translateX(20px); } }
 }
+
+/* سهم اليوم */
+.dp-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dp-meta { display: flex; align-items: center; gap: 8px; }
+.dp-tab { cursor: pointer; }
+.dp-tab.on { border-color: var(--accent); color: var(--fg); background: var(--accent-soft); }
+.dp-tab.pick b { color: var(--accent); }
+.dp-none { border: 1px dashed var(--line); border-radius: 12px; padding: 10px 14px; color: var(--muted); }
+.dp-panel { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.dp-strip { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+.dp-id { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dp-sym { font-size: 26px; color: var(--fg); }
+.dp-setup { color: var(--muted); font-size: 13px; }
+.dp-badge { font: 700 11px var(--f-body); padding: 3px 9px; border-radius: 99px; background: var(--accent); color: var(--bg); }
+.dp-badge.warn { background: var(--wait-soft); color: var(--muted); border: 1px solid var(--line); }
+.dp-kv, .dp-proof { display: flex; gap: 8px; flex-wrap: wrap; }
+.dp-kv span, .dp-proof span { display: flex; flex-direction: column; gap: 1px; border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; min-width: 84px; background: var(--sunk); }
+.dp-kv small, .dp-proof small { color: var(--muted); font-size: 11px; }
+.dp-kv b, .dp-proof b { font-size: 15px; }
+.dp-kv em, .dp-proof em { font-style: normal; font-size: 11px; color: var(--muted); }
+.dp-kv .win b, .dp-kv .win em, .dp-proof .win b { color: var(--win); }
+.dp-kv .loss b, .dp-proof .loss b { color: var(--loss); }
+.dp-tools { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }
+.dp-tg { cursor: pointer; }
+.dp-tg.on { color: var(--fg); border-color: var(--accent); }
+.dp-chart { height: min(62vh, 560px); min-height: 320px; direction: ltr; }
+.dp-rsi { height: 120px; direction: ltr; border-top: 1px solid var(--line); }
+.dp-legend .lg { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin: 0 4px 0 8px; }
+.lg.acc { background: var(--accent); } .lg.loss { background: var(--loss); } .lg.win { background: var(--win); }
+.dp-disc { margin: 0; }
+#dp-sheet { position: fixed; inset: 0; z-index: 60; background: var(--shade); display: flex; justify-content: center; align-items: flex-start; overflow: auto; padding: 24px 12px; }
+#dp-sheet[hidden] { display: none; }
+.dp-sheet-in { background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 18px; width: min(860px, 100%); display: flex; flex-direction: column; gap: 12px; }
+.dp-sheet-in h3 { margin: 0; font-size: 16px; }
+.dp-sheet-in table { min-width: 0; width: 100%; }
+.dp-sch { overflow-x: auto; }
+.dp-sheet-in td, .dp-sheet-in th { padding: 8px 6px; }
+.dp-sheet-in td.win, .chip.win { color: var(--win); } .dp-sheet-in td.loss, .chip.loss { color: var(--loss); }
+@media (max-width: 600px) { .dp-sheet-in { padding: 12px; } .dp-sheet-in table { font-size: 12px; } .dp-tt td:nth-child(3), .dp-tt th:nth-child(3) { display: none; } .dp-sch td:nth-child(2) { white-space: nowrap; } .dp-chart { height: 56vh; } .dp-tools .chips-row { flex-wrap: nowrap; overflow-x: auto; } .dp-kv span { padding: 4px 8px; } .dp-kv b { font-size: 14px; } .dp-sym { font-size: 22px; } .dp-kv span { min-width: 0; flex: 1 1 28%; } }
 </style>
 </head>
 <body>
@@ -245,6 +284,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       <div><b>Sentinel Signals</b><small>توصيات الأسهم النقية</small></div>
     </div>
     <nav class="nav" id="nav">
+      <a href="#deep"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 17l5-6 4 4 4-7 5 9M3 21h18"/><circle cx="16" cy="4" r="1.6" fill="currentColor"/></svg>سهم اليوم</a>
       <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
       <a href="#analysis"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4M8 13v-2M11 13V9M14 13v-3"/></svg>التحليل</a>
       <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
@@ -297,8 +337,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings"];
-  var TITLES = { overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
+  var PAGES = ["deep", "overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings"];
+  var TITLES = { deep: "سهم اليوم", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -453,7 +493,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var cls = function (x) { return x > 0 ? "pos" : x < 0 ? "neg" : "zero"; };
 
   function filtersHtml(page) {
-    if (page === "settings" || page === "archive" || page === "control" || page === "symbols") return "";
+    if (page === "deep" || page === "settings" || page === "archive" || page === "control" || page === "symbols") return "";
     var mk = monthKeys(), p = state.period;
     var chips = mk.map(function (k) { return '<button type="button" data-period="month:' + k + '" class="' + (p === "month:" + k ? "on" : "") + '">' + (k === monthKey(new Date()) ? "هذا الشهر · " : "") + monthName(k) + "</button>"; }).join("") +
       '<button type="button" data-period="all" class="' + (p === "all" ? "on" : "") + '">كل الفترة</button><button type="button" data-period="range" class="' + (p === "range" ? "on" : "") + '">فترة محددة</button>';
@@ -912,14 +952,165 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 
   /* ---------- التنقل ---------- */
   var current = "overview";
+  /* ---------- سهم اليوم: الشارت التفاعلي ---------- */
+  var DEEP = null, DEEP_ERR = null, DEEP_SEL = 0, DEEP_CH = null, DEEP_LIB = null;
+  var DEEP_SHOW = (function () { try { return JSON.parse(store.get("sentinel.deep.show") || "null"); } catch (e) { return null; } })() ||
+    { ema20: 1, sma50: 1, sma200: 1, bb: 0, vol: 1, lv: 1, past: 1, rsi: 1 };
+  var DEEP_SIZE = +(store.get("sentinel.deep.size") || 3000);
+  var DEEP_SETUP = { rsi2_dip: "RSI(2)", pullback20: "متوسط 20", bb_reentry: "بولنجر", breakout20: "اختراق", macd_turn: "MACD", nr7_break: "NR7", three_down: "3 أيام" };
+  function loadDeep(force) {
+    if (!HOSTED) { DEEP = window.DEEP_DEMO || null; return; }
+    var tk = token(); if (!tk) return;
+    if (!DEEP) { try { DEEP = JSON.parse(store.get("sentinel.deep") || "null"); } catch (e) {} }
+    if (loadDeep.busy) return; loadDeep.busy = true;
+    fetch("https://api.github.com/repos/" + REPO + "/contents/data/deep/latest.json?t=" + Date.now(), {
+      cache: "no-store", headers: { Authorization: "Bearer " + tk.t, Accept: "application/vnd.github.raw+json", "X-GitHub-Api-Version": "2022-11-28" }
+    }).then(function (r) { if (!r.ok) throw { code: r.status }; return r.json(); })
+      .then(function (d) { DEEP = d; DEEP_ERR = null; store.set("sentinel.deep", JSON.stringify(d)); if (force) toast("تم تحديث سهم اليوم"); })
+      .catch(function (e) { DEEP_ERR = e && e.code === 404 ? "404" : "net"; })
+      .then(function () { loadDeep.busy = false; if (current === "deep") render(); });
+  }
+  function deepList() { if (!DEEP) return []; return (DEEP.picks || []).map(function (c) { c._pick = 1; return c; }).concat((DEEP.watch || []).filter(function (c) { return c.chart; })); }
+  function usd(c, j) { var sh = Math.max(1, Math.floor(DEEP_SIZE / c.entry)); return sh * (c.targets[j].price - c.entry); }
+  function riskUsd(c) { var sh = Math.max(1, Math.floor(DEEP_SIZE / c.entry)); return sh * (c.entry - c.stop); }
+  function votes(c) { var up = 0, dn = 0; (c.schools || []).forEach(function (s) { if (s.vote > 0) up++; else if (s.vote < 0) dn++; }); return { up: up, dn: dn, n: (c.schools || []).length }; }
+  function pageDeep() {
+    if (!DEEP && !DEEP_ERR) { loadDeep(); return '<section><div class="empty"><b>جاري تحميل سهم اليوم…</b></div></section>'; }
+    if (!DEEP) return '<section><div class="empty"><b>' + (DEEP_ERR === "404" ? "سهم اليوم لسا ما اشتغل" : "ما قدرت أقرأ سهم اليوم") + "</b>" + (DEEP_ERR === "404" ? "أول تحليل يطلع بعد إغلاق السوق الأمريكي." : "تأكد من الاتصال وارجع حدّث.") + "</div></section>";
+    var list = deepList(), p = DEEP.proof || {};
+    if (DEEP_SEL >= list.length) DEEP_SEL = 0;
+    var c = list[DEEP_SEL];
+    var tabs = list.map(function (x, i) {
+      return '<button class="chip dp-tab' + (i === DEEP_SEL ? " on" : "") + (x._pick ? " pick" : "") + '" data-dsel="' + i + '"><b class="num">' + esc(x.symbol) + "</b> " + (x._pick ? '<span class="num">' + Math.round(x.targets[0].prob * 100) + "%</span>" : "مرشح") + "</button>";
+    }).join("");
+    var none = !(DEEP.picks || []).length;
+    var head = '<div class="dp-top"><div class="chips-row">' + tabs + "</div>" +
+      '<div class="dp-meta"><span class="note num">' + esc(when(DEEP.generated_at)) + " · فحص " + (DEEP.scanned || 0) + " سهم</span>" +
+      '<button class="btn ghost" data-dact="refresh" title="تحديث">⟳</button></div></div>' +
+      (none ? '<div class="dp-none"><b>ما فيه سهم اليوم.</b> ولا سهم عدّى شرط الدقة (' + Math.round((DEEP.rules || {}).min_p1 * 100) + "% للهدف الأول). " + (list.length ? "تقدر تشوف أقرب المرشحين، بس هم <b>ما عدّوا الشرط</b>." : "") + "</div>" : "");
+    if (!c) return '<section class="stack">' + head + proofHtml(p) + "</section>";
+    var v = votes(c), t1 = c.targets[0];
+    var badge = c._pick ? '<span class="dp-badge">سهم اليوم</span>' : '<span class="dp-badge warn">مرشح · ما عدّى الشرط</span>';
+    var strip = '<div class="dp-strip"><div class="dp-id">' + badge + '<b class="num dp-sym">' + esc(c.symbol) + '</b><span class="dp-setup">' + esc(c.setup_name) + (c.also && c.also.length ? " + " + esc(c.also.join(" + ")) : "") + "</span></div>" +
+      '<div class="dp-kv"><span><small>الدخول</small><b class="num">' + c.entry + '</b></span><span class="loss"><small>الوقف</small><b class="num">' + c.stop + '</b></span>' +
+      c.targets.map(function (t, j) { return '<span class="win"><small>هدف ' + (j + 1) + ' · <b class="num">' + Math.round(t.prob * 100) + '%</b></small><b class="num">' + t.price + '</b><em class="num">+' + usd(c, j).toFixed(0) + "$</em></span>"; }).join("") +
+      '<span><small>المدارس</small><b class="num">' + v.up + "/" + v.n + '</b><em>إيجابية</em></span></div></div>';
+    var tg = function (k, l) { return '<button class="chip dp-tg' + (DEEP_SHOW[k] ? " on" : "") + '" data-dtg="' + k + '">' + l + "</button>"; };
+    var tools = '<div class="dp-tools"><div class="chips-row">' + tg("ema20", "EMA 20") + tg("sma50", "MA 50") + tg("sma200", "MA 200") + tg("bb", "بولنجر") + tg("vol", "الحجم") + tg("lv", "الدعم والمقاومة") + tg("past", "الإشارات السابقة") + tg("rsi", "RSI") + "</div>" +
+      '<div class="row" style="gap:8px"><button class="btn ghost" data-dact="fit">ملء الشاشة للبيانات</button><button class="btn" data-dact="report">📄 التقرير والآراء</button></div></div>';
+    var chart = '<div class="dp-chart" id="dp-chart"></div><div class="dp-rsi" id="dp-rsi"' + (DEEP_SHOW.rsi ? "" : " hidden") + "></div>" +
+      '<div class="dp-legend note">خطوط: <i class="lg acc"></i>الدخول ENTRY <i class="lg loss"></i>الوقف STOP <i class="lg win"></i>الأهداف T1 T2 T3 (مع الاحتمال والربح) · R مقاومة و S دعم · الأسهم ▲ إشارات نفس الإعداد في الماضي (الأخضر وصل الهدف الأول، الأحمر لا). حرّك الشارت بالسحب، وكبّره بعجلة الماوس أو بإصبعين.</div>';
+    setTimeout(function () { mountDeep(c); }, 0);
+    return '<section class="stack dp">' + head + '<div class="panel dp-panel">' + strip + tools + chart + "</div>" +
+      '<p class="note dp-disc">للتعليم والمعلومة فقط، ولا يُعد توصية استثمارية. الاحتمالات من أداء الماضي ولا تضمن المستقبل.</p></section>';
+  }
+  function proofHtml(p) {
+    if (!p || !p.picks) return "";
+    return '<div class="panel stack"><h2>إثبات الدقة: لو كان «سهم اليوم» شغال من قبل</h2><p class="note">من ' + esc(p.from) + " إلى " + esc(p.to) + "، كل يوم يختار بدون ما يعرف المستقبل.</p>" +
+      '<div class="dp-proof"><span><small>توصيات</small><b class="num">' + p.picks + '</b><em class="num">' + p.per_month + ' بالشهر</em></span><span class="win"><small>وصلت الهدف 1</small><b class="num">' + Math.round(p.hit[0] * 100) + '%</b></span><span><small>الهدف 2</small><b class="num">' + Math.round(p.hit[1] * 100) + '%</b></span><span><small>الهدف 3</small><b class="num">' + Math.round(p.hit[2] * 100) + '%</b></span><span><small>متوسط الصفقة</small><b class="num">' + (p.avg_r >= 0 ? "+" : "") + p.avg_r + 'R</b></span><span class="loss"><small>أطول خسائر متتالية</small><b class="num">' + p.worst_streak + "</b></span></div></div>";
+  }
+  function deepLib(cb) {
+    if (window.LightweightCharts) return cb();
+    if (DEEP_LIB) return DEEP_LIB.push(cb);
+    DEEP_LIB = [cb];
+    var s = document.createElement("script"); s.src = "vendor/lightweight-charts.js";
+    s.onload = function () { var q = DEEP_LIB; DEEP_LIB = null; q.forEach(function (f) { f(); }); };
+    s.onerror = function () { var el = $("dp-chart"); if (el) el.innerHTML = '<div class="empty"><b>ما قدرت أحمّل الشارت</b>تأكد من الاتصال.</div>'; };
+    document.head.appendChild(s);
+  }
+  function cssv(k) { return getComputedStyle(document.documentElement).getPropertyValue(k).trim() || "#888"; }
+  function mountDeep(c) {
+    var el = $("dp-chart"); if (!el) return;
+    deepLib(function () {
+      if (!$("dp-chart")) return;
+      if (DEEP_CH) { try { DEEP_CH.main.remove(); DEEP_CH.rsi && DEEP_CH.rsi.remove(); } catch (e) {} DEEP_CH = null; }
+      var LW = window.LightweightCharts, d = c.chart, fg = cssv("--fg"), mu = cssv("--muted"), line = cssv("--line"), win = cssv("--win"), loss = cssv("--loss"), acc = cssv("--accent"), live = cssv("--live");
+      var base = { layout: { background: { color: "transparent" }, textColor: mu, fontFamily: "IBM Plex Mono, monospace" }, grid: { vertLines: { color: line }, horzLines: { color: line } },
+        rightPriceScale: { borderColor: line }, timeScale: { borderColor: line, rightOffset: 6 }, crosshair: { mode: 0 }, handleScale: true, handleScroll: true, localization: { locale: "en-US" } };
+      var ch = LW.createChart(el, Object.assign({ autoSize: true }, base));
+      var t = d.time;
+      var series = function (k) { var o = []; for (var i = 0; i < t.length; i++) if (d[k][i] != null) o.push({ time: t[i], value: d[k][i] }); return o; };
+      var cs = ch.addCandlestickSeries({ upColor: win, downColor: loss, borderVisible: false, wickUpColor: win, wickDownColor: loss });
+      cs.setData(t.map(function (x, i) { return { time: x, open: d.open[i], high: d.high[i], low: d.low[i], close: d.close[i] }; }));
+      var addLine = function (k, color, w, style) { var s = ch.addLineSeries({ color: color, lineWidth: w, lineStyle: style || 0, priceLineVisible: false, lastValueVisible: false, crosshairMarkerVisible: false }); s.setData(series(k)); return s; };
+      if (DEEP_SHOW.ema20) addLine("ema20", acc, 1.5);
+      if (DEEP_SHOW.sma50) addLine("sma50", live, 1.5);
+      if (DEEP_SHOW.sma200) addLine("sma200", fg, 2);
+      if (DEEP_SHOW.bb) { addLine("bb_up", mu, 1, 2); addLine("bb_lo", mu, 1, 2); }
+      if (DEEP_SHOW.vol) {
+        var vs = ch.addHistogramSeries({ priceFormat: { type: "volume" }, priceScaleId: "vol", lastValueVisible: false, priceLineVisible: false });
+        ch.priceScale("vol").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+        vs.setData(t.map(function (x, i) { return { time: x, value: d.volume[i], color: (d.close[i] >= d.open[i] ? win : loss) + "55" }; }));
+      }
+      var pl = function (price, color, title, w, style) { cs.createPriceLine({ price: price, color: color, lineWidth: w || 2, lineStyle: style == null ? 0 : style, axisLabelVisible: true, title: title }); };
+      if (DEEP_SHOW.lv && c.levels) {
+        (c.levels.resistance || []).slice(0, 2).forEach(function (l) { pl(l.price, loss + "88", "R ×" + l.touches, 1, 1); });
+        (c.levels.support || []).slice(0, 2).forEach(function (l) { pl(l.price, win + "88", "S ×" + l.touches, 1, 1); });
+      }
+      pl(c.entry, acc, "ENTRY", 2, 0);
+      pl(c.stop, loss, "STOP -$" + riskUsd(c).toFixed(0), 2, 0);
+      c.targets.forEach(function (tg, j) { pl(tg.price, win, "T" + (j + 1) + " " + Math.round(tg.prob * 100) + "% +$" + usd(c, j).toFixed(0), 2, 2); });
+      if (DEEP_SHOW.past && c.history) {
+        var inWin = {}; t.forEach(function (x) { inWin[x] = 1; });
+        var mk = c.history.filter(function (h) { return inWin[h.date]; }).map(function (h) { return { time: h.date, position: "belowBar", shape: "arrowUp", color: h.hits[0] ? win : loss, text: h.hits[0] ? "✓" : "✗" }; });
+        mk.push({ time: t[t.length - 1], position: "belowBar", shape: "arrowUp", color: acc, text: "TODAY" });
+        cs.setMarkers(mk.sort(function (a, b) { return a.time < b.time ? -1 : 1; }));
+      }
+      ch.timeScale().setVisibleLogicalRange({ from: t.length - 120, to: t.length + 6 });
+      var rch = null;
+      if (DEEP_SHOW.rsi && $("dp-rsi")) {
+        rch = LW.createChart($("dp-rsi"), Object.assign({ autoSize: true }, base, { timeScale: { visible: false, borderColor: line, rightOffset: 6 } }));
+        var rs = rch.addLineSeries({ color: acc, lineWidth: 1.5, priceLineVisible: false });
+        rs.setData(series("rsi14"));
+        [70, 30].forEach(function (v) { rs.createPriceLine({ price: v, color: mu, lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: "" }); });
+        var sync = function (a, b) { a.timeScale().subscribeVisibleLogicalRangeChange(function (r) { if (r) b.timeScale().setVisibleLogicalRange(r); }); };
+        sync(ch, rch); sync(rch, ch);
+        rch.timeScale().setVisibleLogicalRange(ch.timeScale().getVisibleLogicalRange());
+      }
+      DEEP_CH = { main: ch, rsi: rch };
+    });
+  }
+  function deepReport(c) {
+    var v = votes(c), e = c.est || {};
+    var sch = (c.schools || []).map(function (s) { return "<tr><td>" + esc(s.school) + '</td><td class="' + (s.vote > 0 ? "win" : s.vote < 0 ? "loss" : "") + '">' + (s.vote > 0 ? "إيجابي" : s.vote < 0 ? "سلبي" : "محايد") + "</td><td>" + esc(s.note) + "</td></tr>"; }).join("");
+    var tgs = c.targets.map(function (t, j) { return "<tr><td>هدف " + (j + 1) + '</td><td class="n num">' + t.price + '</td><td class="n num">+' + t.pct + '%</td><td class="n num win">' + Math.round(t.prob * 100) + '%</td><td class="n num">+' + usd(c, j).toFixed(2) + "$</td></tr>"; }).join("");
+    var hist = (c.history || []).slice(-12).reverse().map(function (h) { return '<span class="chip ' + (h.hits[0] ? "win" : "loss") + '"><span class="num">' + esc(h.date) + "</span> " + (h.hits[0] ? "✓" : "✗") + "</span>"; }).join(" ");
+    var html = '<div class="dp-sheet-in" role="dialog" aria-modal="true" aria-label="تقرير ' + esc(c.symbol) + '"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">تقرير <span class="num">' + esc(c.symbol) + '</span> · ' + esc(c.setup_name) + '</h2><button class="btn ghost" data-dact="close">إغلاق ✕</button></div>' +
+      (c._pick ? "" : '<div class="dp-none">هذا مرشح <b>ما عدّى شرط الدقة</b>، للاطلاع بس.</div>') +
+      '<div class="panel stack"><h3>ليش ظهر</h3><p>' + esc(c.why) + '</p><p class="note">المدرسة: ' + esc(c.setup_school) + (c.also && c.also.length ? " · ومعه: " + esc(c.also.join("، ")) : "") + "</p></div>" +
+      '<div class="panel stack"><h3>الأهداف بحجم صفقتك</h3><label class="row" style="gap:8px;align-items:center">حجم الصفقة $ <input id="dp-size" type="number" min="100" step="100" value="' + DEEP_SIZE + '" style="width:120px"></label>' +
+      '<div class="table-wrap"><table class="dp-tt"><thead><tr><th></th><th class="n">السعر</th><th class="n">النسبة</th><th class="n">الاحتمال</th><th class="n">الربح</th></tr></thead><tbody>' + tgs +
+      '<tr><td>الوقف</td><td class="n num">' + c.stop + '</td><td class="n num">−' + c.stop_pct + '%</td><td></td><td class="n num loss">−' + riskUsd(c).toFixed(2) + "$</td></tr></tbody></table></div>" +
+      '<p class="note">الدخول ' + c.entry + "، والمدة القصوى " + c.horizon_days + " جلسات. الاحتمال = كم مرة وصل السعر للهدف قبل الوقف في تاريخ نفس الإعداد، بعد تعديله بفرق الاختبار الأمامي.</p></div>" +
+      '<div class="panel stack"><h3>آراء المدارس <small class="note">' + v.up + " إيجابي · " + v.dn + " سلبي · من " + v.n + '</small></h3><div class="dp-sch"><table><tbody>' + sch + "</tbody></table></div></div>" +
+      '<div class="panel stack"><h3>تاريخ هذا الإعداد على <span class="num">' + esc(c.symbol) + '</span></h3><p class="note">ظهر <b class="num">' + (e.n || 0) + "</b> مرة على السهم" + (e.own_p1 != null ? "، ووصل الهدف الأول " + Math.round(e.own_p1 * 100) + "% منها" : "") + "، و" + (e.n_all || 0) + " مرة على كل الأسهم. الحد الأدنى للثقة " + Math.round((e.lb1 || 0) * 100) + "%.</p><div class=\"chips-row\">" + hist + "</div></div>" +
+      proofHtml(DEEP.proof) +
+      '<p class="note">هذا المحتوى لأغراض تعليمية ومعلوماتية فقط، ولا يُعد توصية أو نصيحة استثمارية. التداول ينطوي على مخاطر، وقد تخسر جزءاً من رأس مالك أو كله، والنتائج السابقة لا تضمن النتائج المستقبلية. القرار والمسؤولية على المستخدم.</p></div>';
+    var sh = $("dp-sheet"); if (!sh) { sh = document.createElement("div"); sh.id = "dp-sheet"; document.body.appendChild(sh); }
+    sh.innerHTML = html; sh.hidden = false; document.body.style.overflow = "hidden";
+    var inp = $("dp-size"); if (inp) inp.addEventListener("change", function () { DEEP_SIZE = Math.max(100, +inp.value || 3000); store.set("sentinel.deep.size", DEEP_SIZE); deepReport(c); render(); });
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-dsel],[data-dtg],[data-dact]"); if (!b) return;
+    if (b.dataset.dsel != null) { DEEP_SEL = +b.dataset.dsel; render(); }
+    else if (b.dataset.dtg) { DEEP_SHOW[b.dataset.dtg] = DEEP_SHOW[b.dataset.dtg] ? 0 : 1; store.set("sentinel.deep.show", JSON.stringify(DEEP_SHOW)); render(); }
+    else {
+      var a = b.dataset.dact, c = deepList()[DEEP_SEL];
+      if (a === "refresh") { DEEP = null; loadDeep(true); render(); }
+      else if (a === "fit" && DEEP_CH) DEEP_CH.main.timeScale().fitContent();
+      else if (a === "report" && c) deepReport(c);
+      else if (a === "close") { var sh = $("dp-sheet"); if (sh) sh.hidden = true; document.body.style.overflow = ""; }
+    }
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { var sh = $("dp-sheet"); if (sh && !sh.hidden) { sh.hidden = true; document.body.style.overflow = ""; } } });
   function page() { var h = location.hash.replace("#", ""); return PAGES.indexOf(h) >= 0 ? h : "overview"; }
   function render(dir) {
     current = page();
     document.querySelectorAll("#nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
-    $("eyebrow").textContent = current === "settings" || current === "archive" || current === "control" || current === "symbols" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
+    $("eyebrow").textContent = current === "deep" || current === "settings" || current === "archive" || current === "control" || current === "symbols" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
+    $("page-desc").textContent = { deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
     if (current === "signals") rt.innerHTML = resSelect("x").replace(/^<select[^>]*>|<\/select>$/g, "");
@@ -927,7 +1118,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var v = $("view");
     v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
+      : ({ deep: pageDeep, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
   }
