@@ -266,6 +266,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 .dp-legend .lg { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin: 0 4px 0 8px; }
 .lg.acc { background: var(--accent); } .lg.loss { background: var(--loss); } .lg.win { background: var(--win); }
 .dp-disc { margin: 0; }
+.dp-panel.hot { border-top: 4px solid var(--loss); }
+.dp-hot-band { border-top: 3px solid var(--loss); border-bottom: 3px solid var(--loss); color: var(--loss); font-weight: 700; padding: 8px 4px; text-align: start; }
 #dp-sheet { position: fixed; inset: 0; z-index: 60; background: var(--shade); display: flex; justify-content: center; align-items: flex-start; overflow: auto; padding: 24px 12px; }
 #dp-sheet[hidden] { display: none; }
 .dp-sheet-in { background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 18px; width: min(860px, 100%); display: flex; flex-direction: column; gap: 12px; }
@@ -1021,7 +1023,9 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var chart = '<div class="dp-chart" id="dp-chart"></div><div class="dp-rsi" id="dp-rsi"' + (DEEP_SHOW.rsi ? "" : " hidden") + "></div>" +
       '<div class="dp-legend note">خطوط: <i class="lg acc"></i>الدخول ENTRY <i class="lg loss"></i>الوقف STOP <i class="lg win"></i>الأهداف T1 T2 T3 (مع الاحتمال والربح) · R مقاومة و S دعم · الأسهم ▲ إشارات نفس الإعداد في الماضي (الأخضر وصل الهدف الأول، الأحمر لا). حرّك الشارت بالسحب، وكبّره بعجلة الماوس أو بإصبعين.</div>';
     setTimeout(function () { mountDeep(c); }, 0);
-    return '<section class="stack dp">' + head + '<div class="panel dp-panel">' + strip + tools + chart + "</div>" +
+    var hot = c.purify != null && c.purify > 10;
+    var hotBand = hot ? '<div class="dp-hot-band">نسبة التطهير عالية <b class="num">' + c.purify.toFixed(2) + "%</b></div>" : "";
+    return '<section class="stack dp">' + head + '<div class="panel dp-panel' + (hot ? " hot" : "") + '">' + strip + tools + chart + hotBand + "</div>" +
       '<p class="note dp-disc">للتعليم والمعلومة فقط، ولا يُعد توصية استثمارية. الاحتمالات من أداء الماضي ولا تضمن المستقبل.</p></section>';
   }
   function proofHtml(p) {
