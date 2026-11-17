@@ -475,7 +475,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       .then(function (d) { LEDGER = d; store.set("sentinel.ledger", JSON.stringify(d)); render(); }).catch(function () {});
   }
   function deepRows() {
-    return (LEDGER || []).map(function (r, i) {
+    return (LEDGER || []).filter(function (r) { return r.kind !== "watch"; }).map(function (r, i) {
       var st = r.status === "pending" ? "open" : r.status, t = r.targets || [];
       return { id: 900000 + i, strategy: "deep", market: "us", symbol: r.symbol, category: "deep", status: st, entered: r.status !== "pending", price: r.price,
         entry: r.entry_fill || r.price, stop: r.stop, tp1: t[0] && t[0].price, tp2: t[1] && t[1].price, shares: r.shares || Math.max(1, Math.floor((r.size || 3000) / r.price)),
@@ -1009,7 +1009,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var badge = c._pick ? '<span class="dp-badge">سهم اليوم</span>' : '<span class="dp-badge warn">مرشح · ما عدّى الشرط</span>';
     var strip = '<div class="dp-strip"><div class="dp-id">' + badge + '<b class="num dp-sym">' + esc(c.symbol) + '</b><span class="dp-setup">' + esc(c.setup_name) + (c.also && c.also.length ? " + " + esc(c.also.join(" + ")) : "") + "</span></div>" +
       '<div class="dp-kv"><span><small>الدخول</small><b class="num">' + c.entry + '</b></span><span class="loss"><small>الوقف</small><b class="num">' + c.stop + '</b></span>' +
-      c.targets.map(function (t, j) { return '<span class="win"><small>هدف ' + (j + 1) + ' · <b class="num">' + Math.round(t.prob * 100) + '%</b></small><b class="num">' + t.price + '</b><em class="num">+' + usd(c, j).toFixed(0) + "$</em></span>"; }).join("") +
+      c.targets.map(function (t, j) { return '<span class="win"><small>هدف ' + (j + 1) + ' · <b class="num">' + Math.round(t.prob * 100) + '%</b></small><b class="num">' + t.price + '</b><em class="num">+' + usd(c, j).toFixed(0) + "$" + (t.eta_days ? " · ~" + t.eta_days + " أيام" : "") + "</em></span>"; }).join("") +
       '<span><small>المدارس</small><b class="num">' + v.up + "/" + v.n + '</b><em>إيجابية</em></span></div></div>';
     var tg = function (k, l) { return '<button class="chip dp-tg' + (DEEP_SHOW[k] ? " on" : "") + '" data-dtg="' + k + '">' + l + "</button>"; };
     var tools = '<div class="dp-tools"><div class="chips-row">' + tg("ema20", "EMA 20") + tg("sma50", "MA 50") + tg("sma200", "MA 200") + tg("bb", "بولنجر") + tg("vol", "الحجم") + tg("lv", "الدعم والمقاومة") + tg("past", "الإشارات السابقة") + tg("rsi", "RSI") + "</div>" +
@@ -1089,7 +1089,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   function deepReport(c) {
     var v = votes(c), e = c.est || {};
     var sch = (c.schools || []).map(function (s) { return "<tr><td>" + esc(s.school) + '</td><td class="' + (s.vote > 0 ? "win" : s.vote < 0 ? "loss" : "") + '">' + (s.vote > 0 ? "إيجابي" : s.vote < 0 ? "سلبي" : "محايد") + "</td><td>" + esc(s.note) + "</td></tr>"; }).join("");
-    var tgs = c.targets.map(function (t, j) { return "<tr><td>هدف " + (j + 1) + '</td><td class="n num">' + t.price + '</td><td class="n num">+' + t.pct + '%</td><td class="n num win">' + Math.round(t.prob * 100) + '%</td><td class="n num">+' + usd(c, j).toFixed(2) + "$</td></tr>"; }).join("");
+    var tgs = c.targets.map(function (t, j) { return "<tr><td>هدف " + (j + 1) + (t.eta_days ? '<br><small class="note">~' + t.eta_days + " أيام</small>" : "") + '</td><td class="n num">' + t.price + '</td><td class="n num">+' + t.pct + '%</td><td class="n num win">' + Math.round(t.prob * 100) + '%</td><td class="n num">+' + usd(c, j).toFixed(2) + "$</td></tr>"; }).join("");
     var hist = (c.history || []).slice(-12).reverse().map(function (h) { return '<span class="chip ' + (h.hits[0] ? "win" : "loss") + '"><span class="num">' + esc(h.date) + "</span> " + (h.hits[0] ? "✓" : "✗") + "</span>"; }).join(" ");
     var html = '<div class="dp-sheet-in" role="dialog" aria-modal="true" aria-label="تقرير ' + esc(c.symbol) + '"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">تقرير <span class="num">' + esc(c.symbol) + '</span> · ' + esc(c.setup_name) + '</h2><button class="btn ghost" data-dact="close">إغلاق ✕</button></div>' +
       (c._pick ? "" : '<div class="dp-none">هذا مرشح <b>ما عدّى شرط الدقة</b>، للاطلاع بس.</div>') +
@@ -1097,7 +1097,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<div class="panel stack"><h3>الأهداف بحجم صفقتك</h3><label class="row" style="gap:8px;align-items:center">حجم الصفقة $ <input id="dp-size" type="number" min="100" step="100" value="' + DEEP_SIZE + '" style="width:120px"></label>' +
       '<div class="table-wrap"><table class="dp-tt"><thead><tr><th></th><th class="n">السعر</th><th class="n">النسبة</th><th class="n">الاحتمال</th><th class="n">الربح</th></tr></thead><tbody>' + tgs +
       '<tr><td>الوقف</td><td class="n num">' + c.stop + '</td><td class="n num">−' + c.stop_pct + '%</td><td></td><td class="n num loss">−' + riskUsd(c).toFixed(2) + "$</td></tr></tbody></table></div>" +
-      '<p class="note">الدخول ' + c.entry + "، والمدة القصوى " + c.horizon_days + " جلسات. الاحتمال = كم مرة وصل السعر للهدف قبل الوقف في تاريخ نفس الإعداد، بعد تعديله بفرق الاختبار الأمامي.</p></div>" +
+      '<p class="note">الدخول ' + c.entry + "، والمدة القصوى " + c.horizon_days + " جلسات. «~ أيام» = متوسط المدة اللي احتاجها السعر يوصل الهدف في الماضي (بالجلسات). الاحتمال = كم مرة وصل السعر للهدف قبل الوقف في تاريخ نفس الإعداد، بعد تعديله بفرق الاختبار الأمامي.</p></div>" +
       '<div class="panel stack"><h3>آراء المدارس <small class="note">' + v.up + " إيجابي · " + v.dn + " سلبي · من " + v.n + '</small></h3><div class="dp-sch"><table><tbody>' + sch + "</tbody></table></div></div>" +
       '<div class="panel stack"><h3>تاريخ هذا الإعداد على <span class="num">' + esc(c.symbol) + '</span></h3><p class="note">ظهر <b class="num">' + (e.n || 0) + "</b> مرة على السهم" + (e.own_p1 != null ? "، ووصل الهدف الأول " + Math.round(e.own_p1 * 100) + "% منها" : "") + "، و" + (e.n_all || 0) + " مرة على كل الأسهم. الحد الأدنى للثقة " + Math.round((e.lb1 || 0) * 100) + "%.</p><div class=\"chips-row\">" + hist + "</div></div>" +
       proofHtml(DEEP.proof) +
