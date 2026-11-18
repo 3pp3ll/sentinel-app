@@ -110,6 +110,25 @@ h1 { font: 700 clamp(26px, 4vw, 38px)/1.15 var(--f-display); margin: 6px 0 0; te
 .rtrack { display: block; height: 12px; border-radius: 6px; background: var(--sunk); overflow: hidden; }
 .rtrack span { display: block; height: 100%; border-radius: 6px; } .rtrack .good { background: var(--win); } .rtrack .bad { background: var(--loss); } .rtrack .mute { background: var(--muted); }
 .an2 table { min-width: 0; }
+.pitch-hero { background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--accent) 9%, var(--surface))); }
+.pitch-brand { font: 600 13px/1 var(--f-num); color: var(--accent); letter-spacing: .04em; }
+.pitch-hero h2 { margin: 10px 0 8px; font-size: clamp(20px, 2.6vw, 28px); line-height: 1.35; }
+.pitch-hero p { margin: 0; color: var(--muted); max-width: 62ch; line-height: 1.8; }
+.pitch-day { margin-top: 14px; display: inline-block; padding: 6px 12px; border-radius: 999px; background: var(--bg); border: 1px solid var(--line); font-size: 13px; }
+.kpis.pitch-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+@media (max-width: 860px) { .kpis.pitch-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 14px; } }
+@media (max-width: 480px) { .kpis.pitch-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.pitch-h { margin: 0 0 12px; font-size: 17px; }
+.table-wrap table.pitch-t { min-width: 0; }
+.pitch-sub { display: block; font-size: 12px; color: var(--muted); }
+@media (max-width: 480px) { .pitch-t th, .pitch-t td { padding-inline: 8px; font-size: 13px; } }
+.pitch-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.pitch-steps li { border-inline-start: 3px solid var(--accent); padding-inline-start: 12px; }
+.pitch-steps span { font-size: 12px; color: var(--muted); display: block; }
+.pitch-steps b { display: block; margin: 2px 0 4px; }
+.pitch-steps p { margin: 0; color: var(--muted); line-height: 1.7; }
+.pitch-after { margin: 0; line-height: 1.8; }
+.pitch-list { margin: 0; padding-inline-start: 18px; line-height: 2; color: var(--fg); }
 .an2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 @media (max-width: 860px) { .an2 { grid-template-columns: minmax(0, 1fr); } .rrow { grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 2em; } }
 .res-sel { font: 600 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; min-height: 40px; }
@@ -306,6 +325,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       <a href="#symbols"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></svg>الرموز</a>
       <a href="#control"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></g></svg>لوحة التحكم</a>
       <a href="#settings"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></svg>الإعدادات</a>
+      <a href="#pitch"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 12l3-3 2 2 4-4M12 16v4M8 20h8"/></g></svg>عرض المستثمر</a>
     </nav>
     <div class="rail-foot">
       <div class="trial" id="trial-box"></div>
@@ -350,8 +370,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["deep", "overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings"];
-  var TITLES = { deep: "سهم اليوم", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات" };
+  var PAGES = ["deep", "overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "pitch"];
+  var TITLES = { deep: "سهم اليوم", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات", pitch: "عرض المستثمر" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -541,7 +561,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var cls = function (x) { return x > 0 ? "pos" : x < 0 ? "neg" : "zero"; };
 
   function filtersHtml(page) {
-    if (page === "deep" || page === "settings" || page === "archive" || page === "control" || page === "symbols") return "";
+    if (page === "deep" || page === "settings" || page === "archive" || page === "control" || page === "symbols" || page === "pitch") return "";
     var mk = monthKeys(), p = state.period;
     var chips = mk.map(function (k) { return '<button type="button" data-period="month:' + k + '" class="' + (p === "month:" + k ? "on" : "") + '">' + (k === monthKey(new Date()) ? "هذا الشهر · " : "") + monthName(k) + "</button>"; }).join("") +
       '<button type="button" data-period="all" class="' + (p === "all" ? "on" : "") + '">كل الفترة</button><button type="button" data-period="range" class="' + (p === "range" ? "on" : "") + '">فترة محددة</button>';
@@ -871,6 +891,46 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<p class="note">التقرير فيه ملخص الفترة لكل حساب، وجدول التوصيات بنتائجها. PDF للمشاركة والسوشال ميديا، وExcel للتحليل، وWord للتعديل.</p></div>' +
       '<div class="panel"><p class="note">كل التقارير مكتوب عليها إنها <b>نتائج حساب تجريبي</b> و<b>ليست توصية أو استشارة مالية</b>، عشان تنشرها وأنت مرتاح.</p></div></section>';
   }
+  /* ---------- عرض المستثمر: التجربة كاملة بالسوق الأمريكي (متوسطة + سريعة)، أرقام فعلية من أوامر Alpaca ---------- */
+  var PITCH_CUT = "2026-11-17T20:00:00Z";   // من هنا: التوصيات الجديدة للقيادية وفوق 50 مليار بس
+  function pagePitch() {
+    if (!DATA) return '<section><div class="empty"><b>البيانات ما وصلت للحين</b>حدّث الصفحة بعد شوي.</div></section>';
+    var keep = { market: state.market, strat: state.strat }; state.market = "us"; state.strat = "all";
+    var rng = { from: D(DATA.trial_start) || new Date(0), to: new Date(8.64e15) };
+    var st = stats(rng), all = filtered(rng);
+    state.market = keep.market; state.strat = keep.strat;
+    var g = groupStats(st.decided), pf = g.gl ? g.gw / g.gl : null;
+    var day = Math.min(30, Math.max(1, Math.floor((Date.now() - D(DATA.trial_start)) / 864e5) + 1));
+    var grp = function (name, f) {
+      var x = groupStats(st.decided.filter(f));
+      return "<tr><td>" + name + '</td><td class="n"><b class="num">' + (x.wr == null ? "—" : Math.round(x.wr * 100) + "%") + '</b><small class="pitch-sub"><span class="num">' + x.win + '</span> من <span class="num">' + x.dec + '</span></small></td><td class="n num ' + cls(x.pnl) + '">' + money(x.pnl, true) + "</td></tr>";
+    };
+    var fixed = function (s) { return s.category !== "us_movers"; }, big = function (s) { return (s.mcap || 0) >= 5e10; };
+    var after = all.filter(function (s) { return D(s.created_at) >= D(PITCH_CUT); }), afterDec = groupStats(after.filter(function (s) { return DECIDED[s.status]; }));
+    var kpi = function (k, v, c) { return '<div class="kpi"><div class="k">' + k + '</div><div class="v num ' + (c || "") + '">' + v + "</div></div>"; };
+    var steps = [
+      ["2 نوفمبر", "بداية التجربة", "حسابين تجريبيين منفصلين على Alpaca (متوسطة وسريعة)، 3,000$ لكل صفقة، بدون رافعة، ووقف خسارة على كل صفقة."],
+      ["من البداية", "الفلتر الشرعي", "السهم يدخل بس إذا حكمه متوافق في يقين أو عوائد، ونسبة التطهير تنحسب على الربح المحقق وتنحجز من الكاش لين تنصرف."],
+      ["16 نوفمبر", "حماية من التكرار", "السهم اللي خسر مرتين يرتاح 14 يوم، وحد يومي للتوصيات الجديدة، والقيادية لها الأولوية."],
+      ["17 نوفمبر", "القرار بالأرقام", "التحليل بيّن إن الأسهم تحت 50 مليار نجحت 32% بس، فحصرنا التوصيات الجديدة في القيادية وفوق 50 مليار، وسقف 20 صفقة مفتوحة منها 10 بانتظار الدخول."]
+    ];
+    return '<section class="stack pitch">' +
+      '<div class="panel pitch-hero"><div class="pitch-brand">Sentinel Signals</div><h2>وكيل توصيات للأسهم الأمريكية المتوافقة مع الشريعة</h2>' +
+      '<p>يحلل السوق كل يوم بعد الإغلاق، ويطلع صفقات بدخول ووقف وأهداف، وينفذها تلقائياً على حسابات تجريبية، ويتابعها لين تنقفل. كل رقم في هذي الصفحة من أوامر التنفيذ الفعلية، مو تقدير.</p>' +
+      '<div class="pitch-day">تجربة 30 يوم · <b class="num">اليوم ' + day + "</b> من <span class=\"num\">30</span></div></div>" +
+      '<div class="panel"><div class="kpis pitch-kpis">' + kpi("صفقات محسومة", st.decided.length) + kpi("نسبة النجاح", st.rate == null ? "—" : Math.round(st.rate * 100) + "%") +
+      kpi("صافي الربح", money(st.net, true), cls(st.net)) + kpi("معامل الربح", pf == null ? "—" : pf.toFixed(2)) + kpi("متوسط الربح", st.avgWin == null ? "—" : money(st.avgWin, true), "pos") +
+      kpi("متوسط الخسارة", st.avgLoss == null ? "—" : money(st.avgLoss, true), "neg") + "</div>" +
+      (st.curve.length ? curveSvg(st.curve) : "") + '<div class="caption">الربح التراكمي بالدولار بترتيب حسم الصفقات، من بداية التجربة. معامل الربح = مجموع الأرباح ÷ مجموع الخسائر.</div></div>' +
+      '<div class="panel"><h3 class="pitch-h">وش تعلمنا</h3><div class="table-wrap"><table class="pitch-t"><thead><tr><th>المجموعة</th><th class="n">النجاح</th><th class="n">الصافي</th></tr></thead><tbody>' +
+      grp("القيادية والذكاء الاصطناعي", fixed) + grp("الأكثر حركة فوق 50 مليار", function (s) { return !fixed(s) && big(s); }) + grp("الأكثر حركة تحت 50 مليار", function (s) { return !fixed(s) && !big(s); }) +
+      "</tbody></table></div><p class=\"note\">الأسهم الكبيرة كسبت والصغيرة خسرت، فالخسارة متركزة في مجموعة وحدة نقدر نشيلها.</p></div>" +
+      '<div class="panel"><h3 class="pitch-h">القرارات</h3><ol class="pitch-steps">' + steps.map(function (x) { return "<li><span>" + x[0] + "</span><b>" + x[1] + "</b><p>" + x[2] + "</p></li>"; }).join("") + "</ol></div>" +
+      '<div class="panel"><h3 class="pitch-h">بعد القرار</h3><p class="pitch-after">' + (after.length ? 'طلعت <b class="num">' + after.length + "</b> توصية بالقواعد الجديدة" + (afterDec.dec ? '، انحسم منها <b class="num">' + afterDec.dec + "</b> ونجح <b class=\"num\">" + afterDec.win + "</b>." : "، وللحين ما انحسم منها شي.") : "القواعد الجديدة بدأت ليلة 17 نوفمبر. التوصيات الجديدة ترجع لما ينزل عدد الصفقات المفتوحة تحت 20، ونتائجها تطلع هنا أول بأول.") + "</p></div>" +
+      '<div class="panel"><h3 class="pitch-h">الضوابط</h3><ul class="pitch-list"><li>حسابات تجريبية بدون رافعة، وحجم ثابت لكل صفقة</li><li>وقف خسارة على كل صفقة من لحظة الدخول</li><li>أسهم متوافقة مع الشريعة بس، والتطهير ينحسب ويُحجز</li><li>كل نتيجة من أوامر التنفيذ الفعلية في Alpaca</li><li>المحتوى تعليمي، وليس نصيحة استثمارية ولا توصية</li></ul></div>' +
+      "</section>";
+  }
+
   function pageSettings() {
     var tk = token();
     var status = DEMO ? "عرض تجريبي (ما يقرأ بياناتك)" : ERR === "token" ? "محتاج رمز وصول" : ERR === "401" ? "الرمز غير صحيح أو منتهي" : ERR === "404" ? "الرمز ما له صلاحية على sentinel-signals" : ERR === "net" ? "تعذر الاتصال بـ GitHub" + (ERR_DETAIL ? " (" + ERR_DETAIL + ")" : "") : DATA ? "مربوط ويقرأ بياناتك" : "جارٍ التحميل";
@@ -1181,8 +1241,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     document.querySelectorAll("#nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
-    $("eyebrow").textContent = current === "deep" || current === "settings" || current === "archive" || current === "control" || current === "symbols" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت." }[current];
+    $("eyebrow").textContent = current === "deep" || current === "settings" || current === "archive" || current === "control" || current === "symbols" || current === "pitch" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
+    $("page-desc").textContent = { deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
     if (current === "signals") rt.innerHTML = resSelect("x").replace(/^<select[^>]*>|<\/select>$/g, "");
@@ -1190,7 +1250,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var v = $("view");
     v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ deep: pageDeep, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings }[current])();
+      : ({ deep: pageDeep, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings, pitch: pagePitch }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
     var dt = $("deep-trial");
