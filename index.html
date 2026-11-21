@@ -198,6 +198,22 @@ td.n, th.n { text-align: center; }
 .pill.win { background: var(--win-soft); color: var(--win); } .pill.win2 { background: var(--win); color: var(--surface); }
 .pill.loss { background: var(--loss-soft); color: var(--loss); } .pill.live { background: var(--live-soft); color: var(--live); }
 .pill.wait, .pill.muted { background: var(--wait-soft); color: var(--muted); }
+.cn-card { --c: var(--muted); --cs: var(--wait-soft); background: var(--cs); border: 1px solid var(--line); border-inline-start: 4px solid var(--c); border-radius: 14px; padding: 14px 16px; min-width: 0; }
+.cn-card.live { --c: var(--live); --cs: var(--live-soft); }
+.cn-card.go { --c: var(--win); --cs: var(--win-soft); }
+.cn-card.bad { --c: var(--loss); --cs: var(--loss-soft); }
+.cn-card.hold { --c: var(--accent); --cs: var(--accent-soft); }
+.cn-card-row { display: flex; align-items: center; gap: 14px; }
+.cn-ic { font-size: 34px; line-height: 1; flex: none; }
+.cn-card-t { flex: 1; min-width: 0; }
+.cn-card-t b { display: block; font: 700 20px/1.25 var(--f-display); color: var(--c); }
+.cn-card-t span { font-size: 13px; color: var(--muted); }
+.cn-card-t .num { white-space: nowrap; }
+.cn-refresh { flex: none; width: 46px; height: 46px; border-radius: 12px; border: 1px solid var(--c); background: var(--surface); color: var(--c); display: grid; place-items: center; cursor: pointer; }
+.cn-refresh:hover { background: var(--c); color: var(--surface); }
+.cn-notes { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); display: grid; gap: 4px; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; }
+.cn-notes .bad { color: var(--loss); }
+@media (max-width: 480px) { .cn-card { padding: 12px; } .cn-ic { font-size: 28px; } .cn-card-t b { font-size: 18px; } .cn-card-row { gap: 10px; } }
 .cn-agents .cn-rep { white-space: normal; text-align: start; }
 .cn-agents .cn-m { display: none; }
 .cn-veto { display: block; color: var(--loss); font-size: 12px; }
@@ -1276,14 +1292,23 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     if (!CN) return '<section><div class="empty"><b>' + (CN_ERR === "token" ? "اربط التطبيق ببياناتك" : CN_ERR === "auth" ? "الرمز ما يخص حسابك" : "ما قدرت أوصل للمجلس") + "</b>" +
       (CN_ERR === "token" ? "من الإعدادات، خطوة وحدة." : CN_ERR === "auth" ? "المجلس يقبل رمز GitHub حق صاحب الحساب بس." : "تأكد من النت وجرب التحديث.") + "</div></section>";
     var c = CN.chief || {}, dec = c.decision || {};
-    var state1 = c.halted ? '<span class="pill loss">موقوف اليوم: ' + esc(c.haltReason || "") + "</span>"
-      : c.phase === "open" || c.phase === "no_entries" || c.phase === "flatten" ? (dec.allowEntries ? '<span class="pill win">الدخول مسموح</span>' : '<span class="pill wait">ما فيه دخول' + ((dec.blockers || []).length ? ": " + esc(dec.blockers.join("، ")) : "") + "</span>")
-      : '<span class="pill muted">' + esc(CN_PHASE[c.phase] || "ينتظر أول نبضة") + "</span>";
-    var head = '<div class="dp-top"><div class="seg seg-scroll" role="tablist" aria-label="أقسام المجلس">' + CN_TABS.map(function (x) {
+    var live = c.phase === "open" || c.phase === "no_entries" || c.phase === "flatten", paper = CN.mode === "paper";
+    // لون البطاقة: أحمر للإيقاف أو الخطأ، أخضر لـpaper والدخول مسموح، أزرق للظل والسوق مفتوح، وغيرها رمادي (أو ذهبي لـpaper بدون دخول)
+    var tone = c.halted || c.lastError ? "bad" : paper && live && dec.allowEntries ? "go" : !paper && live ? "live" : paper && live ? "hold" : "calm";
+    var notes = [];
+    if (c.halted) notes.push(["bad", "⛔ موقوف اليوم" + (c.haltReason ? ": " + c.haltReason : "")]);
+    else if (live && !dec.allowEntries) notes.push(["", "⏸ ما فيه دخول" + ((dec.blockers || []).length ? ": " + dec.blockers.join("، ") : "")]);
+    else if (live) notes.push(["", "✅ الدخول مسموح"]);
+    if (c.lastError) notes.push(["bad", "⚠️ آخر خطأ: " + c.lastError]);
+    if (CN_ERR) notes.push(["", "نسخة محفوظة، ما قدرت أحدث الحين"]);
+    var tabs = '<div class="seg seg-scroll" role="tablist" aria-label="أقسام المجلس">' + CN_TABS.map(function (x) {
       return '<button type="button" role="tab" data-ctab="' + x[0] + '" aria-selected="' + (CN_TAB === x[0]) + '" class="' + (CN_TAB === x[0] ? "on" : "") + '">' + x[1] + "</button>";
-    }).join("") + '</div><div class="dp-meta"><span class="note">' + (CN.mode === "paper" ? "📄 paper" : "👻 ظل") + " · " + esc(CN_PHASE[c.phase] || "—") +
-      (c.lastTick ? ' · آخر نبضة <span class="num">' + esc(when(c.lastTick)) + "</span>" : "") + '</span><button class="btn ghost" data-cact="refresh" title="تحديث">⟳</button></div></div>' +
-      '<div class="chips-row">' + state1 + (c.lastError ? '<span class="pill loss">آخر خطأ: ' + esc(c.lastError) + "</span>" : "") + (CN_ERR ? '<span class="pill wait">نسخة محفوظة، ما قدرت أحدث</span>' : "") + "</div>";
+    }).join("") + "</div>";
+    var card = '<div class="cn-card ' + tone + '" role="status"><div class="cn-card-row"><span class="cn-ic" aria-hidden="true">' + (paper ? "📄" : "👻") + '</span><div class="cn-card-t"><b>' + (paper ? "paper" : "ظل") +
+      '</b><span>' + esc(CN_PHASE[c.phase] || "ينتظر أول نبضة") + (c.lastTick ? ' · آخر نبضة <span class="num">' + esc(when(c.lastTick)) + "</span>" : "") + '</span></div>' +
+      '<button type="button" class="cn-refresh" data-cact="refresh" aria-label="حدّث المجلس" title="تحديث"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></button></div>' +
+      (notes.length ? '<div class="cn-notes">' + notes.map(function (n) { return '<div class="' + n[0] + '">' + esc(n[1]) + "</div>"; }).join("") + "</div>" : "") + "</div>";
+    var head = tabs + card;
     var body = { agents: councilAgents, perf: councilPerf, trades: councilTrades, hunter: councilHunter }[CN_TAB] || councilAgents;
     return '<section class="stack">' + head + body() + "</section>";
   }
