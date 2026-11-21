@@ -198,6 +198,17 @@ td.n, th.n { text-align: center; }
 .pill.win { background: var(--win-soft); color: var(--win); } .pill.win2 { background: var(--win); color: var(--surface); }
 .pill.loss { background: var(--loss-soft); color: var(--loss); } .pill.live { background: var(--live-soft); color: var(--live); }
 .pill.wait, .pill.muted { background: var(--wait-soft); color: var(--muted); }
+.cn-agents .cn-rep { white-space: normal; text-align: start; }
+.cn-agents .cn-m { display: none; }
+.cn-veto { display: block; color: var(--loss); font-size: 12px; }
+@media (max-width: 700px) {
+  table.cn-agents { min-width: 0; }
+  .cn-agents .cn-rep, .cn-agents .cn-ts { display: none; }
+  .cn-agents td.cn-name { white-space: normal; text-align: start; }
+  .cn-agents .cn-m { display: block; font-size: 13px; color: var(--fg); margin-top: 3px; }
+  .cn-agents .cn-m small.lv { display: block; margin-top: 2px; text-align: right; font-size: 11px; }
+  .cn-agents td:first-child { width: 1%; padding-inline: 8px; }
+}
 .tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--line); color: var(--muted); }
 .tag.quick { border-color: var(--live); color: var(--live); } .tag.swing { border-color: var(--accent); color: var(--accent); }
 
@@ -1279,10 +1290,12 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   function councilAgents() {
     var rows = (CN.agents || []).map(function (a) {
       var s = CN_STATUS[a.status] || [a.status, "muted"], v = (a.veto || []).map(function (x) { return (x.symbol ? x.symbol + ": " : "") + x.reason; }).join("، ");
-      return '<tr><td><span class="pill ' + s[1] + '">' + s[0] + '</span></td><td><b>' + esc(a.name) + '</b></td><td style="white-space:normal;text-align:start">' + esc(a.summary) +
-        (v ? '<small class="when" style="color:var(--loss)">يمنع: ' + esc(v) + "</small>" : "") + '</td><td class="lv num">' + (a.ts ? esc(when(a.ts)) : "—") + "</td></tr>";
+      var rep = esc(a.summary) + (v ? '<small class="cn-veto">يمنع: ' + esc(v) + "</small>" : ""), t = a.ts ? esc(when(a.ts)) : "—";
+      // في الجوال التقرير والوقت تحت اسم الوكيل بدل أعمدة منفصلة
+      return '<tr><td><span class="pill ' + s[1] + '">' + s[0] + '</span></td><td class="cn-name"><b>' + esc(a.name) + '</b><div class="cn-m">' + rep + '<small class="lv num">' + t + "</small></div></td>" +
+        '<td class="cn-rep">' + rep + '</td><td class="lv num cn-ts">' + t + "</td></tr>";
     }).join("");
-    return '<div class="table-wrap"><table><thead><tr><th>الحالة</th><th>الوكيل</th><th>آخر تقرير</th><th>الوقت</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
+    return '<div class="table-wrap"><table class="cn-agents"><thead><tr><th>الحالة</th><th>الوكيل</th><th class="cn-rep">آخر تقرير</th><th class="cn-ts">الوقت</th></tr></thead><tbody>' + rows + "</tbody></table></div>";
   }
   function councilPerf() {
     var p = CN.performance || {}, a = p.all || {}, days = p.days || [];
