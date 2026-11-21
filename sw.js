@@ -1,5 +1,5 @@
-/* Sentinel: يفتح التطبيق بدون نت من آخر نسخة. البيانات دائماً من GitHub. */
-const CACHE = "sentinel-v40";
+/* Sentinel: يفتح التطبيق بدون نت من آخر نسخة. البيانات دائماً من GitHub ومن Worker المجلس. */
+const CACHE = "sentinel-v41";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {
@@ -7,7 +7,8 @@ self.addEventListener("activate", (e) => {
 });
 self.addEventListener("fetch", (e) => {
   const req = e.request, url = new URL(req.url);
-  if (req.method !== "GET" || url.hostname === "api.github.com") return;
+  // بيانات GitHub والمجلس دايماً من النت، ما تنحفظ
+  if (req.method !== "GET" || url.hostname === "api.github.com" || url.hostname.endsWith(".workers.dev")) return;
   if (url.origin === location.origin) {
     e.respondWith(fetch(req).then((res) => { const c = res.clone(); caches.open(CACHE).then((x) => x.put(req, c)); return res; })
       .catch(() => caches.match(req).then((r) => r || caches.match("./index.html"))));
