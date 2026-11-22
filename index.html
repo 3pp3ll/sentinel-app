@@ -65,7 +65,11 @@
 :root[data-theme="neon"] :is(.panel, .table-wrap, .empty, .trial) { background: var(--glass); border-color: var(--glass-brd);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 0 0 1px rgba(150,165,255,.06), 0 16px 40px -22px rgba(110,90,255,.7); }
 :root[data-theme="corp"] :is(.panel, .table-wrap, .empty, .trial) { box-shadow: 0 1px 2px rgba(11,30,91,.04), 0 12px 30px -18px rgba(29,78,216,.35); }
-:root[data-theme="neon"] th { background: rgba(20,28,90,.6); }
+:root[data-theme="neon"] th { background: rgba(10,48,62,.62); color: #BFEFF5; }
+/* الجداول واللوحات في الليلي: فيروزي من ألوان رادار وواحة بدل الأزرق */
+:root[data-theme="neon"] :is(.panel, .table-wrap, .empty, .trial) { background: linear-gradient(160deg, rgba(18,62,86,.55), rgba(16,66,66,.48)); border-color: rgba(94,234,212,.28); }
+:root[data-theme="neon"] :is(.table-wrap, .panel) :is(td, th) { border-color: rgba(94,234,212,.16); }
+:root[data-theme="neon"] .panel .table-wrap { background: rgba(8,36,48,.35); }
 :root[data-theme="corp"] th { background: #F2F6FF; }
 /* القائمة الجانبية + أيقونات زجاج كأنها ثلج */
 :root[data-theme="neon"] .rail { background: rgba(16,23,78,.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--glass-brd); }
