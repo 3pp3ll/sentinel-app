@@ -105,6 +105,34 @@
 :root[data-theme="neon"] .chip.demo { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); }
 :root:is([data-theme="neon"],[data-theme="corp"]) .tag.quick { border-color: var(--c2); color: var(--c2); }
 :root[data-theme="neon"] .tag.swing { border-color: var(--c3); color: var(--c3); }
+/* بطاقات الفئات فوق صفحة الأداء */
+.cats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding-top: 20px; }
+.cat { --c: var(--accent); position: relative; overflow: hidden; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; text-decoration: none; color: var(--fg);
+  border-radius: 20px; padding: 18px 12px 74px; border: 2px solid var(--c);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 8%, var(--bg)), color-mix(in srgb, var(--c) 26%, var(--bg)));
+  box-shadow: 0 0 20px -4px color-mix(in srgb, var(--c) 70%, transparent), inset 0 0 26px color-mix(in srgb, var(--c) 20%, transparent); transition: transform .2s; }
+.cat:hover { transform: translateY(-3px); }
+.cat b { font: 700 26px/1.2 var(--f-display); margin-top: 8px; }
+.cat small { font-size: 12.5px; font-weight: 600; color: var(--c); }
+.cat .d { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+.cat .wave { position: absolute; inset: auto -2px -2px -2px; width: calc(100% + 4px); height: 66px; filter: drop-shadow(0 0 5px var(--c)); }
+.cat .glass { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 19px; overflow: hidden;
+  background: linear-gradient(150deg, rgba(255,255,255,.42), rgba(255,255,255,.10) 45%, color-mix(in srgb, var(--c) 22%, transparent));
+  border: 1px solid rgba(255,255,255,.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -10px 18px color-mix(in srgb, var(--c) 30%, transparent), 0 12px 26px -10px var(--c); }
+.cat .glass::before { content: ""; position: absolute; inset: 3px 7px auto; height: 42%; border-radius: 16px 16px 40% 40%; background: linear-gradient(180deg, rgba(255,255,255,.55), transparent); }
+.cat .glass svg { position: relative; width: 32px; height: 32px; fill: none; stroke: #fff; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; color: #fff; filter: drop-shadow(0 0 7px var(--c)); }
+:root[data-theme="corp"] .cat { background: #fff; border: 1px solid var(--line); box-shadow: 0 12px 30px -18px rgba(29,78,216,.45); }
+:root[data-theme="corp"] .cat small { color: var(--accent2); }
+:root[data-theme="corp"] .cat .wave { filter: none; }
+:root[data-theme="corp"] .cat .glass { background: linear-gradient(150deg, #fff, #EEF3FF 55%, #D9E5FF); border-color: #fff; box-shadow: inset 0 1.5px 0 #fff, 0 10px 22px -10px rgba(29,78,216,.55); }
+:root[data-theme="corp"] .cat .glass svg { stroke: #1D4ED8; color: #1D4ED8; filter: none; }
+.shield { display: flex; width: fit-content; max-width: 100%; margin: 14px auto 0; align-items: center; gap: 10px; padding: 10px 22px; border-radius: 14px; font-weight: 600; font-size: 14.5px;
+  background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); }
+.shield svg { width: 24px; height: 24px; flex: none; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media (max-width: 900px) { .cats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .cat { padding: 14px 8px 60px; } .cat b { font-size: 22px; } .cat .d { font-size: 12.5px; } .cat .wave { height: 54px; } .cat .glass { width: 54px; height: 54px; } .cat .glass svg { width: 27px; height: 27px; } }
+@media (prefers-reduced-motion: reduce) { .cat { transition: none; } }
+
 /* اختيار الثيم في الإعدادات */
 .theme-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .theme-pick .sw[style] { display: block; }
@@ -437,10 +465,10 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       <div><b>Sentinel Signals</b><small>توصيات الأسهم النقية</small></div>
     </div>
     <nav class="nav" id="nav">
+      <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
       <a href="#deep"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 17l5-6 4 4 4-7 5 9M3 21h18"/><circle cx="16" cy="4" r="1.6" fill="currentColor"/></svg>سهم اليوم</a>
       <a href="#council"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M7 20a5 5 0 0 1 10 0M2 19a3 3 0 0 1 4.5-2.6M22 19a3 3 0 0 0-4.5-2.6"/></g></svg>مجلس الوكلاء</a>
       <a href="#alog"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></g></svg>سجل المحلل</a>
-      <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
       <a href="#analysis"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4M8 13v-2M11 13V9M14 13v-3"/></svg>التحليل</a>
       <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
       <a href="#purify"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg>التطهير</a>
@@ -495,7 +523,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["deep", "council", "alog", "overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "pitch"];
+  var PAGES = ["overview", "deep", "council", "alog", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "pitch"];
   var TITLES = { deep: "سهم اليوم", council: "مجلس الوكلاء", alog: "سجل المحلل", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات", pitch: "عرض المستثمر" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
@@ -701,15 +729,28 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return '<div class="empty"><b>لا يوجد بيانات</b>' + (ts ? "التجربة بدأت في <span class=\"num\">" + ymd(ts) + "</span>، وهذي الفترة (" + esc(range.label) + ") قبلها أو بعد اليوم." : "ما وصلت بيانات للحين.") + "</div>";
   }
 
+  /* بطاقات الفئات: صقر وميزان وواحة ورادار، كل بطاقة توديك لقسمها */
+  var CATS = [
+    ["c1", "#council", "صقر", "مجلس الوكلاء", "أسلوب ديناميكي يتابع تحركات السوق.", '<path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" stroke="none"/>'],
+    ["c2", "#signals", "ميزان", "التوصيات اليومية", "توازن بين الفرص والمخاطر.", '<rect x="3" y="13" width="4.5" height="8" rx="1" fill="currentColor" stroke="none"/><rect x="9.75" y="8" width="4.5" height="13" rx="1" fill="currentColor" stroke="none"/><rect x="16.5" y="3" width="4.5" height="18" rx="1" fill="currentColor" stroke="none"/>'],
+    ["c3", "#deep", "واحة", "سهم اليوم", "أسلوب هادئ ومنضبط.", '<path d="M12 4c2 2.2 3 4.6 3 7s-1 4.6-3 6c-2-1.4-3-3.6-3-6s1-4.8 3-7z"/><path d="M12 17c-3 0-6.5-1.6-8-5 2.6-.6 5 .1 6.6 1.6"/><path d="M12 17c3 0 6.5-1.6 8-5-2.6-.6-5 .1-6.6 1.6"/><path d="M5 19.5h14"/>'],
+    ["c4", "#alog", "رادار", "محلل Sentinel", "حلّل أي سهم تبيه في لحظة.", '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 18.5 5.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/>']
+  ];
+  var WAVES = ["M0 62 C25 62 35 40 60 44 S95 70 120 58 S160 20 190 30 S230 66 255 50 S285 18 300 22", "M0 64 C30 64 45 48 75 52 S120 70 150 56 S200 34 230 44 S275 58 300 40", "M0 66 C40 66 60 52 95 54 S150 66 185 54 S245 40 300 34", "M0 58 C30 40 55 66 90 50 S140 30 170 46 S230 62 260 38 S290 30 300 30"];
+  function catCards() {
+    return '<section class="cats" aria-label="الأقسام">' + CATS.map(function (c, i) {
+      return '<a class="cat" href="' + c[1] + '" style="--c:var(--' + c[0] + ')"><span class="glass"><svg viewBox="0 0 24 24" aria-hidden="true">' + c[5] + '</svg></span><b>' + c[2] + "</b><small>" + c[3] + "</small><span class=\"d\">" + c[4] + '</span><svg class="wave" viewBox="0 0 300 84" preserveAspectRatio="none" aria-hidden="true"><path d="' + WAVES[i] + ' L300 84 L0 84Z" fill="var(--c)" fill-opacity=".22"/><path d="' + WAVES[i] + '" fill="none" stroke="var(--c)" stroke-width="3"/></svg></a>';
+    }).join("") + '</section><div class="shield"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>مع وقف خسارة لكل صفقة دائماً.</div>';
+  }
   function pageOverview() {
     var range = periodRange();
-    if (noData(range)) return emptyBox(range);
+    if (noData(range)) return catCards() + emptyBox(range);
     var st = stats(range), accts = ["swing", "quick"].filter(function (c) { return state.strat === "all" || state.strat === c; });
     var acc = accts.map(function (c) {
       var e = equityFor(c, range);
       return '<div class="panel acct"><div><span class="name">حساب ' + stratName(c) + (SAR() ? " · افتراضي" : "") + '</span><small>' + (e ? "رصيد يوم " + '<span class="num">' + e.day + "</span>" : "ما فيه لقطة رصيد في هذي الفترة") + '</small></div><div class="eq"><b class="num">' + (e ? money(e.end) : "—") + '</b>' + (e ? '<span class="num ' + cls(e.change) + '">' + money(e.change, true) + "</span>" : "") + "</div></div>";
     }).join("");
-    return '<section><div class="grid2"><div class="panel gauge-panel"><div class="lv">نسبة النجاح · من <span class="num">' + st.decided.length + "</span> صفقة محسومة</div>" + gauge(st.rate) +
+    return catCards() + '<section><div class="grid2"><div class="panel gauge-panel"><div class="lv">نسبة النجاح · من <span class="num">' + st.decided.length + "</span> صفقة محسومة</div>" + gauge(st.rate) +
       '<span class="verdict ' + (st.rate != null && st.rate >= TARGET ? "ok" : "") + '">' + (st.rate == null ? "ما فيه صفقات محسومة للحين" : st.rate >= TARGET ? "فوق الهدف" : "تحت الهدف حالياً") + "</span>" +
       '<div class="wl"><div><b>' + st.wins + "</b>ناجحة</div><div><b>" + st.losses + "</b>خاسرة</div><div><b>" + st.open + "</b>مفتوحة</div></div></div>" +
       '<div class="panel"><div class="kpis"><div class="kpi"><div class="k">الربح الإجمالي</div><div class="v num ' + cls(st.net) + '">' + money(st.net, true) + '</div></div><div class="kpi"><div class="k">توصيات الفترة</div><div class="v num">' + st.issued.length + '</div></div><div class="kpi"><div class="k">متوسط الربح</div><div class="v num pos">' + (st.avgWin == null ? "—" : money(st.avgWin, true)) + '</div></div><div class="kpi"><div class="k">متوسط الخسارة</div><div class="v num neg">' + (st.avgLoss == null ? "—" : money(st.avgLoss, true)) + "</div></div></div>" +
