@@ -40,6 +40,31 @@
   --win: #1F8A60; --win-soft: #DDF1E8; --loss: #B9473D; --loss-soft: #F7E1DE;
   --live: #3A6EA8; --live-soft: #E0EAF5; --wait-soft: #ECEFEE; --glow: rgba(142,111,51,.10); --shade: rgba(15,27,29,.35);
   color-scheme: light; }
+/* المؤسسي الفاتح: أبيض، أزرق ملكي، ولمسة برتقالية (للعروض والمستثمرين) */
+:root[data-theme="corp"] {
+  --bg: #F6F8FC; --surface: #FFFFFF; --sunk: #EEF2F9; --line: #DDE4EF;
+  --fg: #0B1F44; --muted: #5B6B86; --accent: #1E4FD8; --accent-soft: #E6EDFC; --accent2: #F26B1D; --accent2-soft: #FEEFE5;
+  --win: #15803D; --win-soft: #E2F5E9; --loss: #C8322B; --loss-soft: #FCE7E5;
+  --live: #1E4FD8; --live-soft: #E6EDFC; --wait-soft: #EEF2F9; --glow: rgba(30,79,216,.08); --shade: rgba(11,31,68,.35);
+  color-scheme: light; }
+:root[data-theme="corp"] .nav a.on { background: var(--accent-soft); box-shadow: inset -3px 0 0 var(--accent2); color: var(--accent); }
+:root[data-theme="corp"] .eyebrow, :root[data-theme="corp"] .pitch-brand { color: var(--accent2); }
+:root[data-theme="corp"] .bar i, :root[data-theme="corp"] .wrbar span { background: var(--accent2); }
+:root[data-theme="corp"] .pitch-steps li { border-inline-start-color: var(--accent2); }
+:root[data-theme="corp"] .hero .lattice { color: var(--accent); opacity: .08; }
+:root[data-theme="corp"] .chip.demo { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); }
+:root[data-theme="corp"] .rail { background: #FFFFFF; }
+:root[data-theme="corp"] th { background: #F1F4FA; color: var(--muted); }
+:root[data-theme="corp"] .panel, :root[data-theme="corp"] .empty { box-shadow: 0 1px 2px rgba(11,31,68,.04), 0 4px 14px rgba(11,31,68,.04); }
+
+/* اختيار الثيم في الإعدادات */
+.theme-pick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 640px) { .theme-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.theme-pick button { font: 600 13px var(--f-body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 8px; align-items: stretch; text-align: start; }
+.theme-pick button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+.theme-pick .sw { height: 46px; border-radius: 8px; border: 1px solid rgba(0,0,0,.08); display: flex; overflow: hidden; }
+.theme-pick .sw i { flex: 1; }
+.theme-pick small { display: block; margin-top: 2px; color: var(--muted); font-weight: 400; font-size: 12px; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -979,6 +1004,18 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       "</section>";
   }
 
+  var THEMES = [
+    ["auto", "تلقائي", "يتبع وضع جهازك", ["#0A1214", "#EDF0EE", "#CDAA67"]],
+    ["dark", "الداكن", "الكلاسيكي الليلي", ["#0A1214", "#101B1E", "#CDAA67"]],
+    ["light", "الفاتح", "الكلاسيكي النهاري", ["#EDF0EE", "#FFFFFF", "#8E6F33"]],
+    ["corp", "المؤسسي الفاتح", "أبيض وأزرق ملكي، للعروض", ["#FFFFFF", "#1E4FD8", "#F26B1D"]]
+  ];
+  function themePanel() {
+    var t = store.get("sentinel-theme") || "auto";
+    return '<div class="panel stack"><h2>المظهر</h2><div class="theme-pick" role="group" aria-label="الثيم">' + THEMES.map(function (x) {
+      return '<button type="button" data-act="theme" data-t="' + x[0] + '" aria-pressed="' + (t === x[0]) + '"><span class="sw">' + x[3].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join("") + "</span><span>" + x[1] + "<small>" + x[2] + "</small></span></button>";
+    }).join("") + '</div><p class="note">زر الشمس والقمر فوق يبدّل بين الداكن والثيم الفاتح اللي اخترته.</p></div>';
+  }
   function pageSettings() {
     var tk = token();
     var status = DEMO ? "عرض تجريبي (ما يقرأ بياناتك)" : ERR === "token" ? "محتاج رمز وصول" : ERR === "401" ? "الرمز غير صحيح أو منتهي" : ERR === "404" ? "الرمز ما له صلاحية على sentinel-signals" : ERR === "net" ? "تعذر الاتصال بـ GitHub" + (ERR_DETAIL ? " (" + ERR_DETAIL + ")" : "") : DATA ? "مربوط ويقرأ بياناتك" : "جارٍ التحميل";
@@ -987,6 +1024,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<form id="tk-form" class="stack" novalidate><div class="field"><label for="tk">رمز الوصول (اختياري إذا رمز مراس فيه صلاحية)</label><input id="tk" class="ltr" type="password" autocomplete="off" placeholder="github_pat_…"></div><div class="exports"><button class="btn" type="submit">احفظ وحدّث</button>' + (store.get("sentinel.token") ? '<button class="btn ghost" type="button" data-act="forget">احذف الرمز</button>' : "") + "</div></form>" +
       '<ol class="steps"><li>في GitHub: Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens.</li><li>افتح رمز مراس واضغط <b>Edit</b>، وفي Repository access أضف <b>sentinel-signals</b> واحفظ. كذا التطبيق يستخدمه بدون ما تلصق شي.</li><li>أو سوّ رمز جديد لـ sentinel-signals بصلاحية Contents قراءة فقط، والصقه هنا.</li></ol>' +
       '<p class="note">الرمز ينحفظ على جهازك بس، وما ينرسل إلا لـ GitHub.</p></div>' +
+      themePanel() +
       '<div class="panel stack"><h2>التثبيت على الجوال</h2><p class="note">أندرويد: من قائمة المتصفح ⋮ اختر <b>تثبيت التطبيق</b> أو <b>إضافة إلى الشاشة الرئيسية</b>. آيفون: من Safari اضغط مشاركة ثم <b>إضافة إلى الشاشة الرئيسية</b>.</p>' +
       (window.__installPrompt ? '<div><button class="btn" type="button" data-act="install">ثبّت التطبيق</button></div>' : "") + "</div></section>";
   }
@@ -1511,7 +1549,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
     $("eyebrow").textContent = current === "deep" || current === "council" || current === "alog" || current === "settings" || current === "archive" || current === "control" || current === "symbols" || current === "pitch" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { alog: "كل تحليل من محلل Sentinel على تيليجرام: أرقامه وسيناريوهاته وبطاقته، ونتيجته بعد 5 أيام تداول.", council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
+    $("page-desc").textContent = { alog: "كل تحليل من محلل Sentinel على تيليجرام: أرقامه وسيناريوهاته وبطاقته، ونتيجته بعد 5 أيام تداول.", council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والمظهر والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
     if (current === "signals") rt.innerHTML = resSelect("x").replace(/^<select[^>]*>|<\/select>$/g, "");
@@ -1594,6 +1632,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () { toast("انسخ الرابط"); }, function () { inp.select(); toast("حدد الرابط وانسخه"); });
       return;
     }
+    if (a === "theme") { window.setTheme(el.dataset.t); render(); return; }
     if (a === "install" && window.__installPrompt) { window.__installPrompt.prompt(); window.__installPrompt = null; }
   });
   document.addEventListener("change", function (e) {
@@ -1642,10 +1681,21 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   /* ---------- الوضع الليلي ---------- */
   (function () {
     var root = document.documentElement, btn = $("theme-btn");
-    var saved = store.get("sentinel-theme"); if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+    var OK = { dark: 1, light: 1, corp: 1 };
+    var saved = store.get("sentinel-theme"); if (OK[saved]) root.setAttribute("data-theme", saved);
     function cur() { var t = root.getAttribute("data-theme"); return t || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); }
-    function paint() { var m = cur(); root.setAttribute("data-mode", m); btn.setAttribute("aria-label", m === "dark" ? "الوضع النهاري" : "الوضع الليلي"); document.querySelector('meta[name="theme-color"]').content = m === "dark" ? "#0A1214" : "#EDF0EE"; }
-    btn.addEventListener("click", function () { var n = cur() === "dark" ? "light" : "dark"; root.setAttribute("data-theme", n); store.set("sentinel-theme", n); paint(); });
+    function paint() {
+      var t = cur(), m = t === "dark" ? "dark" : "light";
+      root.setAttribute("data-mode", m); btn.setAttribute("aria-label", m === "dark" ? "الوضع النهاري" : "الوضع الليلي");
+      document.querySelector('meta[name="theme-color"]').content = t === "dark" ? "#0A1214" : t === "corp" ? "#FFFFFF" : "#EDF0EE";
+    }
+    // الثيم من الإعدادات: auto يرجع لوضع الجهاز
+    window.setTheme = function (t) {
+      if (OK[t]) { root.setAttribute("data-theme", t); store.set("sentinel-theme", t); if (t !== "dark") store.set("sentinel-theme-light", t); }
+      else { root.removeAttribute("data-theme"); store.del("sentinel-theme"); }
+      paint();
+    };
+    btn.addEventListener("click", function () { window.setTheme(cur() === "dark" ? store.get("sentinel-theme-light") || "light" : "dark"); if (current === "settings") render(); });
     paint();
   })();
 
