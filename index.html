@@ -1,12 +1,18 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="neon" data-skin="neon">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sentinel Signals</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#0A1214">
+<meta name="theme-color" content="#070C2B">
+<script>
+/* الثيم قبل أول رسم عشان ما يومض: neon | corp | dark (الذهبي) | light (الذهبي الفاتح) */
+(function () { try { var r = document.documentElement, t = localStorage.getItem("sentinel-skin");
+  if (!{ neon: 1, corp: 1, dark: 1, light: 1 }[t]) t = localStorage.getItem("sentinel-theme") === "corp" ? "corp" : "neon";
+  r.setAttribute("data-theme", t); if (t === "neon" || t === "corp") r.setAttribute("data-skin", t); else r.removeAttribute("data-skin"); } catch (e) {} })();
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -14,7 +20,7 @@
 <meta name="apple-mobile-web-app-title" content="Sentinel">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
 <style>
 /* Layout: right rail on desktop, off-canvas drawer on phones; one page visible at a time. */
 :root {
@@ -28,35 +34,12 @@
   --f-num: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
-@media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
-  --bg: #EDF0EE; --surface: #FFFFFF; --sunk: #E3E8E6; --line: #D2DAD7;
-  --fg: #0F1B1D; --muted: #5C6B69; --accent: #8E6F33; --accent-soft: #F1E8D6;
-  --win: #1F8A60; --win-soft: #DDF1E8; --loss: #B9473D; --loss-soft: #F7E1DE;
-  --live: #3A6EA8; --live-soft: #E0EAF5; --wait-soft: #ECEFEE; --glow: rgba(142,111,51,.10); --shade: rgba(15,27,29,.35);
-  color-scheme: light; } }
 :root[data-theme="light"] {
   --bg: #EDF0EE; --surface: #FFFFFF; --sunk: #E3E8E6; --line: #D2DAD7;
   --fg: #0F1B1D; --muted: #5C6B69; --accent: #8E6F33; --accent-soft: #F1E8D6;
   --win: #1F8A60; --win-soft: #DDF1E8; --loss: #B9473D; --loss-soft: #F7E1DE;
   --live: #3A6EA8; --live-soft: #E0EAF5; --wait-soft: #ECEFEE; --glow: rgba(142,111,51,.10); --shade: rgba(15,27,29,.35);
   color-scheme: light; }
-/* المؤسسي الفاتح: أبيض، أزرق ملكي، ولمسة برتقالية (للعروض والمستثمرين) */
-:root[data-theme="corp"] {
-  --bg: #F6F8FC; --surface: #FFFFFF; --sunk: #EEF2F9; --line: #DDE4EF;
-  --fg: #0B1F44; --muted: #5B6B86; --accent: #1E4FD8; --accent-soft: #E6EDFC; --accent2: #F26B1D; --accent2-soft: #FEEFE5;
-  --win: #15803D; --win-soft: #E2F5E9; --loss: #C8322B; --loss-soft: #FCE7E5;
-  --live: #1E4FD8; --live-soft: #E6EDFC; --wait-soft: #EEF2F9; --glow: rgba(30,79,216,.08); --shade: rgba(11,31,68,.35);
-  color-scheme: light; }
-:root[data-theme="corp"] .nav a.on { background: var(--accent-soft); box-shadow: inset -3px 0 0 var(--accent2); color: var(--accent); }
-:root[data-theme="corp"] .eyebrow, :root[data-theme="corp"] .pitch-brand { color: var(--accent2); }
-:root[data-theme="corp"] .bar i, :root[data-theme="corp"] .wrbar span { background: var(--accent2); }
-:root[data-theme="corp"] .pitch-steps li { border-inline-start-color: var(--accent2); }
-:root[data-theme="corp"] .hero .lattice { color: var(--accent); opacity: .08; }
-:root[data-theme="corp"] .chip.demo { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); }
-:root[data-theme="corp"] .rail { background: #FFFFFF; }
-:root[data-theme="corp"] th { background: #F1F4FA; color: var(--muted); }
-:root[data-theme="corp"] .panel, :root[data-theme="corp"] .empty { box-shadow: 0 1px 2px rgba(11,31,68,.04), 0 4px 14px rgba(11,31,68,.04); }
-
 /* اختيار الثيم في الإعدادات */
 .theme-pick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 640px) { .theme-pick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -375,30 +358,242 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 .al-table td .al-ev { display: block; font: 500 11px var(--f-num); color: var(--muted); margin-top: 4px; line-height: 1.5; }
 .al-card { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
 @media (max-width: 560px) { .al-bar { grid-template-columns: 112px minmax(0, 1fr) 30px; } }
+
+/* ===== هوية Sentinel المعتمدة (نيون الليل + المؤسسي المضيء). منقولة من معاينة الثيمات. الذهبي = بدون data-skin ===== */
+:root[data-skin]{
+  --font:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --num:"Space Grotesk","IBM Plex Sans Arabic",sans-serif;
+  /* نيون الليل */
+  --bg:#070C2B; --bg2:#0A1238; --fg:#FFFFFF; --muted:#B8C0E8; --line:rgba(120,140,255,.18);
+  --card:rgba(18,26,78,.55); --card-brd:rgba(110,130,255,.35);
+  --c1:#B04DFF; --c2:#3D8BFF; --c3:#3FE0A0; --acc:#7C6CFF;
+  --cta-a:#3D8BFF; --cta-b:#B04DFF; --win:#3FE0A0; --loss:#FF5C8A; --chip:rgba(255,255,255,.08); --menu:#0E1645;
+  --title:#FFFFFF;
+  /* ربط متغيرات الداشبورد */
+  --surface:var(--card); --sunk:rgba(8,12,44,.55); --accent:var(--acc); --accent-soft:rgba(124,108,255,.18); --accent2:#B04DFF;
+  --win-soft:rgba(63,224,160,.14); --loss-soft:rgba(255,92,138,.14); --live:#22D3EE; --live-soft:rgba(34,211,238,.14); --wait-soft:var(--chip);
+  --glow:transparent; --shade:rgba(3,6,24,.6); --solid:#0A1238;
+  --f-display:var(--font); --f-body:var(--font); --f-num:var(--num);
+  color-scheme:dark;
+}
+:root[data-skin="corp"]{
+  --bg:#FFFFFF; --bg2:#F2F6FF; --fg:#0B1E5B; --muted:#4F5E86; --line:#E2E8F6;
+  --card:#FFFFFF; --card-brd:#E2E8F6;
+  --c1:#1D4ED8; --c2:#1D4ED8; --c3:#1D4ED8; --acc:#1D4ED8;
+  --cta-a:#F7731C; --cta-b:#FB923C; --win:#16A34A; --loss:#E0333C; --chip:#EEF3FF; --menu:#FFFFFF;
+  --title:#0B1E5B;
+  --surface:#FFFFFF; --sunk:#F2F6FF; --accent:#1D4ED8; --accent-soft:#EEF3FF; --accent2:#F7731C;
+  --win-soft:#E3F6EA; --loss-soft:#FDE8E9; --live:#1D4ED8; --live-soft:#EEF3FF; --shade:rgba(11,30,91,.35); --solid:#FFFFFF;
+  color-scheme:light;
+}
+:root[data-skin] body{font-family:var(--font);-webkit-font-smoothing:antialiased;min-height:100vh;
+  background:radial-gradient(55% 32% at 50% 0%,rgba(61,110,255,.45),transparent 75%),radial-gradient(40% 30% at 50% 22%,rgba(124,108,255,.18),transparent 80%),linear-gradient(180deg,var(--bg),var(--bg2) 60%,var(--bg))}
+:root[data-skin]{background:var(--bg)}
+:root[data-skin="corp"] body{background:radial-gradient(60% 30% at 90% 0%,#E3ECFF,transparent 70%),linear-gradient(180deg,#fff,#F7F9FF)}
+/* موجة زرقاء تحت مثل Mashco */
+:root[data-skin] .col{position:relative}
+:root[data-skin] main{position:relative;z-index:1}
+:root[data-skin="corp"] .col::after{content:"";position:absolute;inset:auto 0 0 0;height:240px;z-index:0;pointer-events:none;
+  background:radial-gradient(120% 90% at 20% 120%,#1D4ED8 30%,transparent 62%),radial-gradient(90% 70% at 90% 130%,#3B82F6 25%,transparent 60%);opacity:.9}
+:root[data-skin="corp"] main{padding-bottom:190px}
+.foot{display:none}
+:root[data-skin] .foot{display:block;font-size:12px;color:var(--muted);text-align:center;padding-top:28px}
+:root[data-skin="corp"] .foot{color:#E8EEFF;position:absolute;inset-inline:0;bottom:18px;padding:0 16px}
+
+/* الشريط الجانبي والعلوي */
+:root[data-skin] .rail{background:rgba(7,12,43,.55);border-color:var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+:root[data-skin="corp"] .rail{background:#FFFFFF}
+@media (max-width:860px){:root[data-skin] .rail{background:var(--solid)} :root[data-skin] .top{background:color-mix(in srgb,var(--solid) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}}
+.logo{display:none}
+:root[data-skin] .brand > svg{display:none}
+:root[data-skin] .logo{display:grid;width:42px;height:42px;flex:none;border-radius:50%;place-items:center;font:700 17px var(--num);color:#fff;background:radial-gradient(circle at 30% 30%,#2A3580,#0B1038);border:1px solid rgba(140,150,255,.4)}
+:root[data-skin="corp"] .logo{background:#0B1E5B;border:0}
+:root[data-skin] .brand b{font:700 19px var(--num);color:var(--title)}
+.brand b em{font-style:normal}
+:root[data-skin] .brand b em{background:linear-gradient(90deg,#5B8CFF,#B04DFF);-webkit-background-clip:text;background-clip:text;color:transparent}
+:root[data-skin="corp"] .brand b em{background:none;color:#F7731C}
+:root[data-skin] .nav a{border:1px solid transparent;border-radius:14px;padding:7px 10px;color:var(--muted)}
+:root[data-skin] .nav a:hover{background:var(--chip);color:var(--fg)}
+:root[data-skin] .nav a.on{background:var(--card);color:var(--fg);border-color:var(--c,#5B8CFF);box-shadow:0 0 18px -4px var(--c,#5B8CFF)}
+:root[data-skin="corp"] .nav a.on{border-color:#1D4ED8;box-shadow:0 0 0 1px #1D4ED8;color:#0B1E5B}
+:root[data-skin] .trial{background:var(--card);border-color:var(--card-brd);border-radius:16px}
+:root[data-skin] .bar i, :root[data-skin] .wrbar span{background:linear-gradient(90deg,var(--cta-a),var(--cta-b))}
+
+/* الأيقونات الزجاجية (ثلج شفاف) */
+.nav a .glass{display:contents}
+:root[data-skin] .glass{position:relative;display:inline-grid;place-items:center;width:76px;height:76px;border-radius:22px;
+  background:linear-gradient(150deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.10) 45%,color-mix(in srgb,var(--c) 22%,transparent) 100%);
+  border:1px solid rgba(255,255,255,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.9),inset 0 -10px 18px color-mix(in srgb,var(--c) 30%,transparent),0 14px 28px -10px var(--c),0 0 24px -6px var(--c);overflow:hidden}
+:root[data-skin] .glass::before{content:"";position:absolute;inset:3px 8px auto 8px;height:42%;border-radius:18px 18px 40% 40%;background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0));pointer-events:none}
+:root[data-skin] .glass svg{position:relative;color:#fff;opacity:1;filter:drop-shadow(0 0 8px var(--c)) drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+:root[data-skin] .glass svg.i{font-size:40px}
+:root[data-skin] .nav a .glass{width:38px;height:38px;border-radius:12px;flex:none}
+:root[data-skin] .nav a .glass::before{inset:2px 5px auto 5px;border-radius:10px 10px 40% 40%}
+:root[data-skin="corp"] .glass{background:linear-gradient(150deg,#FFFFFF 0%,#EEF3FF 55%,#D9E5FF 100%);border-color:#fff;
+  box-shadow:inset 0 1.5px 0 #fff,inset 0 -8px 14px rgba(29,78,216,.12),0 12px 24px -10px rgba(29,78,216,.55)}
+:root[data-skin="corp"] .glass svg{color:#1D4ED8;filter:drop-shadow(0 2px 3px rgba(29,78,216,.25))}
+svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* أزرار الشريط العلوي وقائمة الثيمات */
+:root[data-skin] .icon-btn{height:40px;min-width:40px;width:auto;padding:0 12px;border-radius:12px;border:1px solid var(--card-brd);background:var(--card);color:var(--fg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.ibtn{height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg);display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+:root[data-skin] .ibtn{height:40px;min-width:40px;border-radius:12px;border:1px solid var(--card-brd);background:var(--card);font-size:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.ibtn:focus-visible,.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.menu-wrap{position:relative}
+.menu{position:absolute;top:48px;inset-inline-end:0;z-index:40;width:260px;padding:8px;border-radius:16px;background:var(--menu,var(--surface));border:1px solid var(--card-brd,var(--line));box-shadow:0 20px 50px -15px rgba(0,0,0,.45)}
+@media (max-width:860px){.menu{inset-inline-end:auto;inset-inline-start:0}}
+.opt{width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;border:0;background:none;color:var(--fg);font:inherit;text-align:start;cursor:pointer}
+.opt:hover,.opt[aria-checked="true"]{background:var(--chip,var(--sunk))}
+.menu .sw{width:42px;height:28px;border-radius:8px;flex:none}
+.opt span small{display:block;color:var(--muted);font-size:12px}
+
+/* العنوان */
+:root[data-skin] .hero{background:none;border-color:var(--line)}
+.hero:has(.menu:not([hidden])){overflow:visible;z-index:5}
+:root[data-skin] .hero .lattice{display:none}
+:root[data-skin] h1{font-family:var(--font);color:var(--title)}
+:root[data-skin] .eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:5px 14px;border-radius:999px;color:#fff;background:linear-gradient(90deg,#3D8BFF,#B04DFF);letter-spacing:0}
+:root[data-skin="corp"] .eyebrow{background:#1D4ED8}
+:root[data-skin] .chip{background:var(--chip);border-color:var(--card-brd)}
+:root[data-skin] .chip.demo{color:#fff;border-color:transparent;background:linear-gradient(90deg,#3D8BFF,#B04DFF)}
+:root[data-skin="corp"] .chip.demo{background:#1D4ED8}
+
+/* البطاقات والجداول = .card */
+:root[data-skin] .panel, :root[data-skin] .empty{background:var(--card);border:1px solid var(--card-brd);border-radius:20px;padding:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+:root[data-skin] .empty{border-style:dashed}
+:root[data-skin="corp"] .panel, :root[data-skin="corp"] .empty{box-shadow:0 10px 30px -18px rgba(29,78,216,.35)}
+:root[data-skin] .table-wrap{background:var(--card);border-color:var(--card-brd);border-radius:16px}
+:root[data-skin] th{background:transparent;color:var(--muted);font-weight:500;font-size:12.5px}
+:root[data-skin] .pill{background:var(--chip)}
+:root[data-skin] .pill.win{background:var(--win-soft)} :root[data-skin] .pill.loss{background:var(--loss-soft)} :root[data-skin] .pill.live{background:var(--live-soft)}
+:root[data-skin] .pill.win2{color:#070C2B}
+:root[data-skin] .cn-refresh:hover{color:#fff}
+:root[data-skin] select option{background:var(--solid);color:var(--fg)}
+:root[data-skin] .dp-sheet-in{background:var(--solid)}
+:root[data-skin] .pitch-hero{background:radial-gradient(80% 60% at 50% 60%,rgba(124,108,255,.35),transparent 70%),var(--card)}
+:root[data-skin="corp"] .pitch-hero{background:var(--card)}
+:root[data-skin] .pitch-brand{font:700 15px var(--num);background:linear-gradient(90deg,#5B8CFF,#B04DFF);-webkit-background-clip:text;background-clip:text;color:transparent;justify-self:start}
+:root[data-skin="corp"] .pitch-brand{background:none;color:#1D4ED8}
+:root[data-skin] .pitch-day{background:var(--chip);border-color:var(--card-brd)}
+:root[data-skin] .curve .ln{stroke:url(#neon-ln)}
+:root[data-skin="corp"] .curve .ln{stroke:var(--accent)}
+
+/* عنوان القسم في النص وعلى جانبيه خطوط متدرجة */
+:root[data-skin] .panel > h2:first-child, :root[data-skin] .pitch-h{text-align:center;font-size:20px;font-weight:700;color:var(--title)}
+:root[data-skin] .panel > h2:first-child::before, :root[data-skin] .panel > h2:first-child::after,
+:root[data-skin] .pitch-h::before, :root[data-skin] .pitch-h::after{content:"";display:inline-block;vertical-align:middle;width:min(90px,10vw);height:2px;margin-inline:12px;background:linear-gradient(90deg,transparent,var(--acc));border-radius:2px}
+:root[data-skin] .panel > h2:first-child::after, :root[data-skin] .pitch-h::after{transform:scaleX(-1)}
+
+/* شريط المؤشرات = .strip */
+:root[data-skin] .kpis{gap:0;border-radius:18px;border:1.5px solid var(--card-brd);background:var(--card);overflow:hidden;padding:0;row-gap:0}
+:root[data-skin] .kpi{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:8px;row-gap:4px;align-items:center;align-content:center;padding:16px 18px;border:0;box-shadow:-1px 0 0 var(--line),0 -1px 0 var(--line)}
+:root[data-skin] .kpi:first-child{padding-inline-start:18px}
+:root[data-skin] .kpi > *{grid-column:1 / -1}
+:root[data-skin] .kpi > .k{grid-column:2;grid-row:1}
+:root[data-skin] .kpi::before{content:"";grid-column:1;grid-row:1;width:26px;height:26px;background:#7FA0FF;filter:drop-shadow(0 0 6px #5B8CFF);
+  -webkit-mask:var(--kic) center/contain no-repeat;mask:var(--kic) center/contain no-repeat}
+:root[data-skin="corp"] .kpi::before{background:var(--acc);filter:none}
+:root[data-skin] .kpi:nth-child(4n+1){--kic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1.5'/%3E%3C/svg%3E")}
+:root[data-skin] .kpi:nth-child(4n+2){--kic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linecap='round'%3E%3Cellipse cx='12' cy='6' rx='8' ry='3'/%3E%3Cpath d='M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6'/%3E%3C/svg%3E")}
+:root[data-skin] .kpi:nth-child(4n+3){--kic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3C/svg%3E")}
+:root[data-skin] .kpi:nth-child(4n+4){--kic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.8' stroke-linejoin='round'%3E%3Cpath d='M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z'/%3E%3C/svg%3E")}
+:root[data-skin] .kpi .k{font-size:13px;color:#9FB2FF;font-weight:600}
+:root[data-skin="corp"] .kpi .k{color:var(--acc)}
+:root[data-skin] .kpi .v{font:700 clamp(19px,1.9vw,26px)/1.25 var(--num);color:var(--title);font-variant-numeric:tabular-nums}
+:root[data-skin] .kpi .v.pos{color:var(--win)} :root[data-skin] .kpi .v.neg{color:var(--loss)}
+:root[data-skin] .kpi .note{font-size:12.5px;color:var(--muted)}
+@media (max-width:620px){:root[data-skin] .kpi{padding:12px;column-gap:8px} :root[data-skin] .kpi::before{width:22px;height:22px} :root[data-skin] .kpi .v{font-size:19px}}
+
+/* الخطوات 01 02 03 = .step */
+:root[data-skin] .pitch-steps{counter-reset:st}
+:root[data-skin] .pitch-steps li{counter-increment:st;display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:12px;align-items:start;padding:16px;border:1px solid var(--card-brd);border-radius:16px;background:var(--card);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+:root[data-skin] .pitch-steps li > *{grid-column:2}
+:root[data-skin] .pitch-steps li::before{content:counter(st,decimal-leading-zero);grid-column:1;grid-row:1 / span 3;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font:700 15px var(--num);color:#fff;background:linear-gradient(135deg,#3D8BFF,#B04DFF);box-shadow:0 0 14px -2px #7C6CFF}
+:root[data-skin="corp"] .pitch-steps li::before{background:#1D4ED8;box-shadow:none}
+:root[data-skin] .pitch-steps b{font-size:15.5px;color:var(--title)}
+:root[data-skin] .pitch-steps span, :root[data-skin] .pitch-steps p{font-size:13px;color:var(--muted)}
+
+/* الأزرار = زر الاشتراك (.cta) */
+:root[data-skin] .btn:not(.ghost){border:0;border-radius:999px;color:#fff;background:linear-gradient(90deg,var(--cta-a),var(--cta-b));box-shadow:0 0 26px -6px var(--cta-b);padding:10px 18px}
+:root[data-skin] .btn.ghost{border-radius:999px;border-color:var(--card-brd);color:var(--fg);background:var(--card)}
+.cta{justify-self:center;display:inline-flex;align-items:center;gap:12px;border:0;border-radius:999px;padding:12px 14px 12px 26px;font:inherit;font-size:17px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;
+  background:linear-gradient(90deg,var(--cta-a,var(--accent)),var(--cta-b,var(--accent)));box-shadow:0 0 26px -6px var(--cta-b,var(--accent))}
+.cta .ar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--cta-b,var(--accent));font-size:18px}
+:root[data-skin] .months button.on, :root[data-skin] .seg button.on, :root[data-skin] .chip-btn[aria-pressed="true"]{background:linear-gradient(90deg,#3D8BFF,#B04DFF);border-color:transparent;color:#fff}
+:root[data-skin="corp"] .months button.on, :root[data-skin="corp"] .seg button.on, :root[data-skin="corp"] .chip-btn[aria-pressed="true"]{background:#1D4ED8}
+:root[data-skin] .dp-badge{color:#fff}
+:root[data-skin] .theme-pick button{background:var(--card);border-color:var(--card-brd)}
+
+/* بطاقات الفئات — نيون متوهج */
+.cats-wrap{display:grid;gap:16px;padding-top:22px}
+.cats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.cat{position:relative;overflow:hidden;text-align:center;border-radius:22px;padding:22px 14px 96px;text-decoration:none;color:var(--fg);display:block;
+  border:2px solid var(--c);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--c) 8%,#0A1036) 0%,color-mix(in srgb,var(--c) 26%,#0A1036) 100%);
+  box-shadow:0 0 22px -2px color-mix(in srgb,var(--c) 70%,transparent),inset 0 0 28px color-mix(in srgb,var(--c) 22%,transparent)}
+.cat .ic{font-size:44px;color:var(--c)}
+.cat .ic svg.i{stroke-width:1.6}
+.cat h3{margin:6px 0 6px;font:700 32px var(--num);color:#fff}
+.cat h3 small{display:block;font:600 13px var(--font);color:var(--c);letter-spacing:.04em;margin-top:2px}
+.cat p{margin:0;font-size:15px;color:#E3E7FF;line-height:1.6}
+.cat svg.wave{position:absolute;inset:auto -2px -2px -2px;width:calc(100% + 4px);height:84px;filter:drop-shadow(0 0 6px var(--c))}
+:root[data-skin="corp"] .cat{background:#fff;border:1px solid #E2E8F6;box-shadow:0 10px 30px -16px rgba(29,78,216,.35)}
+:root[data-skin="corp"] .cat .ic{color:#1D4ED8}
+:root[data-skin="corp"] .cat h3{color:#0B1E5B}
+:root[data-skin="corp"] .cat h3 small{color:#F7731C}
+:root[data-skin="corp"] .cat p{color:#4F5E86}
+:root[data-skin="corp"] .cat svg.wave{filter:none}
+.shield{justify-self:center;display:inline-flex;align-items:center;gap:12px;padding:12px 26px;border-radius:16px;font-size:16px;font-weight:600;
+  background:rgba(40,60,150,.35);border:1.5px solid rgba(130,150,255,.5);box-shadow:0 0 20px -6px rgba(90,120,255,.7)}
+.shield svg.i{font-size:26px}
+:root[data-skin="corp"] .shield{background:#F2F6FF;border-color:#C9D7FA;box-shadow:none;color:#0B1E5B}
+:root[data-skin="corp"] .shield svg.i{color:#1D4ED8}
+/* الذهبي: نفس البطاقات بألوانه بدون توهج */
+:root:not([data-skin]) .cat{--num:var(--f-display);--font:var(--f-body);--c:var(--accent);background:var(--surface);border:1px solid var(--line);box-shadow:none}
+:root:not([data-skin]) .cat h3{color:var(--fg);font-family:var(--f-display)} :root:not([data-skin]) .cat p{color:var(--muted)}
+:root:not([data-skin]) .cat svg.wave{filter:none}
+:root:not([data-skin]) .shield{background:var(--accent-soft);border-color:var(--accent);box-shadow:none;color:var(--fg)}
+:root:not([data-skin]) .shield svg.i{color:var(--accent)}
+
+.s1{--c:var(--c1,#B04DFF)}.s2{--c:var(--c2,#3D8BFF)}.s3{--c:var(--c3,#3FE0A0)}
+:root[data-skin="neon"] .s1{--c:#B04DFF}:root[data-skin="neon"] .s2{--c:#3D8BFF}:root[data-skin="neon"] .s3{--c:#3FE0A0}
+.s4{--c:#1D4ED8}:root[data-skin="neon"] .s4{--c:#22D3EE}
+@media (max-width:900px){.cats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.cats{gap:8px}.cat{padding:16px 6px 76px;border-radius:16px}.cat .ic{font-size:32px}.cat h3{font-size:22px}.cat p{font-size:12.5px}.cat svg.wave{height:66px}
+  :root[data-skin] .cat .glass{width:58px;height:58px;border-radius:17px} :root[data-skin] .cat .glass svg.i{font-size:28px} .shield{font-size:14px;padding:10px 16px}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="bars" viewBox="0 0 24 24"><rect x="3" y="13" width="4.5" height="8" rx="1" fill="currentColor" stroke="none"/><rect x="9.75" y="8" width="4.5" height="13" rx="1" fill="currentColor" stroke="none"/><rect x="16.5" y="3" width="4.5" height="18" rx="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="lotus" viewBox="0 0 24 24"><path d="M12 4c2 2.2 3 4.6 3 7s-1 4.6-3 6c-2-1.4-3-3.6-3-6s1-4.8 3-7z"/><path d="M12 17c-3 0-6.5-1.6-8-5 2.6-.6 5 .1 6.6 1.6"/><path d="M12 17c3 0 6.5-1.6 8-5-2.6-.6-5 .1-6.6 1.6"/><path d="M5 19.5h14"/></symbol>
+  <symbol id="shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></symbol>
+  <symbol id="radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12 18.5 5.5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="15.5" cy="9" r="1.2" fill="currentColor"/></symbol>
+  <linearGradient id="neon-ln" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3D8BFF"/><stop offset="1" stop-color="#B04DFF"/></linearGradient>
+</svg>
 <div class="shell" id="shell">
   <div class="shade" id="shade"></div>
   <aside class="rail" id="rail" aria-label="القائمة">
     <div class="brand">
       <svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true"><g fill="none" stroke="var(--accent)" stroke-width="1.8"><rect x="9" y="9" width="22" height="22" rx="1"/><rect x="9" y="9" width="22" height="22" rx="1" transform="rotate(45 20 20)"/><circle cx="20" cy="20" r="4.5"/></g></svg>
-      <div><b>Sentinel Signals</b><small>توصيات الأسهم النقية</small></div>
+      <span class="logo" aria-hidden="true">S</span><div><b>Senti<em>nel</em> Signals</b><small>توصيات الأسهم النقية</small></div>
     </div>
     <nav class="nav" id="nav">
-      <a href="#deep"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 17l5-6 4 4 4-7 5 9M3 21h18"/><circle cx="16" cy="4" r="1.6" fill="currentColor"/></svg>سهم اليوم</a>
-      <a href="#council"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M7 20a5 5 0 0 1 10 0M2 19a3 3 0 0 1 4.5-2.6M22 19a3 3 0 0 0-4.5-2.6"/></g></svg>مجلس الوكلاء</a>
-      <a href="#alog"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></g></svg>سجل المحلل</a>
-      <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
-      <a href="#analysis"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4M8 13v-2M11 13V9M14 13v-3"/></svg>التحليل</a>
-      <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
-      <a href="#purify"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg>التطهير</a>
-      <a href="#archive"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></g></svg>الأرشيف الشهري</a>
-      <a href="#reports"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M12 12v6M9 15l3 3 3-3"/></g></svg>التقارير والتصدير</a>
-      <a href="#symbols"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></svg>الرموز</a>
-      <a href="#control"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></g></svg>لوحة التحكم</a>
-      <a href="#settings"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></svg>الإعدادات</a>
-      <a href="#pitch"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 12l3-3 2 2 4-4M12 16v4M8 20h8"/></g></svg>عرض المستثمر</a>
+      <a href="#deep" class="s3"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 17l5-6 4 4 4-7 5 9M3 21h18"/><circle cx="16" cy="4" r="1.6" fill="currentColor"/></svg></span>سهم اليوم</a>
+      <a href="#council" class="s1"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M7 20a5 5 0 0 1 10 0M2 19a3 3 0 0 1 4.5-2.6M22 19a3 3 0 0 0-4.5-2.6"/></g></svg></span>مجلس الوكلاء</a>
+      <a href="#alog" class="s4"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></g></svg></span>سجل المحلل</a>
+      <a href="#overview" class="s2"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>الأداء</a>
+      <a href="#analysis" class="s2"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4M8 13v-2M11 13V9M14 13v-3"/></svg></span>التحليل</a>
+      <a href="#signals" class="s2"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>سجل التوصيات</a>
+      <a href="#purify" class="s3"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9.5 14.5a2.5 2.5 0 0 0 2.5 2.5"/></svg></span>التطهير</a>
+      <a href="#archive" class="s1"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></g></svg></span>الأرشيف الشهري</a>
+      <a href="#reports" class="s4"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M12 12v6M9 15l3 3 3-3"/></g></svg></span>التقارير والتصدير</a>
+      <a href="#symbols" class="s2"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></svg></span>الرموز</a>
+      <a href="#control" class="s1"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></g></svg></span>لوحة التحكم</a>
+      <a href="#settings" class="s4"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></svg></span>الإعدادات</a>
+      <a href="#pitch" class="s2"><span class="glass"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 12l3-3 2 2 4-4M12 16v4M8 20h8"/></g></svg></span>عرض المستثمر</a>
     </nav>
     <div class="rail-foot">
       <div class="trial" id="trial-box"></div>
@@ -422,12 +617,21 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
             <span class="chip demo" id="demo-chip" hidden>بيانات تجريبية للعرض</span>
             <div class="trial deep-trial" id="deep-trial" hidden></div>
             <span class="chip">حساب تجريبي · بدون رافعة</span>
+            <div class="menu-wrap">
+              <button class="ibtn" id="themes-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="themes-menu">🎨 ثيمات ▾</button>
+              <div class="menu" id="themes-menu" role="menu" hidden>
+                <button class="opt" type="button" role="menuitemradio" data-skin="neon" aria-checked="true"><i class="sw" style="background:linear-gradient(135deg,#070C2B 30%,#B04DFF 30% 55%,#3D8BFF 55% 78%,#3FE0A0 78%)"></i><span>نيون الليل<small>كحلي مع توهج بنفسجي وأزرق وأخضر</small></span></button>
+                <button class="opt" type="button" role="menuitemradio" data-skin="corp" aria-checked="false"><i class="sw" style="background:linear-gradient(135deg,#fff 40%,#1D4ED8 40% 75%,#F7731C 75%);border:1px solid #E2E8F6"></i><span>المؤسسي المضيء<small>أبيض، أزرق ملكي، برتقالي</small></span></button>
+                <button class="opt" type="button" role="menuitemradio" data-skin="gold" aria-checked="false"><i class="sw" style="background:linear-gradient(135deg,#0A1214 40%,#101B1E 40% 70%,#CDAA67 70%)"></i><span>الذهبي<small>الكلاسيكي الأصلي، داكن وفاتح</small></span></button>
+              </div>
+            </div>
             <button class="icon-btn" id="theme-btn" type="button" aria-label="الوضع الليلي"><svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></svg><svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
           </div>
         </div>
         <div class="filters" id="filters"></div>
       </header>
       <div id="view"></div>
+      <div class="foot">التداول ينطوي على مخاطر عالية · تحليل تعليمي وليس نصيحة استثمارية</div>
     </main>
   </div>
 </div>
@@ -649,6 +853,21 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return '<div class="empty"><b>لا يوجد بيانات</b>' + (ts ? "التجربة بدأت في <span class=\"num\">" + ymd(ts) + "</span>، وهذي الفترة (" + esc(range.label) + ") قبلها أو بعد اليوم." : "ما وصلت بيانات للحين.") + "</div>";
   }
 
+  /* بطاقات الفئات: شكل بس، كل بطاقة رابط لقسمها */
+  var CATS = [
+    ["s1", "council", "bolt", "صقر", "مجلس الوكلاء", "أسلوب ديناميكي<br>يتابع تحركات السوق.", "M0 62 C25 62 35 40 60 44 S95 70 120 58 S160 20 190 30 S230 66 255 50 S285 18 300 22"],
+    ["s2", "signals", "bars", "ميزان", "التوصيات اليومية", "توازن بين<br>الفرص والمخاطر.", "M0 64 C30 64 45 48 75 52 S120 70 150 56 S200 34 230 44 S275 58 300 40"],
+    ["s3", "deep", "lotus", "واحة", "سهم اليوم", "أسلوب هادئ<br>ومنضبط.", "M0 66 C40 66 60 52 95 54 S150 66 185 54 S245 40 300 34"],
+    ["s4", "alog", "radar", "رادار", "محلل Sentinel", "حلّل أي سهم تبيه<br>في لحظة.", "M0 58 C30 40 55 66 90 50 S140 30 170 46 S230 62 260 38 S290 30 300 30"]
+  ];
+  function catCards() {
+    return '<div class="cats-wrap"><div class="cats">' + CATS.map(function (c, i) {
+      var id = "cw" + (i + 1);
+      return '<a class="cat ' + c[0] + '" href="#' + c[1] + '"><div class="ic"><span class="glass"><svg class="i"><use href="#' + c[2] + '"/></svg></span></div><h3>' + c[3] + "<small>" + c[4] + "</small></h3><p>" + c[5] + "</p>" +
+        '<svg class="wave" viewBox="0 0 300 84" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--c)" stop-opacity=".55"/><stop offset="1" stop-color="var(--c)" stop-opacity=".05"/></linearGradient></defs>' +
+        '<path d="' + c[6] + ' L300 84 L0 84Z" fill="url(#' + id + ')"/><path d="' + c[6] + '" fill="none" stroke="var(--c)" stroke-width="3"/></svg></a>';
+    }).join("") + '</div><div class="shield"><svg class="i"><use href="#shield"/></svg>مع وقف خسارة لكل صفقة دائماً.</div></div>';
+  }
   function pageOverview() {
     var range = periodRange();
     if (noData(range)) return emptyBox(range);
@@ -657,7 +876,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       var e = equityFor(c, range);
       return '<div class="panel acct"><div><span class="name">حساب ' + stratName(c) + (SAR() ? " · افتراضي" : "") + '</span><small>' + (e ? "رصيد يوم " + '<span class="num">' + e.day + "</span>" : "ما فيه لقطة رصيد في هذي الفترة") + '</small></div><div class="eq"><b class="num">' + (e ? money(e.end) : "—") + '</b>' + (e ? '<span class="num ' + cls(e.change) + '">' + money(e.change, true) + "</span>" : "") + "</div></div>";
     }).join("");
-    return '<section><div class="grid2"><div class="panel gauge-panel"><div class="lv">نسبة النجاح · من <span class="num">' + st.decided.length + "</span> صفقة محسومة</div>" + gauge(st.rate) +
+    return catCards() + '<section><div class="grid2"><div class="panel gauge-panel"><div class="lv">نسبة النجاح · من <span class="num">' + st.decided.length + "</span> صفقة محسومة</div>" + gauge(st.rate) +
       '<span class="verdict ' + (st.rate != null && st.rate >= TARGET ? "ok" : "") + '">' + (st.rate == null ? "ما فيه صفقات محسومة للحين" : st.rate >= TARGET ? "فوق الهدف" : "تحت الهدف حالياً") + "</span>" +
       '<div class="wl"><div><b>' + st.wins + "</b>ناجحة</div><div><b>" + st.losses + "</b>خاسرة</div><div><b>" + st.open + "</b>مفتوحة</div></div></div>" +
       '<div class="panel"><div class="kpis"><div class="kpi"><div class="k">الربح الإجمالي</div><div class="v num ' + cls(st.net) + '">' + money(st.net, true) + '</div></div><div class="kpi"><div class="k">توصيات الفترة</div><div class="v num">' + st.issued.length + '</div></div><div class="kpi"><div class="k">متوسط الربح</div><div class="v num pos">' + (st.avgWin == null ? "—" : money(st.avgWin, true)) + '</div></div><div class="kpi"><div class="k">متوسط الخسارة</div><div class="v num neg">' + (st.avgLoss == null ? "—" : money(st.avgLoss, true)) + "</div></div></div>" +
@@ -990,7 +1209,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     return '<section class="stack pitch">' +
       '<div class="panel pitch-hero"><div class="pitch-brand">Sentinel Signals</div><h2>وكيل توصيات للأسهم الأمريكية المتوافقة مع الشريعة</h2>' +
       '<p>يحلل السوق كل يوم بعد الإغلاق، ويطلع صفقات بدخول ووقف وأهداف، وينفذها تلقائياً على حسابات تجريبية، ويتابعها لين تنقفل. كل رقم في هذي الصفحة من أوامر التنفيذ الفعلية، مو تقدير.</p>' +
-      '<div class="pitch-day">تجربة 30 يوم · <b class="num">اليوم ' + day + "</b> من <span class=\"num\">30</span></div></div>" +
+      '<div class="pitch-day">تجربة 30 يوم · <b class="num">اليوم ' + day + "</b> من <span class=\"num\">30</span></div></div>" + catCards() +
       '<div class="panel"><div class="kpis pitch-kpis">' + kpi("صفقات محسومة", st.decided.length) + kpi("نسبة النجاح", st.rate == null ? "—" : Math.round(st.rate * 100) + "%") +
       kpi("صافي الربح", money(st.net, true), cls(st.net)) + kpi("معامل الربح", pf == null ? "—" : pf.toFixed(2)) + kpi("متوسط الربح", st.avgWin == null ? "—" : money(st.avgWin, true), "pos") +
       kpi("متوسط الخسارة", st.avgLoss == null ? "—" : money(st.avgLoss, true), "neg") + "</div>" +
@@ -1005,16 +1224,16 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   }
 
   var THEMES = [
-    ["auto", "تلقائي", "يتبع وضع جهازك", ["#0A1214", "#EDF0EE", "#CDAA67"]],
-    ["dark", "الداكن", "الكلاسيكي الليلي", ["#0A1214", "#101B1E", "#CDAA67"]],
-    ["light", "الفاتح", "الكلاسيكي النهاري", ["#EDF0EE", "#FFFFFF", "#8E6F33"]],
-    ["corp", "المؤسسي الفاتح", "أبيض وأزرق ملكي، للعروض", ["#FFFFFF", "#1E4FD8", "#F26B1D"]]
+    ["neon", "نيون الليل", "الافتراضي، كحلي مع توهج", ["#070C2B", "#B04DFF", "#3D8BFF", "#3FE0A0"]],
+    ["corp", "المؤسسي المضيء", "أبيض، أزرق ملكي، برتقالي", ["#FFFFFF", "#1D4ED8", "#F7731C"]],
+    ["dark", "الذهبي الداكن", "الكلاسيكي الليلي", ["#0A1214", "#101B1E", "#CDAA67"]],
+    ["light", "الذهبي الفاتح", "الكلاسيكي النهاري", ["#EDF0EE", "#FFFFFF", "#8E6F33"]]
   ];
   function themePanel() {
-    var t = store.get("sentinel-theme") || "auto";
+    var t = window.curTheme ? window.curTheme() : "neon";
     return '<div class="panel stack"><h2>المظهر</h2><div class="theme-pick" role="group" aria-label="الثيم">' + THEMES.map(function (x) {
       return '<button type="button" data-act="theme" data-t="' + x[0] + '" aria-pressed="' + (t === x[0]) + '"><span class="sw">' + x[3].map(function (c) { return '<i style="background:' + c + '"></i>'; }).join("") + "</span><span>" + x[1] + "<small>" + x[2] + "</small></span></button>";
-    }).join("") + '</div><p class="note">زر الشمس والقمر فوق يبدّل بين الداكن والثيم الفاتح اللي اخترته.</p></div>';
+    }).join("") + '</div><p class="note">زر الشمس والقمر فوق يبدّل بين الليلي والنهاري: نيون الليل مع المؤسسي المضيء، والذهبي الداكن مع الفاتح.</p></div>';
   }
   function pageSettings() {
     var tk = token();
@@ -1632,7 +1851,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(function () { toast("انسخ الرابط"); }, function () { inp.select(); toast("حدد الرابط وانسخه"); });
       return;
     }
-    if (a === "theme") { window.setTheme(el.dataset.t); render(); return; }
+    if (a === "theme") { window.setTheme(el.dataset.t); return; }
     if (a === "install" && window.__installPrompt) { window.__installPrompt.prompt(); window.__installPrompt = null; }
   });
   document.addEventListener("change", function (e) {
@@ -1681,21 +1900,32 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   /* ---------- الوضع الليلي ---------- */
   (function () {
     var root = document.documentElement, btn = $("theme-btn");
-    var OK = { dark: 1, light: 1, corp: 1 };
-    var saved = store.get("sentinel-theme"); if (OK[saved]) root.setAttribute("data-theme", saved);
-    function cur() { var t = root.getAttribute("data-theme"); return t || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"); }
+    var OK = { neon: 1, corp: 1, dark: 1, light: 1 }, PAIR = { neon: "corp", corp: "neon", dark: "light", light: "dark" };
+    var COLOR = { neon: "#070C2B", corp: "#FFFFFF", dark: "#0A1214", light: "#EDF0EE" };
+    var tbtn = $("themes-btn"), tmenu = $("themes-menu");
+    function cur() { var t = root.getAttribute("data-theme"); return OK[t] ? t : "neon"; }
+    function skinOf(t) { return t === "dark" || t === "light" ? "gold" : t; }
     function paint() {
-      var t = cur(), m = t === "dark" ? "dark" : "light";
+      var t = cur(), m = t === "neon" || t === "dark" ? "dark" : "light";
+      if (t === "neon" || t === "corp") root.setAttribute("data-skin", t); else root.removeAttribute("data-skin");
       root.setAttribute("data-mode", m); btn.setAttribute("aria-label", m === "dark" ? "الوضع النهاري" : "الوضع الليلي");
-      document.querySelector('meta[name="theme-color"]').content = t === "dark" ? "#0A1214" : t === "corp" ? "#FFFFFF" : "#EDF0EE";
+      document.querySelector('meta[name="theme-color"]').content = COLOR[t];
+      tmenu.querySelectorAll(".opt").forEach(function (o) { o.setAttribute("aria-checked", String(o.dataset.skin === skinOf(t))); });
     }
-    // الثيم من الإعدادات: auto يرجع لوضع الجهاز
+    // neon | corp | gold (يرجع لآخر ذهبي: داكن أو فاتح) | dark | light
     window.setTheme = function (t) {
-      if (OK[t]) { root.setAttribute("data-theme", t); store.set("sentinel-theme", t); if (t !== "dark") store.set("sentinel-theme-light", t); }
-      else { root.removeAttribute("data-theme"); store.del("sentinel-theme"); }
-      paint();
+      if (t === "gold") t = store.get("sentinel-gold") || "dark";
+      if (!OK[t]) t = "neon";
+      root.setAttribute("data-theme", t); store.set("sentinel-skin", t); if (t === "dark" || t === "light") store.set("sentinel-gold", t);
+      paint(); if (current === "settings") render();
     };
-    btn.addEventListener("click", function () { window.setTheme(cur() === "dark" ? store.get("sentinel-theme-light") || "light" : "dark"); if (current === "settings") render(); });
+    window.curTheme = cur;
+    btn.addEventListener("click", function () { window.setTheme(PAIR[cur()]); });
+    function closeMenu() { tmenu.hidden = true; tbtn.setAttribute("aria-expanded", "false"); }
+    tbtn.addEventListener("click", function (e) { e.stopPropagation(); var o = tmenu.hidden; tmenu.hidden = !o; tbtn.setAttribute("aria-expanded", String(o)); });
+    tmenu.addEventListener("click", function (e) { var o = e.target.closest(".opt"); if (!o) return; window.setTheme(o.dataset.skin); closeMenu(); tbtn.focus(); });
+    document.addEventListener("click", function (e) { if (!e.target.closest(".menu-wrap")) closeMenu(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !tmenu.hidden) { closeMenu(); tbtn.focus(); } });
     paint();
   })();
 
