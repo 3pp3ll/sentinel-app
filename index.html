@@ -12,6 +12,7 @@
   var ls = localStorage, t = ls.getItem("sentinel-theme");
   if (t !== "neon" && t !== "corp") { t = (t === "light") ? "corp" : "neon"; ls.setItem("sentinel-theme", t); }
   document.documentElement.setAttribute("data-theme", t);
+  document.documentElement.setAttribute("data-night", ls.getItem("sentinel-night") || "0");
 } catch (e) { document.documentElement.setAttribute("data-theme", "neon"); } })();
 </script>
 <link rel="manifest" href="manifest.webmanifest">
@@ -108,6 +109,23 @@
 :root[data-theme="neon"] .chip.demo { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); }
 :root:is([data-theme="neon"],[data-theme="corp"]) .tag.quick { border-color: var(--c2); color: var(--c2); }
 :root[data-theme="neon"] .tag.swing { border-color: var(--c3); color: var(--c3); }
+/* الليلي يتنقل بين 6 ألوان: كل مرة تختار الليلي يطلع لون مختلف (0 هو الأساسي) */
+:root[data-theme="neon"][data-night="1"] { --bg: #1A1F5C; --surface: #262C72; --sunk: #20266A; --line: #3A4396; --glass: rgba(50,58,140,.45); }
+:root[data-theme="neon"][data-night="1"] body { background: radial-gradient(55% 34% at 50% -6%, rgba(140,120,255,.55), transparent 70%), radial-gradient(40% 45% at 100% 18%, rgba(236,72,153,.28), transparent 70%), radial-gradient(36% 42% at 0% 50%, rgba(34,211,238,.20), transparent 70%), radial-gradient(42% 40% at 96% 92%, rgba(63,224,160,.18), transparent 70%), linear-gradient(180deg,#1C2160,#231F66 55%,#1A1D58); background-attachment: fixed; }
+:root[data-theme="neon"][data-night="1"] :is(.rail, .top) { background: rgba(28,34,98,.78); } :root[data-theme="neon"][data-night="1"] th { background: #20266A; }
+:root[data-theme="neon"][data-night="2"] { --bg: #24185E; --surface: #30226F; --sunk: #2A1D66; --line: #4A3A99; --glass: rgba(64,48,140,.45); }
+:root[data-theme="neon"][data-night="2"] body { background: radial-gradient(55% 34% at 50% -6%, rgba(99,140,255,.45), transparent 70%), radial-gradient(40% 45% at 100% 18%, rgba(176,77,255,.40), transparent 70%), radial-gradient(36% 42% at 0% 50%, rgba(99,102,241,.30), transparent 70%), radial-gradient(42% 40% at 96% 92%, rgba(63,224,160,.16), transparent 70%), linear-gradient(180deg,#261A62,#2C1F6C 55%,#22175A); background-attachment: fixed; }
+:root[data-theme="neon"][data-night="2"] :is(.rail, .top) { background: rgba(36,26,96,.78); } :root[data-theme="neon"][data-night="2"] th { background: #2A1D66; }
+:root[data-theme="neon"][data-night="3"] { --bg: #0F2A52; --surface: #183A68; --sunk: #14335E; --line: #2B5590; --glass: rgba(30,70,130,.45); }
+:root[data-theme="neon"][data-night="3"] body { background: radial-gradient(55% 34% at 50% -6%, rgba(56,189,248,.45), transparent 70%), radial-gradient(40% 45% at 100% 18%, rgba(99,102,241,.30), transparent 70%), radial-gradient(36% 42% at 0% 50%, rgba(34,211,238,.25), transparent 70%), radial-gradient(42% 40% at 96% 92%, rgba(52,211,153,.28), transparent 70%), linear-gradient(180deg,#103059,#12365F 55%,#0E2950); background-attachment: fixed; }
+:root[data-theme="neon"][data-night="3"] :is(.rail, .top) { background: rgba(16,42,84,.78); } :root[data-theme="neon"][data-night="3"] th { background: #14335E; }
+:root[data-theme="neon"][data-night="4"] { --bg: #13204F; --surface: #1C2D66; --sunk: #18275C; --line: #30478C; --glass: rgba(34,54,120,.45); }
+:root[data-theme="neon"][data-night="4"] body { background: radial-gradient(60% 30% at 30% -4%, rgba(63,224,160,.38), transparent 70%), radial-gradient(45% 35% at 85% 6%, rgba(176,77,255,.40), transparent 70%), radial-gradient(36% 42% at 0% 55%, rgba(34,211,238,.22), transparent 70%), radial-gradient(42% 40% at 96% 92%, rgba(176,77,255,.22), transparent 70%), linear-gradient(180deg,#142454,#172A5C 55%,#121F4C); background-attachment: fixed; }
+:root[data-theme="neon"][data-night="4"] :is(.rail, .top) { background: rgba(20,32,82,.78); } :root[data-theme="neon"][data-night="4"] th { background: #18275C; }
+:root[data-theme="neon"][data-night="5"] { --bg: #2A1848; --surface: #3A2260; --sunk: #331D56; --line: #5A3A86; --glass: rgba(80,44,120,.45); }
+:root[data-theme="neon"][data-night="5"] body { background: radial-gradient(55% 34% at 50% -6%, rgba(176,77,255,.45), transparent 70%), radial-gradient(40% 45% at 100% 18%, rgba(247,115,28,.26), transparent 70%), radial-gradient(36% 42% at 0% 50%, rgba(236,72,153,.24), transparent 70%), radial-gradient(42% 40% at 96% 92%, rgba(61,139,255,.22), transparent 70%), linear-gradient(180deg,#2C1A4C,#34205A 55%,#281645); background-attachment: fixed; }
+:root[data-theme="neon"][data-night="5"] :is(.rail, .top) { background: rgba(42,24,74,.78); } :root[data-theme="neon"][data-night="5"] th { background: #331D56; }
+
 /* بطاقات الفئات فوق صفحة الأداء */
 .cats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; padding-top: 20px; }
 .cat { --c: var(--accent); position: relative; overflow: hidden; display: grid; justify-items: center; align-content: start; gap: 4px; text-align: center; text-decoration: none; color: var(--fg);
@@ -1799,10 +1817,15 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       var m = cur() === "neon" ? "dark" : "light";
       root.setAttribute("data-mode", m);
       btns.forEach(function (b) { b.setAttribute("aria-label", m === "dark" ? "الوضع النهاري" : "الوضع الليلي"); });
-      document.querySelector('meta[name="theme-color"]').content = m === "dark" ? "#0F1850" : "#FFFFFF";
+      document.querySelector('meta[name="theme-color"]').content = m === "dark" ? (NIGHT[+root.getAttribute("data-night")] || NIGHT[0]) : "#FFFFFF";
     }
+    var NIGHT = ["#0F1850","#1C2160","#261A62","#103059","#142454","#2C1A4C"];
     window.setTheme = function (t) {
       if (!OK[t]) t = "neon";
+      if (t === "neon" && cur() !== "neon") {  // كل مرة ترجع لليلي: اللون اللي بعده
+        var n = ((+store.get("sentinel-night") || 0) + 1) % NIGHT.length;
+        store.set("sentinel-night", String(n)); root.setAttribute("data-night", String(n));
+      }
       root.setAttribute("data-theme", t); store.set("sentinel-theme", t); paint();
     };
     btns.forEach(function (b) { b.addEventListener("click", function () { window.setTheme(cur() === "neon" ? "corp" : "neon"); if (current === "settings") render(); }); });
