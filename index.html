@@ -28,7 +28,7 @@
   --bg: #070C2B; --surface: #111948; --sunk: #0B1138; --line: #26306E;
   --fg: #F2F4FF; --muted: #A3ADDB; --accent: #8B7CFF; --accent-soft: #221D5C;
   --win: #3FE0A0; --win-soft: #0F2E33; --loss: #FF5C8A; --loss-soft: #33163A;
-  --live: #3D8BFF; --live-soft: #132457; --wait-soft: #151C4F; --glow: rgba(124,108,255,.25);
+  --live: #6AA6FF; --live-soft: #1A2B6A; --wait-soft: #151C4F; --glow: rgba(124,108,255,.25);
   --shade: rgba(3,5,20,.6);
   --f-display: Calibri, Carlito, "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
   --f-body: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
@@ -39,16 +39,19 @@
 /* ===== الهوية المعتمدة 22-11: نيون الليل + المؤسسي المضيء ===== */
 :root[data-theme="neon"] {
   --bg: #0D1547; --surface: #19215F; --sunk: #141B55; --line: #323E8C;
-  --fg: #F4F6FF; --muted: #B6BFEA; --accent: #8B7CFF; --accent-soft: #221D5C; --accent2: #3FE0A0; --accent2-soft: #0F2E33;
+  --fg: #F4F6FF; --muted: #B6BFEA; --accent: #A193FF; --accent-soft: #221D5C; --accent2: #3FE0A0; --accent2-soft: #0F2E33;
   --win: #3FE0A0; --win-soft: #0F2E33; --loss: #FF5C8A; --loss-soft: #33163A;
-  --live: #3D8BFF; --live-soft: #132457; --wait-soft: #151C4F; --glow: rgba(124,108,255,.25); --shade: rgba(3,5,20,.6);
+  --live: #6AA6FF; --live-soft: #1A2B6A; --wait-soft: #151C4F; --glow: rgba(124,108,255,.25); --shade: rgba(3,5,20,.6);
   --c1: #B04DFF; --c2: #3D8BFF; --c3: #3FE0A0; --c4: #22D3EE;
   --glass: rgba(34,44,122,.42); --glass-brd: rgba(150,165,255,.32);
   --grad: linear-gradient(90deg, #3D8BFF, #B04DFF);
   color-scheme: dark; }
 :root[data-theme="corp"] {
   --bg: #F5F8FF; --surface: #FFFFFF; --sunk: #EEF3FF; --line: #E2E8F6;
-  --fg: #0B1E5B; --muted: #4F5E86; --accent: #1D4ED8; --accent-soft: #E6EDFC; --accent2: #F7731C; --accent2-soft: #FEEFE5;
+  --fg: #0B1E5B; --muted: #4F5E86; --accent: #1D4ED8; --accent-soft: #E6EDFC; --accent2: #F7731C; --accent2-soft: #FEEFE5; --accent2-text: #C2410C;
+  --win: #137038; --win-soft: #E2F5E9; --loss: #B42318; --loss-soft: #FCE7E5;
+  --live: #1D4ED8; --live-soft: #E6EDFC; --wait-soft: #EEF3FF; --glow: rgba(29,78,216,.08); --shade: rgba(11,30,91,.35);
+  color-scheme: light;
   --c1: #1D4ED8; --c2: #1D4ED8; --c3: #1D4ED8; --c4: #1D4ED8;
   --glass: #FFFFFF; --glass-brd: #E2E8F6;
   --grad: linear-gradient(90deg, #1D4ED8, #2563EB); }
@@ -83,7 +86,7 @@
 :root[data-theme="neon"] .hero { background: transparent; border-color: var(--glass-brd); }
 :root:is([data-theme="neon"],[data-theme="corp"]) .hero .lattice { display: none; }
 :root[data-theme="neon"] .eyebrow { color: var(--accent2); }
-:root[data-theme="corp"] .eyebrow, :root[data-theme="corp"] .pitch-brand { color: var(--accent2); }
+:root[data-theme="corp"] .eyebrow, :root[data-theme="corp"] .pitch-brand { color: var(--accent2-text); }
 :root[data-theme="neon"] .brand svg g, :root[data-theme="corp"] .brand svg g { stroke: var(--accent); }
 :root[data-theme="neon"] .brand b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 /* الأزرار والاختيارات: متدرجة */
@@ -136,7 +139,11 @@
 .cat .glass::before { content: ""; position: absolute; inset: 3px 7px auto; height: 42%; border-radius: 16px 16px 40% 40%; background: linear-gradient(180deg, rgba(255,255,255,.55), transparent); }
 .cat .glass svg { position: relative; width: 32px; height: 32px; fill: none; stroke: #fff; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; color: #fff; filter: drop-shadow(0 0 7px var(--c)); }
 :root[data-theme="corp"] .cat { background: #fff; border: 1px solid var(--line); box-shadow: 0 12px 30px -18px rgba(29,78,216,.45); }
-:root[data-theme="corp"] .cat small { color: var(--accent2); }
+:root[data-theme="corp"] .cat small { color: var(--accent2-text); }
+:root[data-theme="neon"] .cat small { color: color-mix(in srgb, var(--c) 65%, #fff); }
+/* أزرار الإطار في الليلي: نص فاتح واضح */
+:root[data-theme="neon"] .btn.ghost { color: #DCD6FF; border-color: rgba(190,180,255,.7); background: rgba(161,147,255,.12); }
+:root[data-theme="neon"] .btn.ghost:hover { background: rgba(161,147,255,.22); }
 :root[data-theme="corp"] .cat .wave { filter: none; }
 :root[data-theme="corp"] .cat .glass { background: linear-gradient(150deg, #fff, #EEF3FF 55%, #D9E5FF); border-color: #fff; box-shadow: inset 0 1.5px 0 #fff, 0 10px 22px -10px rgba(29,78,216,.55); }
 :root[data-theme="corp"] .cat .glass svg { stroke: #1D4ED8; color: #1D4ED8; filter: none; }
