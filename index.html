@@ -332,6 +332,24 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 .dp-sheet-in td, .dp-sheet-in th { padding: 8px 6px; }
 .dp-sheet-in td.win, .chip.win { color: var(--win); } .dp-sheet-in td.loss, .chip.loss { color: var(--loss); }
 @media (max-width: 600px) { .dp-sheet-in { padding: 12px; } .dp-sheet-in table { font-size: 12px; } .dp-tt td:nth-child(3), .dp-tt th:nth-child(3) { display: none; } .dp-sch td:nth-child(2) { white-space: nowrap; } .dp-chart { height: 56vh; } .dp-tools .chips-row { flex-wrap: nowrap; overflow-x: auto; } .dp-kv span { padding: 4px 8px; } .dp-kv b { font-size: 14px; } .dp-sym { font-size: 22px; } .dp-kv span { min-width: 0; flex: 1 1 28%; } }
+
+/* سجل المحلل */
+.al-filters .cn-refresh { --c: var(--accent); width: 40px; height: 40px; margin-inline-start: auto; }
+.al-in { font: 500 14px var(--f-body); background: var(--sunk); color: var(--fg); border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; }
+.al-in.ltr { direction: ltr; width: 110px; font-family: var(--f-num); text-transform: uppercase; }
+.al-bars { display: flex; flex-direction: column; gap: 10px; }
+.al-bar { display: grid; grid-template-columns: 130px minmax(0, 1fr) 36px; align-items: center; gap: 10px; }
+.al-bar b { font: 600 14px var(--f-num); text-align: end; }
+.al-track { height: 8px; background: var(--sunk); border-radius: 99px; overflow: hidden; }
+.al-track i { display: block; height: 100%; background: var(--muted); border-radius: 99px; }
+.al-track i.win, .al-track i.win2 { background: var(--win); } .al-track i.loss { background: var(--loss); }
+.al3 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 1100px) { .al3 { grid-template-columns: minmax(0, 1fr); } }
+.al-sc span { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.al3 table { min-width: 0; }
+.al-table td .al-ev { display: block; font: 500 11px var(--f-num); color: var(--muted); margin-top: 4px; line-height: 1.5; }
+.al-card { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
+@media (max-width: 560px) { .al-bar { grid-template-columns: 112px minmax(0, 1fr) 30px; } }
 </style>
 </head>
 <body>
@@ -345,6 +363,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     <nav class="nav" id="nav">
       <a href="#deep"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 17l5-6 4 4 4-7 5 9M3 21h18"/><circle cx="16" cy="4" r="1.6" fill="currentColor"/></svg>سهم اليوم</a>
       <a href="#council"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="7" r="3"/><circle cx="5" cy="10" r="2"/><circle cx="19" cy="10" r="2"/><path d="M7 20a5 5 0 0 1 10 0M2 19a3 3 0 0 1 4.5-2.6M22 19a3 3 0 0 0-4.5-2.6"/></g></svg>مجلس الوكلاء</a>
+      <a href="#alog"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></g></svg>سجل المحلل</a>
       <a href="#overview"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg>الأداء</a>
       <a href="#analysis"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4-4M8 13v-2M11 13V9M14 13v-3"/></svg>التحليل</a>
       <a href="#signals"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>سجل التوصيات</a>
@@ -399,8 +418,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["deep", "council", "overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "pitch"];
-  var TITLES = { deep: "سهم اليوم", council: "مجلس الوكلاء", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات", pitch: "عرض المستثمر" };
+  var PAGES = ["deep", "council", "alog", "overview", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "pitch"];
+  var TITLES = { deep: "سهم اليوم", council: "مجلس الوكلاء", alog: "سجل المحلل", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات", pitch: "عرض المستثمر" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -590,7 +609,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var cls = function (x) { return x > 0 ? "pos" : x < 0 ? "neg" : "zero"; };
 
   function filtersHtml(page) {
-    if (page === "deep" || page === "council" || page === "settings" || page === "archive" || page === "control" || page === "symbols" || page === "pitch") return "";
+    if (page === "deep" || page === "council" || page === "alog" || page === "settings" || page === "archive" || page === "control" || page === "symbols" || page === "pitch") return "";
     var mk = monthKeys(), p = state.period;
     var chips = mk.map(function (k) { return '<button type="button" data-period="month:' + k + '" class="' + (p === "month:" + k ? "on" : "") + '">' + (k === monthKey(new Date()) ? "هذا الشهر · " : "") + monthName(k) + "</button>"; }).join("") +
       '<button type="button" data-period="all" class="' + (p === "all" ? "on" : "") + '">كل الفترة</button><button type="button" data-period="range" class="' + (p === "range" ? "on" : "") + '">فترة محددة</button>';
@@ -1378,22 +1397,129 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   // والصفحة مفتوحة نحدث كل دقيقة (نفس نبضة المجلس)
   setInterval(function () { if (current === "council" && !document.hidden) loadCouncil(); }, 60000);
 
+  /* ---------- سجل المحلل (محلل Sentinel على تيليجرام، من Worker المحلل) ---------- */
+  var ALOG_URL = "https://sentinel-analyst.3pp3ll.workers.dev/api/log";
+  var AL = null, AL_ERR = null, AL_AT = null, AL_USERS = {};
+  var AL_F = { day: "", symbol: "", user: "", result: "" };
+  try { AL = JSON.parse(store.get("sentinel.alog") || "null"); Object.assign(AL_F, JSON.parse(store.get("sentinel.alog.f") || "{}")); } catch (e) {}
+  var AL_RES = { target2: ["وصل هدف 2", "win2"], target1: ["وصل هدف 1", "win"], stop: ["ضرب الوقف أول", "loss"], flat: ["ما تحرك", "muted"], pending: ["ينتظر 5 أيام", "wait"] };
+  var AL_TREND = { up: ["صاعد", "win"], down: ["هابط", "loss"], side: ["عرضي", "muted"] };
+  var AL_OUT = { not_sharia: ["خارج النطاق", "muted"], error: ["خطأ", "loss"], limited: ["تجاوز الحد", "wait"] };
+  var AL_STATUS = { owner: "المالك", approved: "موافق عليه", pending: "ينتظر الموافقة", blocked: "موقوف" };
+  var f2 = function (x) { return x == null ? "—" : (+x).toFixed(2); };
+  var alUser = function (r) { return r.name || (r.username ? "@" + r.username : "") || (AL_USERS[r.chat_id] || r.chat_id); };
+  function loadAlog(force) {
+    if (!HOSTED) { AL = alogDemo(); AL_AT = new Date(); return; }
+    var tk = token(); if (!tk) { AL_ERR = "token"; return; }
+    if (loadAlog.busy) return; loadAlog.busy = true;
+    var q = Object.keys(AL_F).filter(function (k) { return AL_F[k]; }).map(function (k) { return k + "=" + encodeURIComponent(AL_F[k]); });
+    fetch(ALOG_URL + "?" + q.concat("t=" + Date.now()).join("&"), { cache: "no-store", headers: { Authorization: "Bearer " + tk.t } })
+      .then(function (r) { if (!r.ok) throw { code: r.status }; return r.json(); })
+      .then(function (d) { AL = d; AL_ERR = null; AL_AT = new Date(); store.set("sentinel.alog", JSON.stringify(d)); if (force) toast("تم تحديث السجل"); })
+      .catch(function (e) { AL_ERR = e && e.code === 401 ? "auth" : "net"; })
+      .then(function () { loadAlog.busy = false; if (current === "alog") render(); });
+  }
+  function pageAlog() {
+    if (!AL_AT && !AL_ERR) loadAlog();
+    if (!AL && !AL_ERR) return '<section><div class="empty"><b>جاري تحميل السجل…</b></div></section>';
+    if (!AL) return '<section><div class="empty"><b>' + (AL_ERR === "token" ? "اربط التطبيق ببياناتك" : AL_ERR === "auth" ? "الرمز ما يخص حسابك" : "ما قدرت أوصل للمحلل") + "</b>" +
+      (AL_ERR === "token" ? "من الإعدادات، خطوة وحدة." : AL_ERR === "auth" ? "السجل يقبل رمز GitHub حق صاحب الحساب بس." : "تأكد من النت وجرب التحديث.") + "</div></section>";
+    var s = AL.stats || {}, by = s.byResult || {};
+    (s.perUser || []).forEach(function (u) { AL_USERS[u.chat_id] = u.name || (u.username ? "@" + u.username : u.chat_id); });
+
+    // الفلاتر: اليوم، السهم، المستخدم، النتيجة
+    var users = Object.keys(AL_USERS).map(function (id) { return '<option value="' + esc(id) + '"' + (AL_F.user === id ? " selected" : "") + ">" + esc(AL_USERS[id]) + "</option>"; }).join("");
+    var results = Object.keys(AL_RES).map(function (k) { return '<option value="' + k + '"' + (AL_F.result === k ? " selected" : "") + ">" + AL_RES[k][0] + "</option>"; }).join("");
+    var any = AL_F.day || AL_F.symbol || AL_F.user || AL_F.result;
+    var filters = '<div class="sortbar al-filters">' +
+      '<label for="al-day">اليوم</label><input id="al-day" class="al-in num" type="date" value="' + esc(AL_F.day) + '">' +
+      '<label for="al-symbol">السهم</label><input id="al-symbol" class="al-in ltr" type="text" inputmode="latin" autocomplete="off" placeholder="AAPL" value="' + esc(AL_F.symbol) + '">' +
+      '<label for="al-user">المستخدم</label><select id="al-user"><option value="">الكل</option>' + users + "</select>" +
+      '<label for="al-result">النتيجة</label><select id="al-result"><option value="">الكل</option>' + results + "</select>" +
+      (any ? '<button type="button" class="btn ghost" data-aact="clear">امسح الفلاتر</button>' : "") +
+      '<button type="button" class="cn-refresh" data-aact="refresh" aria-label="حدّث السجل" title="تحديث"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></button></div>' +
+      (AL_ERR ? '<p class="note">نسخة محفوظة، ما قدرت أحدث الحين.</p>' : "");
+
+    // الإحصائيات
+    var acc = s.accuracyPct == null ? null : s.accuracyPct / 100;
+    var bars = ["target2", "target1", "stop", "flat"].map(function (k) {
+      var n = by[k] || 0, w = s.evaluated ? Math.round(n / s.evaluated * 100) : 0;
+      return '<div class="al-bar"><span class="pill ' + AL_RES[k][1] + '">' + AL_RES[k][0] + '</span><div class="al-track"><i class="' + AL_RES[k][1] + '" style="width:' + w + '%"></i></div><b class="num">' + n + "</b></div>";
+    }).join("");
+    var stats = '<div class="grid2"><div class="panel gauge-panel"><div class="lv">نسبة صحة السيناريوهات · <span class="num">' + (s.evaluated || 0) + "</span> تحليل انقيّم</div>" + alogGauge(acc) +
+      '<span class="verdict">' + (!s.evaluated ? "التقييم يبدأ بعد 5 أيام تداول من أول تحليل" : "وصل هدف 1 أو 2 خلال 5 أيام تداول") + "</span>" +
+      '<div class="wl"><div><b>' + ((by.target1 || 0) + (by.target2 || 0)) + "</b>وصلت هدف</div><div><b>" + (by.stop || 0) + "</b>ضربت الوقف</div></div></div>" +
+      '<div class="panel"><div class="kpis"><div class="kpi"><div class="k">التحاليل</div><div class="v num">' + (s.ok || 0) + '</div></div><div class="kpi"><div class="k">المستخدمين</div><div class="v num">' + (s.users || 0) +
+      '</div></div><div class="kpi"><div class="k">ينتظر التقييم</div><div class="v num">' + (s.pending || 0) + '</div></div><div class="kpi"><div class="k">التكلفة</div><div class="v num">' + usd4(s.cost) + "</div></div></div>" +
+      '<div class="al-bars">' + bars + '</div><div class="caption">خارج النطاق الشرعي: <span class="num">' + (s.not_sharia || 0) + '</span> · أخطاء: <span class="num">' + (s.errors || 0) + "</span></div></div></div>";
+
+    var top = (s.topSymbols || []).map(function (x) { return '<tr><td><b class="sym">' + esc(x.symbol) + '</b></td><td class="n num">' + x.n + "</td></tr>"; }).join("");
+    var per = (s.perUser || []).map(function (u) {
+      return "<tr><td>" + esc(alUser(u)) + (u.status ? "<small class=\"when\">" + esc(AL_STATUS[u.status] || u.status) + (u.plan ? " · " + esc(u.plan) : "") + "</small>" : "") + '</td><td class="n num">' + u.n + '</td><td class="n num">' + (u.ok || 0) +
+        '</td><td class="n num">' + usd4(u.cost) + '</td><td class="lv num">' + esc(when(u.last_ts || "")) + "</td></tr>";
+    }).join("");
+    var days = (s.costByDay || []).map(function (d) { return '<tr><td class="num">' + esc(d.day) + '</td><td class="n num">' + d.n + '</td><td class="n num">' + usd4(d.cost) + "</td></tr>"; }).join("");
+    var side = '<div class="al3"><div class="panel stack"><h2>أكثر الأسهم طلباً</h2>' + (top ? '<div class="table-wrap"><table><thead><tr><th>السهم</th><th class="n">تحاليل</th></tr></thead><tbody>' + top + "</tbody></table></div>" : '<p class="note">ما فيه تحاليل للحين.</p>') + "</div>" +
+      '<div class="panel stack"><h2>المستخدمين واستخدامهم</h2>' + (per ? '<div class="table-wrap"><table><thead><tr><th>المستخدم</th><th class="n">طلبات</th><th class="n">تحاليل</th><th class="n">التكلفة</th><th>آخر طلب</th></tr></thead><tbody>' + per + "</tbody></table></div>" : '<p class="note">ما فيه مستخدمين للحين.</p>') + "</div>" +
+      '<div class="panel stack"><h2>التكلفة باليوم</h2>' + (days ? '<div class="table-wrap"><table><thead><tr><th>اليوم</th><th class="n">طلبات</th><th class="n">التكلفة</th></tr></thead><tbody>' + days + "</tbody></table></div>" : '<p class="note">ما فيه تكلفة للحين.</p>') + "</div></div>";
+
+    // الجدول
+    var rows = (AL.rows || []).map(function (r) {
+      var res = r.outcome !== "ok" ? AL_OUT[r.outcome] || [r.outcome, "muted"] : AL_RES[r.eval_result || "pending"];
+      var tr = AL_TREND[r.trend];
+      var sc = r.outcome === "ok" && (r.scenario_up || r.scenario_down) ? '<div class="al-sc"><span>⬆ ' + esc(r.scenario_up || "") + "</span><span>⬇ " + esc(r.scenario_down || "") + "</span></div>" : "";
+      return '<tr><td class="lv num">' + esc(when(r.ts)) + "</td><td>" + esc(alUser(r)) + '</td><td><b class="sym">' + esc(r.symbol) + "</b>" + (tr ? '<small class="when"><span class="pill ' + tr[1] + '">' + tr[0] + "</span></small>" : "") +
+        '</td><td class="n num">' + f2(r.price) + '</td><td class="n num">' + f2(r.support) + '<small class="when">' + f2(r.resistance) + '</small></td><td class="n num">' + f2(r.target1) + (r.target2 != null ? '<small class="when">' + f2(r.target2) + "</small>" : "") +
+        '</td><td class="n num">' + f2(r.stop) + "</td><td>" + sc + '</td><td><span class="pill ' + res[1] + '">' + res[0] + "</span>" + (r.eval_high != null ? '<small class="al-ev">أعلى <span class="num">' + f2(r.eval_high) + '</span><br>أدنى <span class="num">' + f2(r.eval_low) + "</span></small>" : "") +
+        "</td><td>" + (r.card_url ? '<a class="al-card" href="' + esc(r.card_url) + '" target="_blank" rel="noopener">البطاقة</a>' : '<span class="lv">—</span>') + "</td></tr>";
+    }).join("");
+    var table = rows ? '<div class="panel stack"><h2>السجل <span class="lv num">' + (AL.rows || []).length + '</span></h2><div class="table-wrap"><table class="al-table"><thead><tr><th>الوقت</th><th>المستخدم</th><th>السهم</th><th class="n">السعر</th><th class="n">الدعم<small class="when">المقاومة</small></th><th class="n">هدف 1<small class="when">هدف 2</small></th><th class="n">الوقف</th><th>السيناريوهين</th><th>النتيجة</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div></div>"
+      : '<div class="empty"><b>ما فيه تحاليل بهذي الفلاتر</b>جرب تمسح الفلاتر أو تختار يوم ثاني.</div>';
+    return '<section class="stack">' + filters + stats + side + table + "</section>";
+  }
+  var usd4 = function (x) { return x == null ? "—" : "$" + (+x).toFixed(x >= 1 ? 2 : 4); };
+  function alogGauge(rate) { var t = TARGET; TARGET = 0.6; try { return gauge(rate).replace(/الهدف 60%[^<]*</, "الوصول لهدف خلال 5 أيام<"); } finally { TARGET = t; } }
+  function alogDemo() {
+    var t = Date.now(), iso = function (h) { return new Date(t - h * 36e5).toISOString(); };
+    var rows = [
+      { id: 6, ts: iso(1), day: ymd(new Date()), chat_id: "1", name: "عبدالله", symbol: "NVDA", outcome: "ok", price: 178.4, trend: "down", support: 176.2, resistance: 184.9, target1: 184.9, target2: 191.3, stop: 174.8, scenario_up: "فوق 176.20 يستهدف 184.90 و 191.30", scenario_down: "كسر 174.80 يلغي السيناريو ويفتح الطريق لـ 168.70", eval_result: null, est_cost_usd: 0.0003, card_url: null },
+      { id: 5, ts: iso(30), day: ymd(new Date(t - 30 * 36e5)), chat_id: "50", name: "سارة", symbol: "AAPL", outcome: "ok", price: 231.1, trend: "up", support: 227.5, resistance: 236.8, target1: 236.8, target2: 241, stop: 225.9, scenario_up: "فوق 227.50 يستهدف 236.80 و 241.00", scenario_down: "كسر 225.90 يلغي السيناريو ويفتح الطريق لـ 220.30", eval_result: "target1", eval_high: 238.2, eval_low: 228.4, est_cost_usd: 0.0003, card_url: null },
+      { id: 4, ts: iso(60), day: ymd(new Date(t - 60 * 36e5)), chat_id: "50", name: "سارة", symbol: "JPM", outcome: "not_sharia", est_cost_usd: 0 },
+      { id: 3, ts: iso(160), day: ymd(new Date(t - 160 * 36e5)), chat_id: "1", name: "عبدالله", symbol: "TSLA", outcome: "ok", price: 391.1, trend: "side", support: 380, resistance: 402.5, target1: 402.5, target2: 418, stop: 376.2, scenario_up: "فوق 380.00 يستهدف 402.50 و 418.00", scenario_down: "كسر 376.20 يلغي السيناريو ويفتح الطريق لـ 362.40", eval_result: "stop", eval_high: 398.4, eval_low: 371.2, est_cost_usd: 0.0003, card_url: null }
+    ];
+    return { rows: rows, stats: { total: 4, ok: 3, not_sharia: 1, errors: 0, users: 2, cost: 0.0009, evaluated: 2, pending: 1, byResult: { target2: 0, target1: 1, stop: 1, flat: 0, pending: 1 }, accuracyPct: 50, stopPct: 50,
+      topSymbols: [{ symbol: "AAPL", n: 1 }, { symbol: "NVDA", n: 1 }, { symbol: "TSLA", n: 1 }],
+      perUser: [{ chat_id: "1", name: "عبدالله", status: "owner", n: 2, ok: 2, cost: 0.0006, last_ts: iso(1) }, { chat_id: "50", name: "سارة", status: "approved", plan: "basic", n: 2, ok: 1, cost: 0.0003, last_ts: iso(30) }],
+      costByDay: [{ day: ymd(new Date()), n: 1, cost: 0.0003 }] } };
+  }
+  function alogSet(k, v) { AL_F[k] = v; store.set("sentinel.alog.f", JSON.stringify(AL_F)); AL_AT = null; if (HOSTED) loadAlog(); else render(); }
+  document.addEventListener("change", function (e) {
+    var id = e.target && e.target.id; if (!id || id.indexOf("al-") !== 0) return;
+    var k = id.slice(3); if (!(k in AL_F)) return;
+    alogSet(k, k === "symbol" ? e.target.value.trim().toUpperCase() : e.target.value);
+  });
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-aact]"); if (!b) return;
+    if (b.dataset.aact === "refresh") loadAlog(true);
+    else if (b.dataset.aact === "clear") { AL_F = { day: "", symbol: "", user: "", result: "" }; store.set("sentinel.alog.f", "{}"); AL_AT = null; if (HOSTED) loadAlog(); else render(); }
+  });
+
   function page() { var h = location.hash.replace("#", ""); return PAGES.indexOf(h) >= 0 ? h : "overview"; }
   function render(dir) {
     current = page();
     document.querySelectorAll("#nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
-    $("eyebrow").textContent = current === "deep" || current === "council" || current === "settings" || current === "archive" || current === "control" || current === "symbols" || current === "pitch" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
+    $("eyebrow").textContent = current === "deep" || current === "council" || current === "alog" || current === "settings" || current === "archive" || current === "control" || current === "symbols" || current === "pitch" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
+    $("page-desc").textContent = { alog: "كل تحليل من محلل Sentinel على تيليجرام: أرقامه وسيناريوهاته وبطاقته، ونتيجته بعد 5 أيام تداول.", council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
     if (current === "signals") rt.innerHTML = resSelect("x").replace(/^<select[^>]*>|<\/select>$/g, "");
     $("filters").innerHTML = filtersHtml(current);
     var v = $("view");
-    v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings" && current !== "council")
+    v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings" && current !== "council" && current !== "alog")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ deep: pageDeep, council: pageCouncil, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings, pitch: pagePitch }[current])();
+      : ({ deep: pageDeep, council: pageCouncil, alog: pageAlog, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings, pitch: pagePitch }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
     var dt = $("deep-trial");
@@ -1445,7 +1571,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     if (el.dataset.open) { state.period = el.dataset.open; saveView(); location.hash = "overview"; render(); return; }
     if (el.dataset.export) { exportReport(el.dataset.export, el.dataset.p, el); return; }
     var a = el.dataset.act;
-    if (a === "refresh") { load(true); if (current === "council") loadCouncil(true); }
+    if (a === "refresh") { load(true); if (current === "council") loadCouncil(true); if (current === "alog") loadAlog(true); }
     if (a === "forget") { store.del("sentinel.token"); toast("انحذف الرمز من هذا الجهاز"); load(true); }
     if (a === "an-dim" && DIMS[el.dataset.k]) { anDim = el.dataset.k; store.set("sentinel.anDim", anDim); render(); return; }
     if (a === "purify-paid") {
