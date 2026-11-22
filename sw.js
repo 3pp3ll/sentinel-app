@@ -1,5 +1,5 @@
 /* Sentinel: يفتح التطبيق بدون نت من آخر نسخة. البيانات دائماً من GitHub ومن Worker المجلس والمحلل. */
-const CACHE = "sentinel-v52";
+const CACHE = "sentinel-v53";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {
@@ -9,8 +9,9 @@ self.addEventListener("fetch", (e) => {
   const req = e.request, url = new URL(req.url);
   // بيانات GitHub والمجلس دايماً من النت، ما تنحفظ
   if (req.method !== "GET" || url.hostname === "api.github.com" || url.hostname.endsWith(".workers.dev")) return;
+  // ملفات التطبيق: من النت مع تأكيد إنها آخر نسخة (بدون كاش المتصفح)، وإذا ما فيه نت من المحفوظ
   if (url.origin === location.origin) {
-    e.respondWith(fetch(req).then((res) => { const c = res.clone(); caches.open(CACHE).then((x) => x.put(req, c)); return res; })
+    e.respondWith(fetch(req, { cache: "no-cache" }).then((res) => { const c = res.clone(); caches.open(CACHE).then((x) => x.put(req, c)); return res; })
       .catch(() => caches.match(req).then((r) => r || caches.match("./index.html"))));
   } else {
     e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => { const c = res.clone(); caches.open(CACHE).then((x) => x.put(req, c)); return res; })));
