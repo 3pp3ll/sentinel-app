@@ -6,7 +6,7 @@
 <title>Sentinel Signals</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#070C2B">
+<meta name="theme-color" content="#0F1850">
 <script>
 (function () { try {
   var ls = localStorage, t = ls.getItem("sentinel-theme");
@@ -38,12 +38,12 @@
 
 /* ===== الهوية المعتمدة 22-11: نيون الليل + المؤسسي المضيء ===== */
 :root[data-theme="neon"] {
-  --bg: #060A22; --surface: #0D1135; --sunk: #090D29; --line: #242A5E;
-  --fg: #F2F4FF; --muted: #A3ADDB; --accent: #8B7CFF; --accent-soft: #221D5C; --accent2: #3FE0A0; --accent2-soft: #0F2E33;
+  --bg: #0D1547; --surface: #19215F; --sunk: #141B55; --line: #323E8C;
+  --fg: #F4F6FF; --muted: #B6BFEA; --accent: #8B7CFF; --accent-soft: #221D5C; --accent2: #3FE0A0; --accent2-soft: #0F2E33;
   --win: #3FE0A0; --win-soft: #0F2E33; --loss: #FF5C8A; --loss-soft: #33163A;
   --live: #3D8BFF; --live-soft: #132457; --wait-soft: #151C4F; --glow: rgba(124,108,255,.25); --shade: rgba(3,5,20,.6);
   --c1: #B04DFF; --c2: #3D8BFF; --c3: #3FE0A0; --c4: #22D3EE;
-  --glass: rgba(12,15,48,.52); --glass-brd: rgba(130,140,255,.26);
+  --glass: rgba(34,44,122,.42); --glass-brd: rgba(150,165,255,.32);
   --grad: linear-gradient(90deg, #3D8BFF, #B04DFF);
   color-scheme: dark; }
 :root[data-theme="corp"] {
@@ -54,12 +54,12 @@
   --grad: linear-gradient(90deg, #1D4ED8, #2563EB); }
 :root:is([data-theme="neon"],[data-theme="corp"]) { --f-display: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif; }
 :root[data-theme="neon"] body { background:
-  radial-gradient(45% 30% at 50% -6%, rgba(61,110,255,.28), transparent 70%),
-  radial-gradient(38% 42% at 100% 18%, rgba(176,77,255,.24), transparent 70%),
-  radial-gradient(34% 40% at 0% 48%, rgba(34,211,238,.13), transparent 70%),
-  radial-gradient(40% 38% at 96% 92%, rgba(63,224,160,.13), transparent 70%),
-  radial-gradient(36% 34% at 8% 100%, rgba(176,77,255,.14), transparent 70%),
-  linear-gradient(180deg, #060A22, #070B28 50%, #050819); background-attachment: fixed; }
+  radial-gradient(55% 34% at 50% -6%, rgba(77,130,255,.50), transparent 70%),
+  radial-gradient(40% 45% at 100% 18%, rgba(176,77,255,.34), transparent 70%),
+  radial-gradient(36% 42% at 0% 48%, rgba(34,211,238,.20), transparent 70%),
+  radial-gradient(42% 40% at 96% 92%, rgba(63,224,160,.20), transparent 70%),
+  radial-gradient(38% 36% at 8% 100%, rgba(176,77,255,.22), transparent 70%),
+  linear-gradient(180deg, #0F1850, #121A55 50%, #0D1446); background-attachment: fixed; }
 :root[data-theme="corp"] body { background:
   radial-gradient(55% 30% at 100% 0%, #DCE6FF, transparent 70%),
   radial-gradient(70% 28% at 15% 110%, rgba(29,78,216,.16), transparent 70%), var(--bg); background-attachment: fixed; }
@@ -68,10 +68,10 @@
 :root[data-theme="neon"] :is(.panel, .table-wrap, .empty, .trial) { background: var(--glass); border-color: var(--glass-brd);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 0 0 1px rgba(150,165,255,.06), 0 16px 40px -22px rgba(110,90,255,.7); }
 :root[data-theme="corp"] :is(.panel, .table-wrap, .empty, .trial) { box-shadow: 0 1px 2px rgba(11,30,91,.04), 0 12px 30px -18px rgba(29,78,216,.35); }
-:root[data-theme="neon"] th { background: rgba(8,11,36,.6); }
+:root[data-theme="neon"] th { background: rgba(20,28,90,.6); }
 :root[data-theme="corp"] th { background: #F2F6FF; }
 /* القائمة الجانبية + أيقونات زجاج كأنها ثلج */
-:root[data-theme="neon"] .rail { background: rgba(7,10,32,.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--glass-brd); }
+:root[data-theme="neon"] .rail { background: rgba(16,23,78,.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--glass-brd); }
 :root[data-theme="corp"] .rail { background: #FFFFFF; }
 :root:is([data-theme="neon"],[data-theme="corp"]) .nav a { --c: var(--c2); padding-block: 7px; }
 :root:is([data-theme="neon"],[data-theme="corp"]) .nav a:nth-child(4n+1) { --c: var(--c1); }
@@ -104,7 +104,7 @@
 :root[data-theme="neon"] .kpi .v.pos, :root[data-theme="neon"] .pos { text-shadow: 0 0 14px rgba(63,224,160,.35); }
 :root[data-theme="neon"] .curve .ln { filter: drop-shadow(0 0 6px rgba(139,124,255,.7)); }
 :root[data-theme="neon"] .curve .area { opacity: .22; }
-:root[data-theme="neon"] .top { background: rgba(6,9,30,.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+:root[data-theme="neon"] .top { background: rgba(14,21,72,.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 :root[data-theme="neon"] .chip.demo { border-color: var(--accent2); color: var(--accent2); background: var(--accent2-soft); }
 :root:is([data-theme="neon"],[data-theme="corp"]) .tag.quick { border-color: var(--c2); color: var(--c2); }
 :root[data-theme="neon"] .tag.swing { border-color: var(--c3); color: var(--c3); }
@@ -263,6 +263,17 @@ section { padding-top: 22px; }
 .gauge { width: 100%; max-width: 250px; }
 .gauge .val { font: 600 32px var(--f-num); fill: var(--fg); }
 .gauge .sub { font: 500 11px var(--f-body); fill: var(--muted); }
+.gauge .tk { font: 500 10px var(--f-num); fill: var(--muted); }
+.gauge .g-track { stroke: var(--sunk); }
+:root[data-theme="neon"] .gauge .g-track { stroke: rgba(255,255,255,.07); }
+:root[data-theme="neon"] .gauge .g-val { filter: drop-shadow(0 0 6px rgba(176,77,255,.6)); }
+/* الأشرطة: مسار واضح وألوان */
+:root[data-theme="neon"] :is(.al-track, .rtrack, .bar, .wrbar) { background: rgba(255,255,255,.10); }
+:root:is([data-theme="neon"],[data-theme="corp"]) .al-track { height: 10px; }
+:root:is([data-theme="neon"],[data-theme="corp"]) .al-track i { background: linear-gradient(90deg, var(--c4), var(--c2)); }
+:root:is([data-theme="neon"],[data-theme="corp"]) :is(.al-track i.win, .al-track i.win2, .rtrack .good) { background: linear-gradient(90deg, #22D3EE, var(--win)); }
+:root:is([data-theme="neon"],[data-theme="corp"]) :is(.al-track i.loss, .rtrack .bad) { background: linear-gradient(90deg, #F7731C, var(--loss)); }
+:root[data-theme="neon"] :is(.al-track i, .rtrack span) { box-shadow: 0 0 10px -2px currentColor; }
 .verdict { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
 .verdict.ok { background: var(--win-soft); color: var(--win); }
 .wl { display: flex; gap: 18px; margin-top: 8px; font-size: 13px; color: var(--muted); }
@@ -691,15 +702,21 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     });
   }
 
+  var GID = 0;
   function gauge(rate) {
-    var r = 80, cx = 100, cy = 96, len = Math.PI * r, f = rate == null ? 0 : Math.max(0, Math.min(1, rate)), a = Math.PI * (1 - TARGET);
-    var met = rate != null && rate >= TARGET;
-    var tx = function (rr) { return [(cx + rr * Math.cos(a)).toFixed(1), (cy - rr * Math.sin(a)).toFixed(1)]; };
+    var r = 80, cx = 100, cy = 96, len = Math.PI * r, f = rate == null ? 0 : Math.max(0, Math.min(1, rate)), a = Math.PI * (1 - TARGET), g = "gg" + (++GID);
+    var tx = function (rr, ang) { ang = ang == null ? a : ang; return [(cx + rr * Math.cos(ang)).toFixed(1), (cy - rr * Math.sin(ang)).toFixed(1)]; };
     var p1 = tx(r - 12), p2 = tx(r + 12), arc = "M " + (cx - r) + " " + cy + " A " + r + " " + r + " 0 0 1 " + (cx + r) + " " + cy;
-    return '<svg class="gauge" viewBox="0 0 200 120" role="img" aria-label="نسبة النجاح ' + pct(rate) + '"><path d="' + arc + '" fill="none" stroke="var(--sunk)" stroke-width="12" stroke-linecap="round"/>' +
-      (rate == null ? "" : '<path d="' + arc + '" fill="none" stroke="' + (met ? "var(--win)" : "var(--accent)") + '" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + len.toFixed(2) + '" stroke-dashoffset="' + (len * (1 - f)).toFixed(2) + '"/>') +
-      '<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '" stroke="var(--fg)" stroke-width="2"/>' +
-      '<text class="val" x="100" y="88" text-anchor="middle">' + pct(rate) + '</text><text class="sub" x="100" y="110" text-anchor="middle">الهدف ' + Math.round(TARGET * 100) + '% للتحويل للمدفوع</text></svg>';
+    // مقطع من القوس بين نسبتين (0 يسار، 1 يمين)
+    var seg = function (u, v) { var s0 = tx(r, Math.PI * (1 - u)), s1 = tx(r, Math.PI * (1 - v)); return "M " + s0[0] + " " + s0[1] + " A " + r + " " + r + " 0 0 1 " + s1[0] + " " + s1[1]; };
+    var tip = tx(r, Math.PI * (1 - f));
+    return '<svg class="gauge" viewBox="0 0 200 122" role="img" aria-label="نسبة النجاح ' + pct(rate) + '"><defs><linearGradient id="' + g + '" gradientUnits="userSpaceOnUse" x1="20" y1="0" x2="180" y2="0"><stop offset="0" stop-color="var(--loss)"/><stop offset=".45" stop-color="var(--c1, var(--accent))"/><stop offset=".7" stop-color="var(--c2, var(--accent))"/><stop offset="1" stop-color="var(--win)"/></linearGradient></defs>' +
+      '<path class="g-track" d="' + arc + '" fill="none" stroke-width="12" stroke-linecap="round"/>' +
+      '<path d="' + seg(0, 0.5) + '" fill="none" stroke="var(--loss)" stroke-opacity=".28" stroke-width="12"/><path d="' + seg(0.5, TARGET) + '" fill="none" stroke="var(--c1, var(--accent))" stroke-opacity=".28" stroke-width="12"/><path d="' + seg(TARGET, 1) + '" fill="none" stroke="var(--win)" stroke-opacity=".3" stroke-width="12"/>' +
+      (rate == null || f === 0 ? "" : '<path class="g-val" d="' + arc + '" fill="none" stroke="url(#' + g + ')" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + len.toFixed(2) + '" stroke-dashoffset="' + (len * (1 - f)).toFixed(2) + '"/><circle cx="' + tip[0] + '" cy="' + tip[1] + '" r="7.5" fill="var(--fg)" stroke="var(--c1, var(--accent))" stroke-width="3"/>') +
+      '<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + p2[0] + '" y2="' + p2[1] + '" stroke="var(--win)" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<text class="tk" x="' + (cx - r) + '" y="113" text-anchor="middle">0</text><text class="tk" x="' + (cx + r) + '" y="113" text-anchor="middle">100</text>' +
+      '<text class="val" x="100" y="84" text-anchor="middle">' + pct(rate) + '</text><text class="sub" x="100" y="115" text-anchor="middle">الهدف ' + Math.round(TARGET * 100) + '% للتحويل للمدفوع</text></svg>';
   }
   function curveSvg(vals) {
     var w = 640, h = 200, pad = 26, right = w - 70, pts = [0].concat(vals);
@@ -1782,7 +1799,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       var m = cur() === "neon" ? "dark" : "light";
       root.setAttribute("data-mode", m);
       btns.forEach(function (b) { b.setAttribute("aria-label", m === "dark" ? "الوضع النهاري" : "الوضع الليلي"); });
-      document.querySelector('meta[name="theme-color"]').content = m === "dark" ? "#070C2B" : "#FFFFFF";
+      document.querySelector('meta[name="theme-color"]').content = m === "dark" ? "#0F1850" : "#FFFFFF";
     }
     window.setTheme = function (t) {
       if (!OK[t]) t = "neon";
