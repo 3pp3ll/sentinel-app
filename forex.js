@@ -393,5 +393,5 @@
     if (s.dataset.fxS) { F[s.dataset.fxS] = s.value; saveF(); }
   });
 
-  window.FX = { page: page, load: load, sources: FX_SOURCES, _stats: stats, _sample: sample };
+  window.FX = { page: page, load: load, sources: FX_SOURCES, info: function () { return DATA && DATA.bot ? DATA.bot : { symbol: "EURUSDm" }; }, _stats: stats, _sample: sample };
 })();
