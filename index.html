@@ -355,6 +355,11 @@ td.n, th.n { text-align: center; }
 .cn-acct .kpi small { display: block; font-size: 12px; color: var(--muted); font-family: var(--f-num); }
 .cn-acct .cn-acct-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
 .cn-acct .cn-acct-h span { font-size: 12px; color: var(--muted); }
+.cn-cap .kpis { grid-template-columns: repeat(5, minmax(0, 1fr)); margin-bottom: 0; border-bottom: 0; padding-bottom: 0; }
+.cn-cap .kpi small { display: block; font-size: 12px; color: var(--muted); }
+.cn-cap .caption { margin-top: 10px; }
+@media (max-width: 860px) { .cn-cap .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; } .cn-cap .kpi:nth-child(4) { border: 0; padding-inline-start: 0; } }
+@media (max-width: 480px) { .cn-cap .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } .cn-cap .kpi:nth-child(4) { border-inline-start: 1px solid var(--line); padding-inline: 12px; } .cn-cap .kpi:nth-child(odd) { border: 0; padding-inline-start: 0; } }
 .cn-halt { font: 600 13px/1 var(--f-body, inherit); padding: 9px 14px; border-radius: 10px; border: 1px solid var(--loss); background: var(--surface); color: var(--loss); cursor: pointer; }
 .cn-halt:hover { background: var(--loss); color: var(--surface); }
 .cn-halt[disabled] { opacity: .5; cursor: default; }
@@ -1508,7 +1513,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '</b><span>' + esc(CN_PHASE[c.phase] || "ينتظر أول نبضة") + (c.lastTick ? ' · آخر نبضة <span class="num">' + esc(when(c.lastTick)) + "</span>" : "") + '</span></div>' +
       '<button type="button" class="cn-refresh" data-cact="refresh" aria-label="حدّث المجلس" title="تحديث"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg></button></div>' +
       (notes.length ? '<div class="cn-notes">' + notes.map(function (n) { return '<div class="' + n[0] + '">' + esc(n[1]) + "</div>"; }).join("") + "</div>" : "") + "</div>";
-    var head = tabs + card + (paper ? councilAccount(c) : "");
+    var head = tabs + card + (paper ? councilCapital() + councilAccount(c) : "");
     var body = { agents: councilAgents, perf: councilPerf, trades: councilTrades, hunter: councilHunter }[CN_TAB] || councilAgents;
     return '<section class="stack">' + head + body() + "</section>";
   }
@@ -1528,6 +1533,20 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       '<div class="kpi"><div class="k">صفقات اليوم</div><div class="v num">' + (closedN + openN) + '</div><small>مقفلة ' + closedN + " · مفتوحة " + openN + (ords.length ? " · أوامر " + ords.length : "") + "</small></div>" +
       '<div class="kpi"><div class="k">صافي المقفلة اليوم</div><div class="v num ' + cls(t.net || 0) + '">' + usd2(t.net || 0, true) + "</div><small>رابحة " + (t.wins || 0) + " من " + closedN + "</small></div></div>" +
       (rows ? '<div class="table-wrap"><table><thead><tr><th>المركز</th><th class="n">الكمية</th><th class="n">الدخول</th><th class="n">الحين</th><th class="n">غير محقق</th></tr></thead><tbody>' + rows + "</tbody></table></div>" : "") + "</div>";
+  }
+  // رأس المال ثابت والأرباح لحالها: الأرقام الخمسة (نفس طريقة sentinel-signals)
+  function councilCapital() {
+    var k = CN.capital; if (!k) return "";
+    if (k.base == null) return '<div class="panel cn-cap"><h2>رأس المال</h2><div class="lv">رأس المال الأساسي ينسجل مع أول فحص ناجح قبل الافتتاح.</div></div>';
+    var t = k.total || {}, d = k.today || {};
+    var kpi = function (label, v, cl, sub) { return '<div class="kpi"><div class="k">' + label + '</div><div class="v num ' + (cl || "") + '">' + v + "</div>" + (sub ? "<small>" + sub + "</small>" : "") + "</div>"; };
+    return '<div class="panel cn-cap stack"><h2>رأس المال والأرباح</h2><div class="kpis">' +
+      kpi("رأس المال الأساسي", usd2(k.base), "", "ثابت طول التجربة") +
+      kpi("إجمالي الأرباح", usd2(t.profits || 0, true), (t.profits ? "pos" : "zero"), 'اليوم <span class="num" dir="ltr">' + usd2(d.profits || 0, true) + "</span>") +
+      kpi("إجمالي الخسائر", usd2(-(t.losses || 0)), (t.losses ? "neg" : "zero"), 'اليوم <span class="num" dir="ltr">' + usd2(-(d.losses || 0)) + "</span>") +
+      kpi("الصافي", usd2(t.net || 0, true), cls(t.net || 0), 'اليوم <span class="num" dir="ltr">' + usd2(d.net || 0, true) + "</span>") +
+      kpi("المتبقي من رأس المال", usd2(k.remaining), (t.net || 0) < 0 ? "neg" : "", (t.net || 0) > 0 ? "كامل، والأرباح على جنب" : (t.net || 0) < 0 ? "ناقص الخسارة الصافية" : "كامل") +
+      '</div><div class="caption">بعد الرسوم. الرسوم ' + usd2(t.fees || 0) + " والتطهير " + usd2(t.purify || 0) + " تراكمياً. حجم الصفقة الحين " + usd2(k.positionUsd) + " من رأس المال الأساسي بس.</div></div>";
   }
   function councilHalt() {
     if (!HOSTED) { toast("هذي نسخة عرض، الإيقاف من التطبيق المنشور"); return; }
@@ -1591,7 +1610,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   }
   function councilDemo() {
     var names = { chief: "الرئيس", session: "حارس الجلسة", regime: "حالة السوق", news: "الأخبار", sharia: "الشرعي", scanner: "الماسح", technical: "المحلل الفني", advisor: "المستشار", risk: "المخاطر", executor: "المنفذ", tradeManager: "مدير الصفقة", accountant: "المحاسب", reporter: "المراسل", reviewer: "المراجع", hunter: "الصياد" };
-    return { mode: "paper", badge: { icon: "🧪", label: "تجريبي" }, account: { at: new Date().toISOString(), equity: 100007.4, cash: 99607.4, day_pnl: 7.4, day_pnl_pct: 0.01, positions: [{ symbol: "ADI", qty: 2, avg_entry_price: 231.4, current_price: 232.1, unrealized_pl: 1.4 }], open_orders: [] },
+    return { mode: "paper", badge: { icon: "🧪", label: "تجريبي" },
+      capital: { base: 100000, baseTs: "2026-11-23T13:00:00Z", remaining: 100000, positionUsd: 500, total: { trades: 6, profits: 13.2, losses: 5.8, net: 7.4, fees: 0.12, purify: 0.3 }, today: { trades: 6, profits: 13.2, losses: 5.8, net: 7.4, fees: 0.12, purify: 0.3 } }, account: { at: new Date().toISOString(), equity: 100007.4, cash: 99607.4, day_pnl: 7.4, day_pnl_pct: 0.01, positions: [{ symbol: "ADI", qty: 2, avg_entry_price: 231.4, current_price: 232.1, unrealized_pl: 1.4 }], open_orders: [] },
       today: { day: "2026-11-23", closed: 6, wins: 4, open: 1, pending: 0, net: 7.4 }, chief: { phase: "open", lastTick: new Date().toISOString(), decision: { allowEntries: true, blockers: [] } },
       agents: Object.keys(names).map(function (k, i) { return { id: k, name: names[k], status: i % 7 === 3 ? "warn" : "ok", summary: "تقرير تجريبي", ts: new Date().toISOString(), veto: [] }; }),
       performance: { all: { trades: 6, wins: 4, losses: 2, net: 7.4, fees: 0.12, purify: 0.3, winRatePct: 66.7, maxDrawdown: 3.1 }, passed: false, days: [{ day: "2026-11-23", trades: 6, wins: 4, net: 7.4, fees: 0.12, purify: 0.3 }], bySource: [{ source: "scanner", trades: 4, wins: 3, net: 6.1 }, { source: "hunter", trades: 2, wins: 1, net: 1.3 }] },
