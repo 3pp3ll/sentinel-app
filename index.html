@@ -90,8 +90,9 @@
 /* العنوان */
 :root[data-theme="neon"] .hero { background: transparent; border-color: var(--glass-brd); }
 :root:is([data-theme="neon"],[data-theme="corp"]) .hero .lattice { display: none; }
-:root[data-theme="neon"] .eyebrow { color: var(--accent2); }
-:root[data-theme="corp"] .eyebrow, :root[data-theme="corp"] .pitch-brand { color: var(--accent2-text); }
+:root[data-theme="neon"] .eyebrow { color: #E9E6FF; background: linear-gradient(90deg, rgba(61,139,255,.22), rgba(176,77,255,.22)); border-color: rgba(176,160,255,.45); }
+:root[data-theme="corp"] .pitch-brand { color: var(--accent2-text); }
+:root[data-theme="corp"] .eyebrow { color: #1D3FA8; background: linear-gradient(90deg, #EEF3FF, #E6F7FA); border-color: #CFDCFA; }
 :root[data-theme="neon"] .brand svg g, :root[data-theme="corp"] .brand svg g { stroke: var(--accent); }
 :root[data-theme="neon"] .brand b { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 /* الأزرار والاختيارات: متدرجة */
@@ -207,7 +208,9 @@ main { min-width: 0; padding-block: 0 64px; padding-left: max(28px, env(safe-are
 .hero .lattice { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--accent); opacity: .14; pointer-events: none;
   -webkit-mask-image: linear-gradient(to left, #000, transparent 70%); mask-image: linear-gradient(to left, #000, transparent 70%); }
 .hero-in { position: relative; display: flex; flex-wrap: wrap; gap: 14px; align-items: end; justify-content: space-between; }
-.eyebrow { font-size: 12px; letter-spacing: .06em; color: var(--accent); font-weight: 600; }
+/* العنوان الصغير فوق اسم الصفحة: شارة فيها نقطة متدرجة، ويكتب الفترة والسوق أو حالة القسم */
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font: 600 12.5px/1.2 var(--f-body); letter-spacing: .02em; color: var(--fg); padding: 5px 12px 5px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--accent-soft); margin-bottom: 8px; }
+.eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; flex: none; background: linear-gradient(135deg, #3D8BFF, #B04DFF 55%, #3FE0A0); box-shadow: 0 0 0 3px rgba(61,139,255,.15); }
 h1 { font: 700 clamp(26px, 4vw, 38px)/1.15 var(--f-display); margin: 6px 0 0; text-wrap: balance; }
 .hero p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; font-size: 14px; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
@@ -640,6 +643,18 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var DECIDED = { tp1: 1, tp2: 1, stopped: 1, timeout: 1 };
   function decidedAt(s) { return (s.status === "tp1" || s.status === "tp2") ? D(s.tp1_at || s.closed_at) : (s.status === "stopped" || s.status === "timeout") ? D(s.closed_at) : null; }
   function isWin(s) { return s.status === "tp1" || s.status === "tp2" || (s.status === "timeout" && (s.pnl || 0) > 0); }
+  // العنوان الصغير للصفحات اللي ما لها فترة وسوق: حالة القسم بدل كلمة Sentinel
+  var EYEBROW = {
+    council: function () { return "المجلس · " + (CN && CN.mode === "paper" ? "تجريبي" : CN && CN.mode ? "ظل" : "مجلس الوكلاء"); },
+    forex: function () { var b = window.FX && window.FX.info ? window.FX.info() : null; return "فوركس · Demo" + (b && b.symbol ? " · " + b.symbol : ""); },
+    deep: function () { var ds = D((DEEP && DEEP.trial_start) || "2026-11-17"), dd = Math.max(1, Math.min(30, Math.floor((new Date() - ds) / 864e5) + 1)); return "سهم اليوم · اليوم " + dd + " من 30"; },
+    alog: function () { return "محلل Sentinel · تيليجرام"; },
+    settings: function () { return "الحساب والمظهر"; },
+    archive: function () { return "كل الشهور"; },
+    control: function () { return "إعدادات التوصيات"; },
+    symbols: function () { return "السوق الأمريكي والسعودي"; },
+    pitch: function () { return "تجربة 30 يوم · أرقام فعلية"; }
+  };
   function trialStart() { return DATA && DATA.trial_start ? D(DATA.trial_start) : null; }
 
   function periodRange(p) {
@@ -1745,7 +1760,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     document.querySelectorAll("#nav a").forEach(function (a) { a.classList.toggle("on", a.getAttribute("href") === "#" + current); });
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
-    $("eyebrow").textContent = current === "deep" || current === "council" || current === "forex" || current === "alog" || current === "settings" || current === "archive" || current === "control" || current === "symbols" || current === "pitch" ? "Sentinel" : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
+    $("eyebrow").textContent = EYEBROW[current] ? EYEBROW[current]() : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
     $("page-desc").textContent = { alog: "كل تحليل من محلل Sentinel على تيليجرام: أرقامه وسيناريوهاته وبطاقته، ونتيجته بعد 5 أيام تداول.", council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", forex: "سكالبينق بالثواني على حساب Exness Demo: حالة البوت، والمحللين، والصفقات بعد التكاليف. قراءة فقط.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والمظهر والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
