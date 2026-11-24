@@ -640,8 +640,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   }
 
   /* ---------- الحسابات ---------- */
-  var DECIDED = { tp1: 1, tp2: 1, stopped: 1, timeout: 1 };
-  function decidedAt(s) { return (s.status === "tp1" || s.status === "tp2") ? D(s.tp1_at || s.closed_at) : (s.status === "stopped" || s.status === "timeout") ? D(s.closed_at) : null; }
+  var DECIDED = { tp1: 1, tp2: 1, stopped: 1, timeout: 1, partial: 1 };
+  function decidedAt(s) { return (s.status === "tp1" || s.status === "tp2") ? D(s.tp1_at || s.closed_at) : (s.status === "stopped" || s.status === "timeout" || s.status === "partial") ? D(s.closed_at) : null; }
   function isWin(s) { return s.status === "tp1" || s.status === "tp2" || (s.status === "timeout" && (s.pnl || 0) > 0); }
   // العنوان الصغير للصفحات اللي ما لها فترة وسوق: حالة القسم بدل كلمة Sentinel
   var EYEBROW = {
@@ -718,7 +718,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   function statusInfo(s) {
     if (s.status === "open") return s.entered ? ["داخل الصفقة", "live"] : ["بانتظار الدخول", "wait"];
     if (s.status === "tp1") return s.strategy === "quick" ? ["تحقق الهدف", "win"] : (s.closed_at && s.closed_at !== s.tp1_at ? ["الهدف الأول", "win"] : ["الهدف الأول · مستمرة", "win"]);
-    return { tp2: ["الهدف البعيد", "win2"], stopped: ["ضرب الوقف", "loss"], timeout: [(s.pnl || 0) > 0 ? "انتهت المدة · ربح" : "انتهت المدة · خسارة", (s.pnl || 0) > 0 ? "win" : "loss"], cancelled: ["ملغاة", "muted"] }[s.status] || [s.status, "muted"];
+    return { tp2: ["الهدف البعيد", "win2"], stopped: ["ضرب الوقف", "loss"], partial: [(s.pnl || 0) < 0 ? "الهدف الأول ثم رجع · خسارة" : "الهدف الأول ثم رجع · تعادل", (s.pnl || 0) < 0 ? "loss" : "muted"], timeout: [(s.pnl || 0) > 0 ? "انتهت المدة · ربح" : "انتهت المدة · خسارة", (s.pnl || 0) > 0 ? "win" : "loss"], cancelled: ["ملغاة", "muted"] }[s.status] || [s.status, "muted"];
   }
   var stratName = function (c) { return c === "quick" ? "سريعة" : c === "deep" ? "سهم اليوم" : "متوسطة"; };
   /* سجل «سهم اليوم» (data/deep/ledger.json): ينضاف للأداء والسجل والتقارير كنوع مستقل، وما يدخل في «الكل» لأنه ما يتنفذ على حساب Alpaca */
@@ -738,10 +738,15 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var cost = inn.reduce(function (t, x) { return t + (x.q || 1) * x.f.entry; }, 0);
     var at = function (k) { return fills.map(function (f) { return f[k]; }).filter(Boolean).sort(); };
     var done = fills.map(function (f) { return f.done; }), closed = tr.status === "closed";
-    var st = !closed ? "open" : done.indexOf("target") >= 0 ? "tp1" : done.indexOf("timeout") >= 0 ? "timeout" : "stopped";
+    /* الحالة من صافي الصفقة كاملة (الأجزاء الثلاثة)، مو من أول جزء وصل الهدف */
+    var st = !closed ? "open" : netStatus(done.indexOf("target") >= 0, done.indexOf("timeout") >= 0, tr.pnl || 0);
     return { status: st, entry: cost / q, shares: q, size: cost, pnl: closed ? (tr.pnl || 0) : null,
       entered_at: at("entry_at")[0] || null, tp1_at: fills.filter(function (f) { return f.done === "target"; }).map(function (f) { return f.exit_at; }).sort()[0] || null,
       closed_at: closed ? at("exit_at").slice(-1)[0] || null : null };
+  }
+  function netStatus(hit, timeout, pnl) {
+    if (hit) return pnl > 0 ? "tp1" : "partial";
+    return timeout ? "timeout" : "stopped";
   }
   function deepRows() {
     return (LEDGER || []).filter(function (r) { return r.kind !== "watch" || deepTrade(r); }).map(function (r, i) {
@@ -750,7 +755,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
         return { id: 900000 + i, strategy: "deep", market: "us", symbol: r.symbol, category: "deep", status: x.status, entered: true, price: r.price,
           entry: x.entry, stop: r.stop, tp1: t0[0] && t0[0].price, tp2: t0[1] && t0[1].price, shares: x.shares, size: x.size, pnl: x.pnl, fees: 0,
           purify: r.purify == null ? null : r.purify, created_at: r.date, entered_at: x.entered_at, tp1_at: x.tp1_at, closed_at: x.closed_at, trial: r.kind === "watch" }; }
-      var st = r.status === "pending" ? "open" : r.status, t = r.targets || [];
+      var st = r.status === "pending" ? "open" : r.status === "tp1" && r.pnl != null && r.pnl <= 0 ? "partial" : r.status, t = r.targets || [];
       return { id: 900000 + i, strategy: "deep", market: "us", symbol: r.symbol, category: "deep", status: st, entered: r.status !== "pending", price: r.price,
         entry: r.entry_fill || r.price, stop: r.stop, tp1: t[0] && t[0].price, tp2: t[1] && t[1].price, shares: r.shares || Math.max(1, Math.floor((r.size || 3000) / r.price)),
         size: r.size || 3000, pnl: r.pnl == null ? null : r.pnl, fees: 0, purify: r.purify == null ? null : r.purify, created_at: r.date, entered_at: r.entered_at || null, tp1_at: r.t1_at || null, closed_at: r.closed_at || null };
