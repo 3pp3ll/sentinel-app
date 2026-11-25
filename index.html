@@ -472,7 +472,24 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 .dp-tools { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center; }
 .dp-tg { cursor: pointer; }
 .dp-tg.on { color: var(--fg); border-color: var(--accent); }
-.dp-chart { height: min(62vh, 560px); min-height: 320px; direction: ltr; }
+.dp-chart { height: min(62vh, 560px); min-height: 320px; direction: ltr; position: relative; }
+.dp-ink { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.dp-ink.on { pointer-events: auto; cursor: crosshair; touch-action: none; }
+#dp-cm { position: fixed; inset: 0; z-index: 60; background: var(--shade); display: flex; justify-content: center; align-items: center; padding: 16px; }
+#dp-cm[hidden] { display: none; }
+.dp-cm-in { background: var(--bg); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; width: min(1240px, 100%); max-height: calc(100vh - 32px); overflow: auto; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+.dp-cm-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dp-cm-head h2 { margin: 0; font-size: 18px; }
+.dp-pen { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dp-pen[hidden] { display: none; }
+.dp-sw { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.dp-sw.on { outline: 2px solid var(--accent); outline-offset: 2px; }
+.dp-wd { min-width: 34px; justify-content: center; }
+.dp-wd i { display: block; background: var(--fg); border-radius: 4px; width: 18px; }
+.dp-saved { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.dp-sv { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--sunk); display: flex; flex-direction: column; gap: 6px; }
+.dp-sv b.num { font-size: 20px; }
+.dp-sv .row { gap: 6px; }
 .dp-rsi { height: 120px; direction: ltr; border-top: 1px solid var(--line); }
 .dp-legend .lg { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin: 0 4px 0 8px; }
 .lg.acc { background: var(--accent); } .lg.loss { background: var(--loss); } .lg.win { background: var(--win); }
@@ -1343,6 +1360,9 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var DEEP_SHOW = (function () { try { return JSON.parse(store.get("sentinel.deep.show") || "null"); } catch (e) { return null; } })() ||
     { ema20: 1, sma50: 1, sma200: 1, bb: 0, vol: 1, lv: 1, past: 1, rsi: 1 };
   var DEEP_SIZE = +(store.get("sentinel.deep.size") || 3000);
+  var DEEP_PREV = null;                                   /* آخر يوم فيه أسهم، لما يكون تحليل اليوم فاضي */
+  var INK = { on: false, color: store.get("sentinel.ink.color") || "#E5484D", w: +(store.get("sentinel.ink.w") || 3), strokes: [], key: null, savedId: null, c: null };
+  var INK_COLORS = ["#E5484D", "#F5A524", "#30A46C", "#3E63DD", "#8E4EC6", "#111111", "#FFFFFF"];
   var DEEP_SETUP = { rsi2_dip: "RSI(2)", pullback20: "متوسط 20", bb_reentry: "بولنجر", breakout20: "اختراق", macd_turn: "MACD", nr7_break: "NR7", three_down: "3 أيام" };
   function loadDeep(force) {
     if (!HOSTED) { DEEP = window.DEEP_DEMO || null; return; }
@@ -1352,11 +1372,25 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     fetch("https://api.github.com/repos/" + REPO + "/contents/data/deep/latest.json?t=" + Date.now(), {
       cache: "no-store", headers: { Authorization: "Bearer " + tk.t, Accept: "application/vnd.github.raw+json", "X-GitHub-Api-Version": "2022-11-28" }
     }).then(function (r) { if (!r.ok) throw { code: r.status }; return r.json(); })
-      .then(function (d) { DEEP = d; DEEP_ERR = null; store.set("sentinel.deep", JSON.stringify(d)); if (force) toast("تم تحديث سهم اليوم"); })
+      .then(function (d) { DEEP = d; DEEP_ERR = null; store.set("sentinel.deep", JSON.stringify(d)); if (force) toast("تم تحديث سهم اليوم"); if (!listOf(d).length) return loadPrev(tk, d); })
       .catch(function (e) { DEEP_ERR = e && e.code === 404 ? "404" : "net"; })
       .then(function () { loadDeep.busy = false; if (current === "deep") render(); });
   }
-  function deepList() { if (!DEEP) return []; return (DEEP.picks || []).map(function (c) { c._pick = 1; return c; }).concat((DEEP.watch || []).filter(function (c) { return c.chart; })); }
+  function listOf(d) { if (!d) return []; return (d.picks || []).map(function (c) { c._pick = 1; return c; }).concat((d.watch || []).filter(function (c) { return c.chart; })); }
+  function deepList() { var l = listOf(DEEP); return l.length ? l : DEEP_PREV ? listOf(DEEP_PREV.data) : []; }
+  /* تحليل اليوم فاضي: نجيب آخر يوم قبله فيه أسهم (للاطلاع والرسم) */
+  function loadPrev(tk, d) {
+    var day = new Date((d.generated_at || new Date().toISOString()).slice(0, 10) + "T12:00:00Z"), tries = 0;
+    var next = function () {
+      if (tries++ >= 10) return;
+      day.setUTCDate(day.getUTCDate() - 1);
+      var ds = day.toISOString().slice(0, 10);
+      return fetch("https://api.github.com/repos/" + REPO + "/contents/data/deep/" + ds + ".json", { cache: "no-store", headers: { Authorization: "Bearer " + tk.t, Accept: "application/vnd.github.raw+json", "X-GitHub-Api-Version": "2022-11-28" } })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (x) { if (x && listOf(x).length) { DEEP_PREV = { date: ds, data: x }; } else return next(); });
+    };
+    return next();
+  }
   function usd(c, j) { var sh = Math.max(1, Math.floor(DEEP_SIZE / c.entry)); return sh * (c.targets[j].price - c.entry); }
   function riskUsd(c) { var sh = Math.max(1, Math.floor(DEEP_SIZE / c.entry)); return sh * (c.entry - c.stop); }
   function votes(c) { var up = 0, dn = 0; (c.schools || []).forEach(function (s) { if (s.vote > 0) up++; else if (s.vote < 0) dn++; }); return { up: up, dn: dn, n: (c.schools || []).length }; }
@@ -1373,8 +1407,9 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var head = '<div class="dp-top"><div class="chips-row">' + tabs + "</div>" +
       '<div class="dp-meta"><span class="note num">' + esc(when(DEEP.generated_at)) + " · فحص " + (DEEP.scanned || 0) + " سهم</span>" +
       '<button class="btn ghost" data-dact="refresh" title="تحديث">⟳</button></div></div>' +
-      (none ? '<div class="dp-none"><b>ما فيه سهم اليوم.</b> ولا سهم عدّى شرط الدقة (' + Math.round((DEEP.rules || {}).min_p1 * 100) + "% للهدف الأول). " + (list.length ? "تقدر تشوف أقرب المرشحين، بس هم <b>ما عدّوا الشرط</b>." : "") + "</div>" : "");
-    if (!c) return '<section class="stack">' + head + proofHtml(p) + "</section>";
+      (none ? '<div class="dp-none"><b>ما فيه سهم اليوم.</b> ولا سهم عدّى شرط الدقة (' + Math.round((DEEP.rules || {}).min_p1 * 100) + "% للهدف الأول). " +
+        (!listOf(DEEP).length && DEEP_PREV ? 'هذي أسهم آخر تحليل فيه أسهم (<b class="num">' + esc(DEEP_PREV.date) + "</b>) للاطلاع والرسم." : list.length ? "تقدر تشوف أقرب المرشحين، بس هم <b>ما عدّوا الشرط</b>." : "") + "</div>" : "");
+    if (!c) return '<section class="stack">' + head + savedHtml() + proofHtml(p) + "</section>";
     var v = votes(c), t1 = c.targets[0];
     var badge = c._pick ? '<span class="dp-badge">سهم اليوم</span>' : '<span class="dp-badge warn">مرشح · ما عدّى الشرط</span>';
     var strip = '<div class="dp-strip"><div class="dp-id">' + badge + '<b class="num dp-sym">' + esc(c.symbol) + '</b><span class="dp-setup">' + esc(c.setup_name) + (c.also && c.also.length ? " + " + esc(c.also.join(" + ")) : "") + "</span></div>" +
@@ -1382,15 +1417,13 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       c.targets.map(function (t, j) { return '<span class="win"><small>هدف ' + (j + 1) + ' · <b class="num">' + Math.round(t.prob * 100) + '%</b></small><b class="num">' + t.price + '</b><em class="num">+' + usd(c, j).toFixed(0) + "$" + (t.eta_days ? " · ~" + t.eta_days + " أيام" : "") + "</em></span>"; }).join("") +
       '<span><small>المدارس</small><b class="num">' + v.up + "/" + v.n + '</b><em>إيجابية</em></span>' +
       '<span><small>مجاز شرعياً · التطهير</small><b class="num">' + (c.purify == null ? "—" : c.purify.toFixed(2) + "%") + "</b>" + (c.purify != null ? '<em class="num">' + (usd(c, 0) * c.purify / 100).toFixed(2) + "$ من ربح هدف 1</em>" : "") + "</span></div></div>";
-    var tg = function (k, l) { return '<button class="chip dp-tg' + (DEEP_SHOW[k] ? " on" : "") + '" data-dtg="' + k + '">' + l + "</button>"; };
-    var tools = '<div class="dp-tools"><div class="chips-row">' + tg("ema20", "EMA 20") + tg("sma50", "MA 50") + tg("sma200", "MA 200") + tg("bb", "بولنجر") + tg("vol", "الحجم") + tg("lv", "الدعم والمقاومة") + tg("past", "الإشارات السابقة") + tg("rsi", "RSI") + "</div>" +
-      '<div class="row" style="gap:8px"><button class="btn ghost" data-dact="fit">ملء الشاشة للبيانات</button><button class="btn" data-dact="report">📄 التقرير والآراء</button></div></div>';
-    var chart = '<div class="dp-chart" id="dp-chart"></div><div class="dp-rsi" id="dp-rsi"' + (DEEP_SHOW.rsi ? "" : " hidden") + "></div>" +
-      '<div class="dp-legend note">خطوط: <i class="lg acc"></i>الدخول ENTRY <i class="lg loss"></i>الوقف STOP <i class="lg win"></i>الأهداف T1 T2 T3 (مع الاحتمال والربح) · R مقاومة و S دعم · الأسهم ▲ إشارات نفس الإعداد في الماضي (الأخضر وصل الهدف الأول، الأحمر لا). حرّك الشارت بالسحب، وكبّره بعجلة الماوس أو بإصبعين.</div>';
-    setTimeout(function () { mountDeep(c); }, 0);
+    var nInk = inkLoad(inkKey(c)).length;
+    var tools = '<div class="dp-tools"><span class="note">الشارت والمؤشرات والقلم داخل نافذة الشارت' + (nInk ? ' · عليه <b class="num">' + nInk + "</b> رسمة" : "") + '</span>' +
+      '<div class="row" style="gap:8px"><button class="btn" data-dact="chart">📈 الشارت</button><button class="btn ghost" data-dact="report">📄 التقرير والآراء</button></div></div>';
+    var chart = "";
     var hot = c.purify != null && c.purify > 10;
     var hotBand = hot ? '<div class="dp-hot-band">نسبة التطهير عالية <b class="num">' + c.purify.toFixed(2) + "%</b></div>" : "";
-    return '<section class="stack dp">' + head + '<div class="panel dp-panel' + (hot ? " hot" : "") + '">' + strip + tools + chart + hotBand + "</div>" +
+    return '<section class="stack dp">' + head + '<div class="panel dp-panel' + (hot ? " hot" : "") + '">' + strip + tools + chart + hotBand + "</div>" + savedHtml() +
       '<p class="note dp-disc">للتعليم والمعلومة فقط، ولا يُعد توصية استثمارية. الاحتمالات من أداء الماضي ولا تضمن المستقبل.</p></section>';
   }
   function proofHtml(p) {
@@ -1410,6 +1443,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   function cssv(k) { return getComputedStyle(document.documentElement).getPropertyValue(k).trim() || "#888"; }
   function mountDeep(c) {
     var el = $("dp-chart"); if (!el) return;
+    el.innerHTML = "";
     deepLib(function () {
       if (!$("dp-chart")) return;
       if (DEEP_CH) { try { DEEP_CH.main.remove(); DEEP_CH.rsi && DEEP_CH.rsi.remove(); } catch (e) {} DEEP_CH = null; }
@@ -1456,8 +1490,91 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
         sync(ch, rch); sync(rch, ch);
         rch.timeScale().setVisibleLogicalRange(ch.timeScale().getVisibleLogicalRange());
       }
-      DEEP_CH = { main: ch, rsi: rch };
+      DEEP_CH = { main: ch, rsi: rch, cs: cs };
+      inkMount(el, ch, cs);
     });
+  }
+  /* ---------- القلم: رسم حر مربوط بالسعر والوقت (يثبت مع التحريك والتكبير) ---------- */
+  function inkKey(c) { return (c.symbol || "") + "@" + (c.chart && c.chart.time ? c.chart.time[c.chart.time.length - 1] : ""); }
+  function inkLoad(k) { try { return JSON.parse(store.get("sentinel.ink." + k) || "[]"); } catch (e) { return []; } }
+  function inkStore() { if (!INK.key || INK.savedId) return; try { store.set("sentinel.ink." + INK.key, JSON.stringify(INK.strokes)); } catch (e) {} }
+  function inkMount(el, ch, cs) {
+    var cv = document.createElement("canvas"); cv.className = "dp-ink" + (INK.on ? " on" : ""); cv.id = "dp-ink"; el.appendChild(cv);
+    var ctx = cv.getContext("2d"), cur = null;
+    var size = function () { var r = el.getBoundingClientRect(), dp = window.devicePixelRatio || 1; cv.width = r.width * dp; cv.height = r.height * dp; cv.style.width = r.width + "px"; cv.style.height = r.height + "px"; ctx.setTransform(dp, 0, 0, dp, 0, 0); draw(); };
+    var xy = function (pt) { return [ch.timeScale().logicalToCoordinate(pt[0]), cs.priceToCoordinate(pt[1])]; };
+    var draw = function () {
+      ctx.clearRect(0, 0, cv.width, cv.height); ctx.lineCap = "round"; ctx.lineJoin = "round";
+      INK.strokes.concat(cur ? [cur] : []).forEach(function (s) {
+        ctx.strokeStyle = s.c; ctx.lineWidth = s.w; ctx.beginPath(); var first = true;
+        s.p.forEach(function (pt) { var q = xy(pt); if (q[0] == null || q[1] == null) { first = true; return; } if (first) { ctx.moveTo(q[0], q[1]); first = false; } else ctx.lineTo(q[0], q[1]); });
+        if (s.p.length === 1) { var q = xy(s.p[0]); if (q[0] != null && q[1] != null) { ctx.fillStyle = s.c; ctx.beginPath(); ctx.arc(q[0], q[1], s.w / 2, 0, 7); ctx.fill(); } } else ctx.stroke();
+      });
+    };
+    var at = function (e) { var r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, l = ch.timeScale().coordinateToLogical(x), pr = cs.coordinateToPrice(y); return l == null || pr == null ? null : [Math.round(l * 100) / 100, +pr.toFixed(4)]; };
+    cv.addEventListener("pointerdown", function (e) { if (!INK.on) return; var q = at(e); if (!q) return; cv.setPointerCapture(e.pointerId); cur = { c: INK.color, w: INK.w, p: [q] }; draw(); e.preventDefault(); });
+    cv.addEventListener("pointermove", function (e) { if (!cur) return; var q = at(e); if (q) { cur.p.push(q); draw(); } });
+    var end = function () { if (!cur) return; INK.strokes.push(cur); cur = null; inkStore(); draw(); inkCount(); };
+    cv.addEventListener("pointerup", end); cv.addEventListener("pointercancel", end);
+    ch.timeScale().subscribeVisibleLogicalRangeChange(function () { requestAnimationFrame(draw); });
+    ch.subscribeCrosshairMove(function () { requestAnimationFrame(draw); });
+    if (window.ResizeObserver) new ResizeObserver(size).observe(el);
+    ch.applyOptions({ handleScroll: !INK.on, handleScale: !INK.on });
+    INK.redraw = draw; size();
+  }
+  function inkCount() { var n = $("dp-ink-n"); if (n) n.textContent = INK.strokes.length ? INK.strokes.length + " رسمة" : ""; }
+  function inkMode(on) {
+    INK.on = on; var cv = $("dp-ink"); if (cv) cv.classList.toggle("on", on);
+    if (DEEP_CH) DEEP_CH.main.applyOptions({ handleScroll: !on, handleScale: !on });
+    var t = $("dp-pen-tools"); if (t) t.hidden = !on;
+    var b = document.querySelector('[data-dact="pen"]'); if (b) b.classList.toggle("on", on);
+  }
+  /* ---------- نافذة الشارت المنبثقة ---------- */
+  function openChart(c, saved) {
+    INK.c = c; INK.savedId = saved ? saved.id : null; INK.key = inkKey(c);
+    INK.strokes = saved ? JSON.parse(JSON.stringify(saved.strokes || [])) : inkLoad(INK.key);
+    var tg = function (k, l) { return '<button class="chip dp-tg' + (DEEP_SHOW[k] ? " on" : "") + '" data-dtg="' + k + '">' + l + "</button>"; };
+    var sw = INK_COLORS.map(function (x) { return '<button class="dp-sw' + (x === INK.color ? " on" : "") + '" style="background:' + x + '" data-ink-c="' + x + '" title="اللون"></button>'; }).join("");
+    var wd = [2, 4, 7].map(function (w) { return '<button class="chip dp-wd' + (w === INK.w ? " on" : "") + '" data-ink-w="' + w + '" title="سمك الخط"><i style="height:' + w + 'px"></i></button>'; }).join("");
+    var html = '<div class="dp-cm-in" role="dialog" aria-modal="true" aria-label="شارت ' + esc(c.symbol) + '">' +
+      '<div class="dp-cm-head"><h2>📈 <span class="num">' + esc(c.symbol) + "</span> · " + esc(c.setup_name || "") + (saved ? ' <small class="note">رسمة محفوظة · ' + esc(saved.at) + "</small>" : "") + "</h2>" +
+      '<div class="row" style="gap:8px;align-items:center"><span class="note num" id="dp-ink-n"></span><button class="btn" data-dact="ink-save">💾 حفظ التعديلات</button><button class="btn ghost" data-dact="chart-close">إغلاق ✕</button></div></div>' +
+      '<div class="dp-tools"><div class="chips-row">' + tg("ema20", "EMA 20") + tg("sma50", "MA 50") + tg("sma200", "MA 200") + tg("bb", "بولنجر") + tg("vol", "الحجم") + tg("lv", "الدعم والمقاومة") + tg("past", "الإشارات السابقة") + tg("rsi", "RSI") +
+      '<button class="chip dp-tg' + (INK.on ? " on" : "") + '" data-dact="pen" title="ارسم على الشارت">✏️ القلم</button></div>' +
+      '<div class="row" style="gap:8px"><button class="btn ghost" data-dact="fit">ملء الشاشة للبيانات</button></div></div>' +
+      '<div class="dp-pen" id="dp-pen-tools"' + (INK.on ? "" : " hidden") + '><span class="note">اللون</span>' + sw + '<span class="note">الخط</span>' + wd +
+      '<button class="chip" data-dact="ink-undo">↶ تراجع</button><button class="chip" data-dact="ink-clear">🗑 مسح الكل</button><span class="note">وأنت على القلم الشارت ثابت، طفّه عشان تحرك وتكبّر.</span></div>' +
+      '<div class="dp-chart" id="dp-chart"></div><div class="dp-rsi" id="dp-rsi"' + (DEEP_SHOW.rsi ? "" : " hidden") + "></div>" +
+      '<div class="dp-legend note">خطوط: <i class="lg acc"></i>الدخول ENTRY <i class="lg loss"></i>الوقف STOP <i class="lg win"></i>الأهداف T1 T2 T3 · R مقاومة و S دعم · ▲ إشارات نفس الإعداد في الماضي (الأخضر وصل الهدف الأول). اضغط برا النافذة عشان تقفلها، ورسمك يبقى.</div></div>';
+    var m = $("dp-cm"); if (!m) { m = document.createElement("div"); m.id = "dp-cm"; document.body.appendChild(m); m.addEventListener("click", function (e) { if (e.target === m) closeChart(); }); }
+    m.innerHTML = html; m.hidden = false; document.body.style.overflow = "hidden";
+    inkCount(); mountDeep(c);
+  }
+  function closeChart() {
+    var m = $("dp-cm"); if (!m || m.hidden) return;
+    inkStore(); m.hidden = true; document.body.style.overflow = "";
+    if (DEEP_CH) { try { DEEP_CH.main.remove(); DEEP_CH.rsi && DEEP_CH.rsi.remove(); } catch (e) {} DEEP_CH = null; }
+    m.innerHTML = ""; if (current === "deep") render();
+  }
+  /* ---------- قسم «رسومات الشارت» (محفوظة في هذا المتصفح) ---------- */
+  function savedLoad() { try { return JSON.parse(store.get("sentinel.ink.saved") || "[]"); } catch (e) { return []; } }
+  function savedHtml() {
+    var l = savedLoad();
+    var cards = l.length ? l.map(function (x) {
+      return '<div class="dp-sv"><b class="num">' + esc(x.symbol) + '</b><span class="note">' + esc(x.setup || "") + '</span><span class="note num">حُفظ ' + esc(x.at) + " · " + (x.strokes || []).length + ' رسمة</span>' +
+        '<div class="row"><button class="btn" data-ink-open="' + x.id + '">📈 فتح</button><button class="btn ghost" data-ink-del="' + x.id + '">حذف</button></div></div>';
+    }).join("") : '<p class="note">ما فيه رسومات محفوظة. افتح الشارت، اضغط ✏️ القلم وارسم، وبعدها «💾 حفظ التعديلات».</p>';
+    return '<div class="panel stack"><h2>رسومات الشارت</h2><div class="dp-saved">' + cards + "</div><p class=\"note\">الرسومات محفوظة في هذا المتصفح.</p></div>";
+  }
+  function inkSave() {
+    var c = INK.c; if (!c) return;
+    var l = savedLoad(), now = new Date(), at = now.toLocaleString("en-GB", { timeZone: "Asia/Riyadh", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+    var snap = { symbol: c.symbol, setup_name: c.setup_name, entry: c.entry, stop: c.stop, targets: c.targets, levels: c.levels, history: c.history, chart: c.chart, _pick: c._pick };
+    var it = INK.savedId && l.filter(function (x) { return x.id === INK.savedId; })[0];
+    if (it) { it.strokes = INK.strokes; it.at = at; it.show = DEEP_SHOW; }
+    else { it = { id: "s" + now.getTime(), symbol: c.symbol, setup: c.setup_name, at: at, strokes: INK.strokes, show: DEEP_SHOW, c: snap }; l.unshift(it); INK.savedId = it.id; }
+    try { store.set("sentinel.ink.saved", JSON.stringify(l)); toast("تم حفظ رسمة " + c.symbol + " في «رسومات الشارت»"); }
+    catch (e) { toast("ما قدرت أحفظ: المساحة امتلت، احذف رسومات قديمة"); }
   }
   function deepReport(c) {
     var v = votes(c), e = c.est || {};
@@ -1481,18 +1598,32 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     var inp = $("dp-size"); if (inp) inp.addEventListener("change", function () { DEEP_SIZE = Math.max(100, +inp.value || 3000); store.set("sentinel.deep.size", DEEP_SIZE); deepReport(c); render(); });
   }
   document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest("[data-dsel],[data-dtg],[data-dact]"); if (!b) return;
+    var b = e.target.closest && e.target.closest("[data-dsel],[data-dtg],[data-dact],[data-ink-c],[data-ink-w],[data-ink-open],[data-ink-del]"); if (!b) return;
     if (b.dataset.dsel != null) { DEEP_SEL = +b.dataset.dsel; render(); }
-    else if (b.dataset.dtg) { DEEP_SHOW[b.dataset.dtg] = DEEP_SHOW[b.dataset.dtg] ? 0 : 1; store.set("sentinel.deep.show", JSON.stringify(DEEP_SHOW)); render(); }
+    else if (b.dataset.dtg) {
+      DEEP_SHOW[b.dataset.dtg] = DEEP_SHOW[b.dataset.dtg] ? 0 : 1; store.set("sentinel.deep.show", JSON.stringify(DEEP_SHOW));
+      b.classList.toggle("on", !!DEEP_SHOW[b.dataset.dtg]); var r = $("dp-rsi"); if (r) r.hidden = !DEEP_SHOW.rsi;
+      if (INK.c && $("dp-chart")) mountDeep(INK.c);
+    }
+    else if (b.dataset.inkC) { INK.color = b.dataset.inkC; store.set("sentinel.ink.color", INK.color); document.querySelectorAll(".dp-sw").forEach(function (x) { x.classList.toggle("on", x === b); }); }
+    else if (b.dataset.inkW) { INK.w = +b.dataset.inkW; store.set("sentinel.ink.w", INK.w); document.querySelectorAll(".dp-wd").forEach(function (x) { x.classList.toggle("on", x === b); }); }
+    else if (b.dataset.inkOpen) { var sv = savedLoad().filter(function (x) { return x.id === b.dataset.inkOpen; })[0]; if (sv) openChart(sv.c, sv); }
+    else if (b.dataset.inkDel) { store.set("sentinel.ink.saved", JSON.stringify(savedLoad().filter(function (x) { return x.id !== b.dataset.inkDel; }))); toast("انحذفت الرسمة"); render(); }
     else {
       var a = b.dataset.dact, c = deepList()[DEEP_SEL];
-      if (a === "refresh") { DEEP = null; loadDeep(true); render(); }
+      if (a === "chart" && c) openChart(c);
+      else if (a === "chart-close") closeChart();
+      else if (a === "pen") inkMode(!INK.on);
+      else if (a === "ink-undo") { INK.strokes.pop(); inkStore(); INK.redraw && INK.redraw(); inkCount(); }
+      else if (a === "ink-clear") { INK.strokes = []; inkStore(); INK.redraw && INK.redraw(); inkCount(); }
+      else if (a === "ink-save") inkSave();
+      else if (a === "refresh") { DEEP = null; DEEP_PREV = null; loadDeep(true); render(); }
       else if (a === "fit" && DEEP_CH) DEEP_CH.main.timeScale().fitContent();
       else if (a === "report" && c) deepReport(c);
       else if (a === "close") { var sh = $("dp-sheet"); if (sh) sh.hidden = true; document.body.style.overflow = ""; }
     }
   });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { var sh = $("dp-sheet"); if (sh && !sh.hidden) { sh.hidden = true; document.body.style.overflow = ""; } } });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { var sh = $("dp-sheet"); if (sh && !sh.hidden) { sh.hidden = true; document.body.style.overflow = ""; } else closeChart(); } });
   /* ---------- مجلس الوكلاء (سكالبينق، من Worker المجلس) ---------- */
   var COUNCIL_URL = "https://sentinel-scalp.3pp3ll.workers.dev/api/council";
   var CN = null, CN_ERR = null, CN_AT = null, CN_TAB = store.get("sentinel.council.tab") || "agents";
