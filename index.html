@@ -477,6 +477,21 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
 .dp-ink.on { pointer-events: auto; cursor: crosshair; touch-action: none; }
 #dp-cm { position: fixed; inset: 0; z-index: 60; background: var(--shade); display: flex; justify-content: center; align-items: center; padding: 16px; }
 #dp-cm[hidden] { display: none; }
+.det-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.det-tabs { flex-wrap: wrap; }
+.det-tbl th { width: 26%; text-align: start; white-space: nowrap; vertical-align: top; }
+.det-tbl td { line-height: 1.7; white-space: normal; min-width: 0; }
+.det-tbl { table-layout: fixed; width: 100%; min-width: 0 !important; }
+.det-print-title { display: none; }
+@media (max-width: 640px) { .det-tbl th { white-space: normal; width: 34%; } }
+@media print {
+  .rail, .top, .hero, #filters, .det-head, .toast, #trial-box, .mnav { display: none !important; }
+  .det-print-title { display: block; margin-bottom: 8px; font-size: 13px; }
+  body, .panel { background: #fff !important; color: #000 !important; box-shadow: none !important; }
+  .panel { border: 0 !important; padding: 0 !important; }
+  .det-tbl th, .det-tbl td { color: #000 !important; background: #fff !important; border-bottom: 1px solid #ccc !important; }
+  .table-wrap { overflow: visible !important; }
+}
 #dp-cm.full { padding: 0; }
 #dp-cm.full .dp-cm-in { width: 100%; height: 100%; max-height: none; border-radius: 0; border: 0; }
 #dp-cm.full .dp-chart { flex: 1 1 auto; height: auto; min-height: 300px; }
@@ -553,6 +568,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       <a href="#symbols"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></svg>الرموز</a>
       <a href="#control"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></g></svg>لوحة التحكم</a>
       <a href="#settings"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></svg>الإعدادات</a>
+      <a href="#details"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></g></svg>تفاصيل الداشبورد</a>
       <a href="#pitch"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 12l3-3 2 2 4-4M12 16v4M8 20h8"/></g></svg>عرض المستثمر</a>
     </nav>
     <div class="rail-foot">
@@ -600,8 +616,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
   var CAT = { ai: "الذكاء الاصطناعي", leaders: "القيادية", gold: "الذهب", sa_leaders: "القيادية السعودية", sa_tech: "التقنية السعودية", cn_ai: "🇨🇳 الذكاء الاصطناعي الصيني", us_movers: "🔥 الأكثر حركة", sa_movers: "🔥 الأكثر حركة", sa_gold: "الذهب (تداول)" };
   var MKT = { us: "🇺🇸 الأمريكي", sa: "🇸🇦 السعودي" };
-  var PAGES = ["overview", "deep", "council", "forex", "alog", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "pitch"];
-  var TITLES = { deep: "سهم اليوم", council: "مجلس الوكلاء", forex: "TradingBrain Forex — Seconds Scalper", alog: "سجل المحلل", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات", pitch: "عرض المستثمر" };
+  var PAGES = ["overview", "deep", "council", "forex", "alog", "analysis", "signals", "purify", "archive", "reports", "symbols", "control", "settings", "details", "pitch"];
+  var TITLES = { deep: "سهم اليوم", council: "مجلس الوكلاء", forex: "TradingBrain Forex — Seconds Scalper", alog: "سجل المحلل", overview: "الأداء", analysis: "التحليل", signals: "سجل التوصيات", purify: "التطهير", archive: "الأرشيف الشهري", reports: "التقارير والتصدير", symbols: "الرموز", control: "لوحة التحكم", settings: "الإعدادات", details: "تفاصيل الداشبورد", pitch: "عرض المستثمر" };
   var $ = function (id) { return document.getElementById(id); };
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -673,7 +689,8 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     archive: function () { return "كل الشهور"; },
     control: function () { return "إعدادات التوصيات"; },
     symbols: function () { return "السوق الأمريكي والسعودي"; },
-    pitch: function () { return "تجربة 30 يوم · أرقام فعلية"; }
+    pitch: function () { return "تجربة 30 يوم · أرقام فعلية"; },
+    details: function () { return "آلية العمل · آخر تحديث " + DETAILS_AT; }
   };
   function trialStart() { return DATA && DATA.trial_start ? D(DATA.trial_start) : null; }
 
@@ -814,7 +831,7 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
   var cls = function (x) { return x > 0 ? "pos" : x < 0 ? "neg" : "zero"; };
 
   function filtersHtml(page) {
-    if (page === "deep" || page === "council" || page === "forex" || page === "alog" || page === "settings" || page === "archive" || page === "control" || page === "symbols" || page === "pitch") return "";
+    if (page === "deep" || page === "details" || page === "council" || page === "forex" || page === "alog" || page === "settings" || page === "archive" || page === "control" || page === "symbols" || page === "pitch") return "";
     var mk = monthKeys(), p = state.period;
     var chips = mk.map(function (k) { return '<button type="button" data-period="month:' + k + '" class="' + (p === "month:" + k ? "on" : "") + '">' + (k === monthKey(new Date()) ? "هذا الشهر · " : "") + monthName(k) + "</button>"; }).join("") +
       '<button type="button" data-period="all" class="' + (p === "all" ? "on" : "") + '">كل الفترة</button><button type="button" data-period="range" class="' + (p === "range" ? "on" : "") + '">فترة محددة</button>';
@@ -1208,10 +1225,88 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
       return '<button type="button" data-act="theme" data-t="' + x[0] + '" aria-pressed="' + (t === x[0]) + '"><span class="sw" style="background:' + x[3] + '"></span><span>' + x[1] + "<small>" + x[2] + "</small></span></button>";
     }).join("") + '</div><p class="note">زر الشمس والقمر فوق يبدّل بين الليلي والنهاري.' + '</p></div>';
   }
+  /* ---------- تفاصيل الداشبورد: آلية عمل كل صفحة (تتحدث يدوياً مع كل قرار) ---------- */
+  var DETAILS_AT = "2026-11-25";
+  var DETAILS = [
+    { id: "deep", name: "سهم اليوم", idea: "سهم واحد في اليوم من تحليل عميق، والتوصية تطلع بس إذا عدّت شرط الدقة. نتداول إعداد انعكاس RSI(2) بس (قرار مختبر 5).", rows: [
+      ["عدد التوصيات", "0 أو 1 في اليوم · تقريباً 14 بالشهر في الاختبار"],
+      ["شرط التوصية", "احتمال الهدف الأول 60% أو أكثر (الحد الأدنى للثقة 50%، و15 إشارة سابقة على الأقل، ومتوسط ربح +0.15R)"],
+      ["التجارب", "لين 5 مرشحين باليوم ما عدّوا الشرط يدخلون للتجربة وجمع البيانات (حلال، وبدون إعلان أرباح قريب)"],
+      ["الحساب", "Alpaca · تجريبي (Paper) · الحساب الثالث ALPACA_DEEP · بدون رافعة"],
+      ["حجم الصفقة", "3,000$ · ترتفع لـ4,500$ إذا الاحتمال 70%+ · و6,000$ إذا 80%+"],
+      ["الدخول", "افتتاح اليوم التالي للتحليل"],
+      ["الوقف", "1.5 × ATR تحت سعر الإغلاق"],
+      ["الأهداف", "1 و2 و3 × ATR · ثلث الكمية عند كل هدف"],
+      ["بعد الهدف الأول", "وقف الثلثين الباقيين ينتقل لسعر الدخول"],
+      ["المدة", "10 جلسات، بعدها تنقفل الصفقة"],
+      ["الفلاتر", "تطهير 10% أو أقل · فحص شرعي أحدث من 120 يوم · ما ندخل إذا فيه إعلان أرباح خلال 16 يوم"],
+      ["وقت التحليل", "كل يوم تداول 12:43 الليل بتوقيت الرياض · المتابعة كل 15 دقيقة وقت السوق"],
+      ["تيليجرام", "بطاقة لكل دخول وهدف ووقف، وفيها ربح الجزء وصافي الصفقة كاملة وأعلى ربح وصله السهم"],
+      ["المراجعة", "تحليل أسبوعي كل سبت 9:47 الصبح"],
+      ["نتيجة الاختبار", "سنتين (2024-11 إلى 2026-11): +4,239$ على 330 صفقة · أسوأ تراجع 2,023$"]] },
+    { id: "council", name: "مجلس الوكلاء", idea: "سكالبينق خلال اليوم على أسهم أمريكية شرعية كبيرة: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة وهو يقرر. الحين تجريبي لجمع البيانات.", rows: [
+      ["عدد الصفقات", "بدون عدد ثابت · لين 5 مفتوحة بنفس الوقت (2 إذا السوق أصفر)"],
+      ["الحساب", "Alpaca · تجريبي (Paper) · ALPACA_QUICK · Cloudflare Worker"],
+      ["حجم الصفقة", "500$ كحد أقصى للصفقة · وسعر السهم 500$ أو أقل"],
+      ["الوقف", "ATR × 1.5 بين 0.5% و1.2%"],
+      ["الهدف", "1% · ولازم الهدف 1.5 ضعف الوقف على الأقل"],
+      ["إدارة الصفقة", "الوقف على الدخول عند +0.5% · نص الكمية تطلع عند +0.8% · وقف زمني 10 دقايق"],
+      ["حد الخسارة اليومي", "50$ (صفقات المجلس بس) · بعدها يوقف لين اليوم الجاي"],
+      ["أوقات ممنوعة", "أول 30 دقيقة من الافتتاح · ما يدخل آخر 30 دقيقة · يقفل كل شي قبل الإغلاق بـ10 دقايق"],
+      ["الفلاتر", "فجوة افتتاح فوق 2.5% ممنوعة · لون السوق يتأكد بعد 3 دقايق · تطهير 10% أو أقل · القيمة السوقية 10 مليار+"],
+      ["الحالة", "🧪 تجريبي · الاختبارات ما أثبتت أفضلية، نكمل نجمع بيانات"]] },
+    { id: "swing", name: "التوصيات المتوسطة", idea: "توصيات تمسك أيام إلى أسابيع على السوق الأمريكي، تظهر في «الأداء» و«سجل التوصيات».", rows: [
+      ["الحساب", "Alpaca · تجريبي (Paper) · ALPACA (مشترك مع السريعة)"],
+      ["حجم الصفقة", "3,000$ · وأقصى استخدام للحساب 50% للمفتوحة"],
+      ["الأهداف", "الهدف الأول +10% · الثاني +20%"],
+      ["الوقف", "−5%"],
+      ["الدخول", "خلال 3 جلسات من التوصية، وإلا تنلغى"],
+      ["المدة", "بدون حد"],
+      ["التبريد", "السهم اللي يخسر يوقف: القيادي أسبوع بعد خسارتين، وغيره 3 أسابيع بعد خسارة"],
+      ["التشغيل", "الفحص والمتابعة كل 15 دقيقة من 4 العصر لين 12 الليل بتوقيت الرياض"]] },
+    { id: "quick", name: "التوصيات السريعة", idea: "صفقات قصيرة كم يوم على السوق الأمريكي، بنفس حساب المتوسطة (السهم ما يكون مفتوح في النوعين).", rows: [
+      ["الحساب", "Alpaca · تجريبي (Paper) · ALPACA (مشترك مع المتوسطة)"],
+      ["حجم الصفقة", "3,000$"],
+      ["الهدف", "+3%"],
+      ["الوقف", "−2%"],
+      ["الدخول", "خلال جلسة وحدة"],
+      ["المدة", "5 جلسات كحد أقصى"]] },
+    { id: "forex", name: "الفوركس TradingBrain", idea: "إكسبرت سكالبينق بالثواني على MT5. الداشبورد يعرض بس (قراءة فقط)، ما يرسل أوامر.", rows: [
+      ["الحساب", "Exness · MT5 Demo · رصيد مرجعي 2,000$"],
+      ["الزوج", "EURUSDm"],
+      ["حجم الصفقة", "0.01 لوت"],
+      ["القرار", "3 محللين (السعر، سرعة Tick، الفرصة) + الرئيس + حارس المخاطر"],
+      ["البيانات", "ملف latest.json في مستودع خاص · لسه بانتظار الربط"],
+      ["الحالة", "تجريبي على Demo فقط"]] },
+    { id: "general", name: "عام", idea: "أشياء تخص كل الداشبورد.", rows: [
+      ["السوق السعودي", "موقف (من 18-11)"],
+      ["الشرعية", "مراجعة ربعية للأسهم الحالية · السهم الجديد بدون فحص = لا توصية («لم يتم التحقق من شرعية السهم»)"],
+      ["الحساب الحقيقي (لاحقاً)", "دراية · 1,000$ · عمولة تقريباً 2.15$ للشراء و2.15$ للبيع · بقرار منك بس"],
+      ["التشغيل", "GitHub Actions بميزانية 15$ شهرياً · الدقايق تتجدد أول كل شهر"],
+      ["الأمان", "المفاتيح في GitHub وCloudflare بس · Paper فقط بدون رافعة · الكود ما ينعطى أحد"],
+      ["الداشبورد", "الموقع على الكمبيوتر هو الأساس · الجوال للمتابعة"]] }
+  ];
+  var DET_SEL = store.get("sentinel.details") || "deep";
+  function pageDetails() {
+    var d = DETAILS.filter(function (x) { return x.id === DET_SEL; })[0] || DETAILS[0];
+    var tabs = '<div class="seg det-tabs" role="tablist">' + DETAILS.map(function (x) { return '<button type="button" role="tab" data-det="' + x.id + '" class="' + (x.id === d.id ? "on" : "") + '" aria-selected="' + (x.id === d.id) + '">' + esc(x.name) + "</button>"; }).join("") + "</div>";
+    var tbl = '<div class="table-wrap"><table class="det-tbl"><tbody>' + d.rows.map(function (r) { return "<tr><th>" + esc(r[0]) + "</th><td>" + esc(r[1]) + "</td></tr>"; }).join("") + "</tbody></table></div>";
+    return '<section class="stack det"><div class="panel stack">' + '<div class="det-head">' + tabs + '<div class="row" style="gap:8px"><button class="btn ghost" data-det-act="print">🖨 طباعة</button><button class="btn" data-det-act="pdf">📄 تصدير PDF</button></div></div>' +
+      '<div class="det-print-title"><b>Sentinel Signals · تفاصيل الداشبورد</b> · ' + esc(d.name) + ' · <span class="num">' + DETAILS_AT + "</span></div>" +
+      "<h2>" + esc(d.name) + '</h2><p class="note">' + esc(d.idea) + "</p>" + tbl + "</div></section>";
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-det],[data-det-act]"); if (!b) return;
+    if (b.dataset.det) { DET_SEL = b.dataset.det; store.set("sentinel.details", DET_SEL); render(); return; }
+    if (b.dataset.detAct === "pdf") toast("اختر «حفظ كـ PDF» من نافذة الطباعة");
+    setTimeout(function () { window.print(); }, b.dataset.detAct === "pdf" ? 400 : 0);
+  });
+
   function pageSettings() {
     var tk = token();
     var status = DEMO ? "عرض تجريبي (ما يقرأ بياناتك)" : ERR === "token" ? "محتاج رمز وصول" : ERR === "401" ? "الرمز غير صحيح أو منتهي" : ERR === "404" ? "الرمز ما له صلاحية على sentinel-signals" : ERR === "net" ? "تعذر الاتصال بـ GitHub" + (ERR_DETAIL ? " (" + ERR_DETAIL + ")" : "") : DATA ? "مربوط ويقرأ بياناتك" : "جارٍ التحميل";
-    return '<section class="stack"><div class="panel stack"><h2>الربط بالبيانات</h2><p class="note">الحالة: <b>' + status + "</b>" + (tk ? " · الرمز: " + (tk.src === "meras" ? "رمز مراس على هذا الجهاز" : "رمز خاص بـ Sentinel") : "") + "</p>" +
+    return '<section class="stack"><div class="panel stack"><h2>آلية العمل</h2><p class="note">كل الأرقام اللي اتفقنا عليها لكل صفحة (عدد التوصيات، الحساب، حجم الصفقة، الوقف والأهداف) في جدول واحد، مع طباعة وتصدير PDF.</p><div><a class="btn" href="#details" style="text-decoration:none">📋 افتح تفاصيل الداشبورد</a></div></div>' +
+      '<div class="panel stack"><h2>الربط بالبيانات</h2><p class="note">الحالة: <b>' + status + "</b>" + (tk ? " · الرمز: " + (tk.src === "meras" ? "رمز مراس على هذا الجهاز" : "رمز خاص بـ Sentinel") : "") + "</p>" +
       (FETCHED ? '<p class="note">آخر تحديث للبيانات: <span class="num">' + ymd(FETCHED) + " " + FETCHED.toTimeString().slice(0, 5) + '</span>' + (DATA && DATA.generated_at ? " · آخر تشغيل للوكيل: <span class=\"num\">" + DATA.generated_at.replace("T", " ") + " UTC</span>" : "") + "</p>" : "") +
       '<form id="tk-form" class="stack" novalidate><div class="field"><label for="tk">رمز الوصول (اختياري إذا رمز مراس فيه صلاحية)</label><input id="tk" class="ltr" type="password" autocomplete="off" placeholder="github_pat_…"></div><div class="exports"><button class="btn" type="submit">احفظ وحدّث</button>' + (store.get("sentinel.token") ? '<button class="btn ghost" type="button" data-act="forget">احذف الرمز</button>' : "") + "</div></form>" +
       '<ol class="steps"><li>في GitHub: Settings ← Developer settings ← Personal access tokens ← Fine-grained tokens.</li><li>افتح رمز مراس واضغط <b>Edit</b>، وفي Repository access أضف <b>sentinel-signals</b> واحفظ. كذا التطبيق يستخدمه بدون ما تلصق شي.</li><li>أو سوّ رمز جديد لـ sentinel-signals بصلاحية Contents قراءة فقط، والصقه هنا.</li></ol>' +
@@ -1901,15 +1996,15 @@ ol.steps { margin: 0; padding-inline-start: 20px; display: grid; gap: 6px; font-
     $("page-title").textContent = TITLES[current]; $("top-title").textContent = TITLES[current];
     var range = periodRange();
     $("eyebrow").textContent = EYEBROW[current] ? EYEBROW[current]() : range.label + " · " + MKT[state.market].slice(MKT[state.market].indexOf(" ") + 1) + (state.strat === "all" ? "" : " · " + stratName(state.strat));
-    $("page-desc").textContent = { alog: "كل تحليل من محلل Sentinel على تيليجرام: أرقامه وسيناريوهاته وبطاقته، ونتيجته بعد 5 أيام تداول.", council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", forex: "سكالبينق بالثواني على حساب Exness Demo: حالة البوت، والمحللين، والصفقات بعد التكاليف. قراءة فقط.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والمظهر والتثبيت.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
+    $("page-desc").textContent = { alog: "كل تحليل من محلل Sentinel على تيليجرام: أرقامه وسيناريوهاته وبطاقته، ونتيجته بعد 5 أيام تداول.", council: "سكالبينق سريع على أسهم شرعية: 15 وكيل يرفعون تقاريرهم للرئيس كل دقيقة، وهو يقرر الدخول والخروج.", forex: "سكالبينق بالثواني على حساب Exness Demo: حالة البوت، والمحللين، والصفقات بعد التكاليف. قراءة فقط.", deep: "تحليل عميق يومي: الشارت وعليه الدخول والوقف والأهداف ونسبة كل هدف من تاريخ السهم نفسه.", overview: "نسبة النجاح والنتيجة تتحدث مع كل صفقة توصل هدف أو وقف.", analysis: "وين نربح ووين نخسر: حسب حجم الشركة والمصدر والسعر والتوقيت، مع قراءة تلقائية.", signals: "كل توصية طلعت في الفترة ونتيجتها.", purify: "كم تطهّر من أرباح كل صفقة، والربح بعد التطهير.", archive: "كل شهر بعداده، والسابق محفوظ.", reports: "صدّر أداء أي فترة كملف.", symbols: "شغّل أو أوقف التوصيات لكل رمز، مقسمة حسب السوق.", control: "حجم الصفقة والأهداف والروابط والمشتركين.", settings: "الربط والمظهر والتثبيت.", details: "آلية عمل كل صفحة في جدول: كم توصية، أي حساب، حجم الصفقة، الوقف والأهداف، والفلاتر.", pitch: "ملخص التجربة كاملة بالأرقام الفعلية، ووش تعلمنا، والقرارات اللي أخذناها." }[current];
     $("demo-chip").hidden = !DEMO;
     var rt = $("res-top"); rt.hidden = current !== "signals";
     if (current === "signals") rt.innerHTML = resSelect("x").replace(/^<select[^>]*>|<\/select>$/g, "");
     $("filters").innerHTML = filtersHtml(current);
     var v = $("view");
-    v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings" && current !== "council" && current !== "forex" && current !== "alog")
+    v.innerHTML = (ERR && ERR !== "net" && !DATA && current !== "settings" && current !== "details" && current !== "council" && current !== "forex" && current !== "alog")
       ? '<section><div class="empty"><b>' + (ERR === "token" ? "اربط التطبيق ببياناتك" : "ما قدرت أقرأ البيانات") + "</b>" + (ERR === "token" ? "من الإعدادات، خطوة وحدة." : "تأكد من رمز الوصول في الإعدادات.") + '</div><div style="margin-top:12px"><a class="btn" href="#settings" style="text-decoration:none">افتح الإعدادات</a></div></section>'
-      : ({ deep: pageDeep, council: pageCouncil, forex: function () { return window.FX ? window.FX.page() : ""; }, alog: pageAlog, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings, pitch: pagePitch }[current])();
+      : ({ deep: pageDeep, council: pageCouncil, forex: function () { return window.FX ? window.FX.page() : ""; }, alog: pageAlog, overview: pageOverview, analysis: pageAnalysis, signals: pageSignals, purify: pagePurify, archive: pageArchive, reports: pageReports, symbols: pageSymbols, control: pageControl, settings: pageSettings, details: pageDetails, pitch: pagePitch }[current])();
     if (dir) { v.classList.remove("enter-next", "enter-prev"); void v.offsetWidth; v.classList.add("enter-" + dir); }
     trialBox();
     var dt = $("deep-trial");
