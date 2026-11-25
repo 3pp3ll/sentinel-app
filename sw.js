@@ -1,5 +1,5 @@
 /* Sentinel: يفتح التطبيق بدون نت من آخر نسخة. البيانات دائماً من GitHub ومن Worker المجلس والمحلل. */
-const CACHE = "sentinel-v63";
+const CACHE = "sentinel-v64";
 const SHELL = ["./", "./index.html", "./forex.js", "./manifest.webmanifest", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {

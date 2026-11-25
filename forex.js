@@ -2,7 +2,6 @@
  *
  * حدود هذا الملف: عرض وتصفية ورسوم بس. ما فيه أي مفاتيح تداول، ولا أوامر، ولا تعديل إعدادات مخاطر.
  * مصدر البيانات طبقة مستقلة (FX_SOURCES) تنبدل لما يجهز الربط الفعلي:
- *   - sample : عينة توضيحية للمعاينة، مكتوب عليها إنها ليست صفقات منفذة.
  *   - github : ملف JSON في مستودع GitHub خاص (latest.json + أرشيف يومي days/YYYY-MM-DD.json).
  *   - url    : رابط JSON للقراءة (مثلاً Forex Worker على Cloudflare لاحقاً).
  * صيغة الملف موثقة في docs/forex-data.md.
@@ -15,7 +14,7 @@
     ".fx-sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}",
     ".fx-banner{margin:0 0 14px;padding:12px 16px;border-radius:14px;border:1px dashed color-mix(in srgb,var(--live) 60%,transparent);background:var(--live-soft);color:var(--fg);font-size:14px;line-height:1.7}",
     ".fx-banner.warn{border-color:var(--loss);background:var(--loss-soft)}",
-    ".pill.fx-sample{background:var(--live-soft);color:var(--live);border:1px dashed var(--live)}",
+    
     ".pill.fx-ro{background:var(--accent-soft);color:var(--fg)}",
     ".fx-status{margin-bottom:14px}.fx-st-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}",
     ".fx-name{font:700 18px var(--f-display)}.fx-name small{font-size:12px;color:var(--muted)}",
@@ -60,8 +59,9 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
   var STALE_MIN = 10;          // آخر نبضة أقدم من كذا = البيانات قديمة
-  var DEF = { kind: "sample", repo: "3pp3ll/tradingbrain-forex-data", path: "data/forex/latest.json", archive: "data/forex/days", url: "" };
+  var DEF = { kind: "github", repo: "3pp3ll/tradingbrain-forex-data", path: "data/forex/latest.json", archive: "data/forex/days", url: "" };
   var CFG = (function () { try { return Object.assign({}, DEF, JSON.parse(ls.get("sentinel.fx.src") || "{}")); } catch (e) { return Object.assign({}, DEF); } })();
+  if (CFG.kind === "sample") CFG.kind = "github";      // العينة التوضيحية انشالت: الصفحة تعرض الأرقام الحقيقية بس
   var F = (function () { try { return Object.assign({ period: "14", symbol: "all", side: "all", result: "all", kind: "all" }, JSON.parse(ls.get("sentinel.fx.filters") || "{}")); } catch (e) { return { period: "14", symbol: "all", side: "all", result: "all", kind: "all" }; } })();
   var DATA = null, ERR = null, AT = null, BUSY = false;
 
@@ -86,7 +86,7 @@
     return m < 1 ? "الحين" : m < 60 ? "قبل " + m + " د" : m < 1440 ? "قبل " + Math.round(m / 60) + " س" : "قبل " + Math.round(m / 1440) + " يوم";
   };
 
-  var KIND = { demo_broker: ["تنفيذ Demo من الوسيط", "live"], simulation: ["محاكاة", "muted"], sample: ["عينة توضيحية", "fx-sample"] };
+  var KIND = { demo_broker: ["تنفيذ Demo من الوسيط", "live"], simulation: ["محاكاة", "muted"] };
   var SIDE = { buy: "شراء", sell: "بيع" };
   var VOTE = { BUY: ["شراء", "win"], SELL: ["بيع", "loss"], NEUTRAL: ["محايد", "muted"], WAIT: ["انتظار", "muted"], PASS: ["يمر", "win"], FAIL: ["ما يمر", "loss"] };
   var DECISION = { ENTER_BUY: ["دخول شراء", "win"], ENTER_SELL: ["دخول بيع", "loss"], WAIT: ["انتظار", "muted"], REJECT: ["رفض", "loss"] };
@@ -102,49 +102,8 @@
   var reasonTxt = function (c, fallback) { return c ? (REASON[c] || c) : (fallback || "—"); };
   var pill = function (m, k) { var x = m[k] || [k || "—", "muted"]; return '<span class="pill ' + x[1] + '">' + esc(x[0]) + "</span>"; };
 
-  /* ---------- عينة توضيحية (ثابتة، مو عشوائية كل مرة) ---------- */
-  function sample() {
-    var seed = 20261123, rnd = function () { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
-    var now = Date.now(), trades = [], decisions = [], bal = 2000, id = 0;
-    var codes = ["SPREAD_TOO_WIDE", "LOW_TICK_SPEED", "NO_MOMENTUM", "TREND_CONFLICT", "STALE_SIGNAL", "COST_TOO_HIGH"];
-    for (var d = 11; d >= 0; d--) {
-      var base = new Date(now - d * 864e5); base.setUTCHours(7, 0, 0, 0);
-      if (base.getUTCDay() === 0 || base.getUTCDay() === 6) continue;   // الفوركس مسكّر نهاية الأسبوع
-      var n = Math.floor(rnd() * 4);
-      for (var w = 0; w < 18; w++) {
-        var t = new Date(base.getTime() + rnd() * 10 * 36e5);
-        if (t.getTime() > now) continue;
-        decisions.push({ timestamp_utc: t.toISOString(), president_decision: rnd() < .12 ? "REJECT" : "WAIT", rejection_code: codes[Math.floor(rnd() * codes.length)] });
-      }
-      for (var i = 0; i < n; i++) {
-        var op = new Date(base.getTime() + (1 + rnd() * 9) * 36e5); if (op.getTime() > now - 6e4) continue;
-        var side = rnd() < .5 ? "buy" : "sell", px = 1.05 + rnd() * .03, win = rnd() < .52, hold = Math.round(12 + rnd() * 30);
-        var slip = Math.round(rnd() * 6) / 10, pts = win ? 120 : -80, cls = op.getTime() + hold * 1e3;
-        var fill = +(px + (side === "buy" ? 1 : -1) * slip * 1e-5).toFixed(5), close = +(fill + (side === "buy" ? 1 : -1) * pts * 1e-5).toFixed(5);
-        var net = +((pts / 10) * 0.1 - 0.07).toFixed(2); bal = +(bal + net).toFixed(2);
-        id++;
-        trades.push({ event_id: "sample-" + id, kind: "sample", symbol: "EURUSDm", side: side, lot: 0.01, order_id: "S" + (5000 + id), deal_id: "S" + (9000 + id), position_id: "S" + (7000 + id),
-          requested_price: +px.toFixed(5), fill_price: fill, close_price: close, sl: +(fill - (side === "buy" ? 1 : -1) * 80e-5).toFixed(5), tp: +(fill + (side === "buy" ? 1 : -1) * 120e-5).toFixed(5),
-          open_time_utc: op.toISOString(), close_time_utc: new Date(cls).toISOString(), broker_commission: 0.07, fees: 0, swap: 0, spread_observed: +(0.6 + rnd() * .6).toFixed(1), slippage_observed: slip,
-          realized_pnl_net: net, balance: bal, holding_seconds: hold, execution_latency_ms: Math.round(40 + rnd() * 160) });
-        decisions.push({ timestamp_utc: op.toISOString(), president_decision: side === "buy" ? "ENTER_BUY" : "ENTER_SELL", rejection_code: null });
-      }
-    }
-    decisions.sort(function (a, b) { return a.timestamp_utc < b.timestamp_utc ? -1 : 1; });
-    var hb = new Date(now - 40e3).toISOString();
-    return {
-      schema_version: "1.0", producer_id: "sample", environment: "demo", account_alias: "Exness Demo (عينة)", generated_at_utc: hb, _sample: true,
-      bot: { name: "TradingBrain_Seconds_Demo_V1", version: "1.10", symbol: "EURUSDm", site: "LOCAL_DEMO", state: "ARMED_DEMO_ONLY", execution_enabled: true, last_heartbeat_utc: hb },
-      account: { balance: bal, equity: +(bal + 0.12).toFixed(2), reference_balance: 2000 },
-      agents: { at_utc: hb, price_vote: "BUY", price_note: "الاتجاه القصير صاعد", tick_speed_vote: "WAIT", tick_note: "سرعة Tick تحت الحد", opportunity_vote: "FAIL", opportunity_note: "التكلفة عالية مقابل الهدف",
-        president_decision: "WAIT", risk_guardian: "OK", risk_guardian_reason: null, rejection_code: "LOW_TICK_SPEED" },
-      trades: trades, open_positions: [], decisions: decisions
-    };
-  }
-
   /* ---------- طبقة مصدر البيانات (قابلة للاستبدال) ---------- */
   var FX_SOURCES = {
-    sample: { label: "عينة توضيحية", load: function () { return Promise.resolve(sample()); } },
     github: {
       label: "GitHub خاص",
       load: function () {
@@ -187,19 +146,17 @@
   }
   function load(force) {
     if (BUSY) return; BUSY = true;
-    var src = FX_SOURCES[CFG.kind] || FX_SOURCES.sample;
+    var src = FX_SOURCES[CFG.kind] || FX_SOURCES.github;
     src.load().then(function (d) { DATA = norm(d); ERR = null; AT = new Date(); if (force && SN().toast) SN().toast("تم تحديث بيانات الفوركس"); })
       .catch(function (e) { ERR = e && e.code ? e.code : "net"; })
       .then(function () { BUSY = false; if (SN().rerender) SN().rerender(); });
   }
-  // تنظيف: الصفقة من مصدر حقيقي بدون kind تعتبر demo_broker، ومن العينة sample
+  // تنظيف: الصفقة بدون kind تعتبر demo_broker
   function norm(d) {
     d = d || {};
-    var sampleSrc = CFG.kind === "sample" || d._sample;
-    d.trades = (d.trades || []).map(function (t) { return Object.assign({}, t, { kind: sampleSrc ? "sample" : (t.kind || "demo_broker"), side: String(t.side || "").toLowerCase() }); })
+    d.trades = (d.trades || []).map(function (t) { return Object.assign({}, t, { kind: t.kind || "demo_broker", side: String(t.side || "").toLowerCase() }); })
       .sort(function (a, b) { return (b.close_time_utc || b.open_time_utc || "") < (a.close_time_utc || a.open_time_utc || "") ? -1 : 1; });
     d.decisions = (d.decisions || []).slice().sort(function (a, b) { return a.timestamp_utc < b.timestamp_utc ? 1 : -1; });
-    d._sample = sampleSrc;
     return d;
   }
 
@@ -279,10 +236,10 @@
     var conn = !hb ? ["ما وصلت نبضة (MISSING)", "loss"] : age > STALE_MIN ? ["البيانات قديمة (STALE)", "live"] : ["متصل", "win"];
     return '<section class="panel fx-status"><div class="fx-st-head"><div><div class="fx-name">' + esc(b.name || "TradingBrain") + (b.version ? ' <small class="num">v' + esc(b.version) + "</small>" : "") + "</div>" +
       '<div class="note">' + esc(DATA.account_alias || "حساب Demo") + " · " + esc(b.symbol || "—") + (b.site ? " · " + esc(b.site) : "") + "</div></div>" +
-      '<div class="fx-chips">' + pill(BOT, b.state) + '<span class="pill ' + conn[1] + '">' + conn[0] + '</span><span class="pill fx-ro">🔒 قراءة فقط</span>' + (DATA.environment === "demo" || DATA._sample ? '<span class="pill live">DEMO</span>' : '<span class="pill loss">بيئة غير Demo!</span>') + "</div></div>" +
+      '<div class="fx-chips">' + pill(BOT, b.state) + '<span class="pill ' + conn[1] + '">' + conn[0] + '</span><span class="pill fx-ro">🔒 قراءة فقط</span>' + (DATA.environment === "demo" ? '<span class="pill live">DEMO</span>' : '<span class="pill loss">بيئة غير Demo!</span>') + "</div></div>" +
       '<div class="fx-st-row"><div><span class="k">آخر تحديث</span><b class="num">' + (hb ? ryd(hb) + " الرياض" : "—") + '</b><small class="num">' + (hb ? utc(hb) + " UTC · " + ago(hb) : "") + "</small></div>" +
       '<div><span class="k">التنفيذ في الإكسبرت</span><b>' + (b.execution_enabled === true ? "مفعّل (Demo)" : b.execution_enabled === false ? "غير مفعّل" : "غير معروف") + "</b></div>" +
-      '<div><span class="k">المصدر</span><b>' + esc((FX_SOURCES[CFG.kind] || FX_SOURCES.sample).label) + '</b><small class="num">' + (AT ? "قرأته " + ago(AT.toISOString()) : "") + "</small></div></div></section>";
+      '<div><span class="k">المصدر</span><b>' + esc((FX_SOURCES[CFG.kind] || FX_SOURCES.github).label) + '</b><small class="num">' + (AT ? "قرأته " + ago(AT.toISOString()) : "") + "</small></div></div></section>";
   }
   function kpis(st) {
     var a = DATA.account || {};
@@ -318,7 +275,7 @@
       sel("symbol", "الرمز", [["all", "الكل"]].concat(Object.keys(syms).sort().map(function (s) { return [s, s]; }))) +
       sel("side", "الاتجاه", [["all", "الكل"], ["buy", "شراء"], ["sell", "بيع"]]) +
       sel("result", "النتيجة", [["all", "الكل"], ["win", "ربح"], ["loss", "خسارة"], ["flat", "تعادل"]]) +
-      sel("kind", "النوع", [["all", "الكل"], ["demo_broker", "تنفيذ Demo"], ["simulation", "محاكاة"], ["sample", "عينة"]]) + "</div>";
+      sel("kind", "النوع", [["all", "الكل"], ["demo_broker", "تنفيذ Demo"], ["simulation", "محاكاة"]]) + "</div>";
   }
   function tradesTable(list) {
     if (!list.length) return '<div class="empty fx-empty"><b>ما فيه صفقات بهالفلاتر</b>' + (DATA.trades.length ? "غيّر الفترة أو الفلتر." : "ما سجل الإكسبرت أي صفقة للحين. قرارات الانتظار تحت.") + "</div>";
@@ -347,7 +304,7 @@
   function sourcePanel() {
     var o = function (k) { return '<option value="' + k + '"' + (CFG.kind === k ? " selected" : "") + ">" + FX_SOURCES[k].label + "</option>"; };
     return '<details class="panel fx-src"' + (ERR ? " open" : "") + "><summary><b>مصدر البيانات</b> · " + esc((FX_SOURCES[CFG.kind] || {}).label || "") + '</summary><div class="fx-src-in">' +
-      '<label><span>النوع</span><select id="fx-kind">' + o("sample") + o("github") + o("url") + "</select></label>" +
+      '<label><span>النوع</span><select id="fx-kind">' + o("github") + o("url") + "</select></label>" +
       '<label data-fx-for="github"><span>المستودع (خاص)</span><input id="fx-repo" dir="ltr" value="' + esc(CFG.repo) + '"></label>' +
       '<label data-fx-for="github"><span>ملف آخر لقطة</span><input id="fx-path" dir="ltr" value="' + esc(CFG.path) + '"></label>' +
       '<label data-fx-for="github"><span>مجلد الأرشيف اليومي</span><input id="fx-archive" dir="ltr" value="' + esc(CFG.archive) + '"></label>' +
@@ -360,12 +317,11 @@
   function page() {
     if (!DATA && !ERR) { load(); return '<section><div class="empty"><b>جاري تحميل بيانات الفوركس…</b></div></section>' + sourcePanel(); }
     if (!DATA) {
-      var msg = { token: ["اربط رمز GitHub من الإعدادات", "مصدر GitHub يحتاج رمز وصول."], nourl: ["ما فيه رابط", "حط رابط JSON في مصدر البيانات."], 401: ["الرمز ما يخص المستودع", "تأكد إن الرمز عنده صلاحية قراءة على مستودع الفوركس."], 403: ["الرمز ما عنده صلاحية", "أضف مستودع الفوركس لصلاحيات الرمز (Contents: Read)."], 404: ["ما لقيت الملف", "تأكد من اسم المستودع ومسار الملف. إذا الربط لسه ما جهز، اختر «عينة توضيحية»."] }[ERR] || ["ما قدرت أقرأ البيانات", "تأكد من النت وجرب التحديث."];
+      var msg = { token: ["اربط رمز GitHub من الإعدادات", "مصدر GitHub يحتاج رمز وصول."], nourl: ["ما فيه رابط", "حط رابط JSON في مصدر البيانات."], 401: ["الرمز ما يخص المستودع", "تأكد إن الرمز عنده صلاحية قراءة على مستودع الفوركس."], 403: ["الرمز ما عنده صلاحية", "أضف مستودع الفوركس لصلاحيات الرمز (Contents: Read)."], 404: ["بانتظار الأرقام الحقيقية", "لسه ما وصل ملف البيانات. أول ما ينرفع latest.json على المستودع تظهر الأرقام هنا."] }[ERR] || ["ما قدرت أقرأ البيانات", "تأكد من النت وجرب التحديث."];
       return '<section><div class="empty"><b>' + msg[0] + "</b>" + msg[1] + "</div></section>" + sourcePanel();
     }
     var list = filtered(), st = stats(list), dec = DATA.decisions.filter(function (x) { return inPeriod(x.timestamp_utc); });
-    return (DATA._sample ? '<div class="fx-banner" role="note"><b>عينة توضيحية للمعاينة</b> · هذي الأرقام مولّدة لعرض شكل الصفحة، <b>وليست صفقات منفذة</b>. لما يجهز الربط الفعلي من MT5 تتبدل من «مصدر البيانات» تحت.</div>' : "") +
-      (ERR && DATA ? '<div class="fx-banner warn">آخر تحديث فشل، المعروض آخر نسخة محفوظة.</div>' : "") +
+    return (ERR && DATA ? '<div class="fx-banner warn">آخر تحديث فشل، المعروض آخر نسخة محفوظة.</div>' : "") +
       statusCard() + kpis(st) + agentsCard() +
       '<section class="panel">' + filtersBar() + "</section>" +
       '<section class="fx-grid"><div class="panel"><h2>الصافي التراكمي</h2>' + curveSvg(st.curve) + '</div><div class="panel"><h2>الصافي اليومي</h2>' + dailyBars(st.days) + "</div></section>" +
@@ -383,7 +339,7 @@
     if (b.dataset.fxAct === "refresh") { load(true); return; }
     if (b.dataset.fxAct === "save") {
       var v = function (id) { var x = document.getElementById(id); return x ? x.value.trim() : ""; };
-      CFG = { kind: v("fx-kind") || "sample", repo: v("fx-repo") || DEF.repo, path: v("fx-path") || DEF.path, archive: v("fx-archive"), url: v("fx-url") };
+      CFG = { kind: v("fx-kind") || "github", repo: v("fx-repo") || DEF.repo, path: v("fx-path") || DEF.path, archive: v("fx-archive"), url: v("fx-url") };
       if (CFG.url && !/^https:\/\//.test(CFG.url)) { if (SN().toast) SN().toast("الرابط لازم يبدأ بـ https://"); return; }
       ls.set("sentinel.fx.src", JSON.stringify(CFG)); DATA = null; ERR = null; load(true);
     }
@@ -393,5 +349,5 @@
     if (s.dataset.fxS) { F[s.dataset.fxS] = s.value; saveF(); }
   });
 
-  window.FX = { page: page, load: load, sources: FX_SOURCES, info: function () { return DATA && DATA.bot ? DATA.bot : { symbol: "EURUSDm" }; }, _stats: stats, _sample: sample };
+  window.FX = { page: page, load: load, sources: FX_SOURCES, info: function () { return DATA && DATA.bot ? DATA.bot : { symbol: "EURUSDm" }; }, _stats: stats };
 })();
